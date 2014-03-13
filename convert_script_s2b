@@ -1,0 +1,105 @@
+#!/bin/bash
+######################################################
+# SpineML to BRAHMS platform specific wrapper ('NIX) #
+# Alex Cope 2012 /Updated 2013  			 	     #
+######################################################
+#INPUT=$1
+#BRAHMS_NS=$2
+#REBUILD=$3
+# remove old reports
+rm temp/rep*xml* &> /dev/null
+rm temp/sys* &> /dev/null
+rm temp/output_script &> /dev/null
+set -e
+# startup stuff
+if [ $(uname) == 'Linux' ]; then
+if [ $(uname -i) == 'i686' ]; then
+OS='Linux32'
+else
+OS='Linux64'
+fi
+else
+OS='OSX'
+fi
+if [ $(cat current_os) == "$OS" ]; then
+echo "Tools compiled correctly"
+else
+echo "OS change detected, recompiling tools..."
+cd tools/dev/SpineML/tools/
+cd allToAll/brahms/0/
+./build
+cd ../../..
+cd fixedProbability/brahms/0/
+./build
+cd ../../..
+cd explicitList/brahms/0/
+./build
+cd ../../..
+cd AnalogConstantInput/brahms/0/
+./build
+cd ../../..
+cd AnalogTimeVaryingInput/brahms/0/
+./build
+cd ../../..
+cd EventConstantInput/brahms/0/
+./build
+cd ../../..
+cd EventTimeVaryingInput/brahms/0/
+./build
+cd ../../..
+cd externalInput/brahms/0/
+./build
+cd ../../..
+cd externalOutput/brahms/0/
+./build
+cd ../../..
+cd ../../../..
+echo $OS &> current_os
+fi
+
+# create script (platform specific)
+if [ $OS == 'Linux32' ]; then
+xsltproc -o ./temp/output.script ./xsl/SpineML_2_BRAHMS_write_script_linux.xsl ./model/experiment.xml 
+fi
+if [ $OS == 'Linux64' ]; then
+xsltproc -o ./temp/output.script ./xsl/SpineML_2_BRAHMS_write_script_linux.xsl ./model/experiment.xml 
+fi
+if [ $OS == 'OSX' ]; then
+xsltproc -o ./temp/output.script ./xsl/SpineML_2_BRAHMS_write_script_osx.xsl ./model/experiment.xml 
+fi
+#$INPUT 
+# script permissions
+if [ -e "./temp/output.script" ]
+then
+chmod +x ./temp/output.script
+else
+echo "ERROR: conversion script not created - is xsltproc installed?"
+exit -1
+fi
+# run script
+if [ -z $BRAHMS_NS ]; then
+echo "USING DEFAULTS!"
+if [ $OS == 'Linux32' ]; then
+export SYSTEMML_INSTALL_PATH="/usr/local/SystemML"
+BRAHMS_NS="./Namespace"
+REBUILD="false"
+fi
+if [ $OS == 'Linux64' ]; then
+export SYSTEMML_INSTALL_PATH="/usr/local/SystemML"
+BRAHMS_NS="./Namespace"
+REBUILD="false"
+fi
+if [ $OS == 'OSX' ]; then
+export SYSTEMML_INSTALL_PATH="/Applications/SystemML"
+BRAHMS_NS="/Users/alex/Downloads/SpineML_2_BRAHMS/temp/Namespace"
+REBUILD="false"
+fi
+cd temp
+./output.script experiment.xml $REBUILD $BRAHMS_NS
+cd ..
+else
+cd temp
+./output.script experiment.xml $REBUILD $BRAHMS_NS
+cd ..
+fi
+
