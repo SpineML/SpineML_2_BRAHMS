@@ -1,5 +1,5 @@
 SUBDIRS = brahms
 
 EXTRA_DIST = node.xml
-xmldir=@libdir@/spineml-2-brahms/externalOutput
+xmldir=@libdir@/spineml-2-brahms/dev/SpineML/tools/externalOutput
 xml_DATA = $(EXTRA_DIST)

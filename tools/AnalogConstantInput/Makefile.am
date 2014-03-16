@@ -1,5 +1,5 @@
 SUBDIRS = brahms
 
 EXTRA_DIST = node.xml
-xmldir=@libdir@/spineml-2-brahms/AnalogConstantInput
+xmldir=@libdir@/spineml-2-brahms/dev/SpineML/tools/AnalogConstantInput
 xml_DATA = $(EXTRA_DIST)
