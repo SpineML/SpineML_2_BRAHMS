@@ -107,21 +107,28 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			for (int i = 0; i < size.size(); ++i) {
 				numElementsOut *= size[i];
 			}	
-		
+
 			// get the connectivity
 			if (nodeState.hasField("_bin_file_name")) {
-			
-            	string fileName = nodeState.getField("_bin_file_name").getSTRING();
-            	int _num_conn = (int) nodeState.getField("_bin_num_conn").getDOUBLE();
-            	bool _has_delay = (bool) nodeState.getField("_bin_has_delay").getDOUBLE();
-				
+
+				string fileName = nodeState.getField("_bin_file_name").getSTRING();
+				int _num_conn = (int) nodeState.getField("_bin_num_conn").getDOUBLE();
+				bool _has_delay = (bool) nodeState.getField("_bin_has_delay").getDOUBLE();
+
 				// open the file for reading
 				FILE * binfile;
+				// FIXME: We really need an absolute path here, generated at runtime
 				fileName = "../model/" + fileName;
 				binfile = fopen(fileName.c_str(),"rb");
-				
-				if (!binfile)
-					berr << "Could not open connectivity file";
+				if (!binfile) {
+					// That failed; try the default location for
+					// spineml-2-brahms on a Unix system:
+					fileName = "~/spineml-2-brahms/model/" + fileName;
+					binfile = fopen(fileName.c_str(),"rb");
+					if (!binfile) {
+						berr << "Could not open connectivity file";
+					}
+				}
 
 				srcInds.resize(_num_conn);
 				dstInds.resize(_num_conn);
