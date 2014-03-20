@@ -14,6 +14,8 @@
 
 # The default location for the spineml-2-brahms temporary files and input model(s)
 SPINEML_2_BRAHMS_DIR=$HOME"/spineml-2-brahms"
+echo "SPINEML_2_BRAHMS_DIR=$SPINEML_2_BRAHMS_DIR"
+
 # User may have SpineML_2_BRAHMS in their home directory, in which
 # case use that instead (this is for developers to use a localised
 # version of SpineML_2_BRAHMS, and for Mac)
@@ -52,7 +54,7 @@ fi
 # toolspace? If NOT then we check if we need to compile using the
 # build scripts.
 
-if [ -f /usr/lib/spineml-2-brahms/allToAll/brahms/0/component.so ]; then
+if [ -d /usr/lib/spineml-2-brahms ]; then
     # We have a pre-compiled spineml-2-brahms
     echo "You have a pre-compiled spineml-2-brahms namespace installed. Copying this into your spineml-2-brahms dir"
     set -e
@@ -62,7 +64,7 @@ if [ -f /usr/lib/spineml-2-brahms/allToAll/brahms/0/component.so ]; then
 else 
     # Check whether we need to build the spineml-2-brahms namespace
     set -e # This tells bash to exit on any unsuccessful command (reverse with set +e)
-    if [ $(cat current_os) == "$OS" ]; then
+    if [ $(cat current_os) = "$OS" ]; then
         echo "Tools compiled correctly"
     else
         echo "OS change detected, recompiling tools..."
@@ -187,7 +189,9 @@ fi
 
 # run the script
 pushd $SPINEML_2_BRAHMS_DIR/temp
-./output.script experiment.xml $REBUILD $BRAHMS_NS $XSL_SCRIPT_PATH
+echo "In directory: " `pwd`
+echo "Execute: ./output.script experiment.xml $REBUILD $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH"
+./output.script experiment.xml $REBUILD $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH
 if [ "$?" -ne "0" ]; then
     echo "Failed to run output.script on the experiment.xml. Falling at the last hurdle."
     exit -1;
