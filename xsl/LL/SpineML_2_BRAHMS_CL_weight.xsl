@@ -286,11 +286,11 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				
 				// open the file for reading
 				FILE * binfile;
-				fileName = "../model/" + fileName;
+				fileName = "<xsl:value-of select="$spineml_2_brahms_dir"/>/model/" + fileName;
 				binfile = fopen(fileName.c_str(),"rb");
 				
 				if (!binfile)
-					berr &lt;&lt; "Could not open connectivity file";
+					berr &lt;&lt; "Could not open connectivity file: " &lt;&lt; fileName;
 
 				srcInds.resize(_num_conn);
 				dstInds.resize(_num_conn);
