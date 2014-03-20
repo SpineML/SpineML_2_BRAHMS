@@ -11,7 +11,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
 <!-- Here we use the population number to determine which Neuron type we are outputting -->
 <xsl:variable name="number"><xsl:number count="/SMLLOWNL:SpineML/SMLLOWNL:Population" format="1"/></xsl:variable>
-<xsl:if test="$number = number(document(concat($spineml_2_brahms_dir,'/temp/counter.file')/Number)">
+<xsl:if test="$number = number(document(concat($spineml_2_brahms_dir,'/temp/counter.file'))/Number)">
 
 <xsl:variable name="linked_file" select="document(./SMLLOWNL:Neuron/@url)"/>
 <xsl:variable name="process_name"><xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/></xsl:variable>
