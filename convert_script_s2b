@@ -90,11 +90,11 @@ if [ -d /usr/lib/spineml-2-brahms ]; then
 else 
     # Check whether we need to build the spineml-2-brahms namespace
     set -e # This tells bash to exit on any unsuccessful command (reverse with set +e)
-    if [ $(cat current_os) = "$OS" ]; then
+    if [ "x$(cat current_os)" = "x$OS" ]; then
         echo "Tools compiled correctly"
     else
         echo "OS change detected, recompiling tools..."
-        pushd tools/dev/SpineML/tools/
+        pushd tools
         pushd allToAll/brahms/0/
         ./build
         popd
