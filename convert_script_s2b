@@ -8,36 +8,62 @@
 #
 ##############################################################
 
-#INPUT=$1
-#BRAHMS_NS=$2
-#REBUILD=$3
+
+function usage () {
+   cat <<EOF
+
+usage: $0 [options]
+
+convert_script_s2b is generally invoked by SpineCreator, though
+it can also be invoked manually as long as there is a model in
+SPINEML_2_BRAHMS_DIR/model/
+
+Options are:
+
+  -w dirpath   Set the working directory - SPINEML_2_BRAHMS_DIR. If left un set, This will
+               default either to $HOME/SpineML_2_BRAHMS (only if it already exists) or to
+               $HOME/spineml-2-brahms.
+
+EOF
+   exit 0
+}
 
 # The default location for the spineml-2-brahms temporary files and input model(s)
 SPINEML_2_BRAHMS_DIR=$HOME"/spineml-2-brahms"
-echo "SPINEML_2_BRAHMS_DIR=$SPINEML_2_BRAHMS_DIR"
-
 # User may have SpineML_2_BRAHMS in their home directory, in which
 # case use that instead (this is for developers to use a localised
 # version of SpineML_2_BRAHMS, and for Mac)
 if [ -d $HOME/SpineML_2_BRAHMS ]; then
-    echo "Working with your $HOME/SpineML_2_BRAHMS installation"
+    # Working with a $HOME/SpineML_2_BRAHMS installation - "in-place" style.
     SPINEML_2_BRAHMS_DIR=$HOME/SpineML_2_BRAHMS
 fi
 
-# Do we have the ~/spineml-2-brahms/SpineML_2_BRAHMS directory in
-# place? If not, create it.
+# Parse cmd line options
+while getopts w:\? opt
+do
+    case "$opt" in
+        w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
+            ;;
+        \?) usage
+            ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+# Do we have the ~/spineml-2-brahms directory in place? If not, create
+# it.
 if [ ! -d $SPINEML_2_BRAHMS_DIR ]; then
     mkdir -p $SPINEML_2_BRAHMS_DIR
     if [ "$?" -ne "0" ]; then
         echo "Failed to create directory $SPINEML_2_BRAHMS_DIR. Exiting."
         exit -1;
     fi
-    # Make sure we have both model and temp directories.
-    set -e
-    mkdir -p $SPINEML_2_BRAHMS_DIR/model
-    mkdir -p $SPINEML_2_BRAHMS_DIR/temp
-    set +e
 fi
+# Make sure we have both model and temp directories.
+set -e
+mkdir -p $SPINEML_2_BRAHMS_DIR/model
+mkdir -p $SPINEML_2_BRAHMS_DIR/temp
+set +e
 
 # What OS are we?
 if [ $(uname) == 'Linux' ]; then
@@ -108,15 +134,14 @@ fi
 # Check if we have packaged/pre-installed xsl scripts
 XSL_SCRIPT_PATH="$SPINEML_2_BRAHMS_DIR/xsl"
 if [ -f "/usr/share/spineml-2-brahms/xsl/SpineML_2_BRAHMS_write_script_linux.xsl" ]; then
-    echo "You have a preinstalled/packaged version of the SpineML to BRAHMS xsl scripts"
+    echo "Using packaged version of the SpineML to BRAHMS xsl scripts"
     XSL_SCRIPT_PATH="/usr/share/spineml-2-brahms/xsl/"
 fi
 
 # First check we have an experiment.xml file to work from.
 # Could use cmd-line arg $INPUT here for the experiment file.
 if [ ! -f $SPINEML_2_BRAHMS_DIR/model/experiment.xml ]; then
-    echo "There's no experiment description to work from in"
-    echo "$SPINEML_2_BRAHMS_DIR/model/experiment.xml"
+    echo "No experiment description to work from in $SPINEML_2_BRAHMS_DIR/model/experiment.xml"
     echo "Exiting."
     exit -1
 fi
