@@ -1,0 +1,8 @@
+error:#->#Simulation failed: Compiler error detected. This means that one or more components were not compiled. Please attach the text in the details to a bug report to http://bimpa.group.shef.ac.uk/SpineML/bugs/my_view_page.php.
+E_CIRCULAR_REFERENCE#->#Simulation failed: BRAHMS has detected a loop in the model with zero delays. This cannot be solved iteratively. Please add a delay into the loop (see details for the Components involved in the loop).
+Segmentation#->#The simulator has crashed. Please send the text in details below as a bug report to http://bimpa.group.shef.ac.uk/SpineML/bugs/my_view_page.php.
+E_MODULE_NOT_FOUND#->#Simulation failed: BRAHMS cannot find a Component. This is most likely due to a compile error. Please send in a bug report to http://bimpa.group.shef.ac.uk/SpineML/bugs/my_view_page.php and attach the project that causes the error.
+Agreeing to the Xcode/iOS license requires admin privileges#->#You need to agree to the updated Xcode license agreement (thanks, Apple) - run 'sudo xcrun cc' from a Terminal and agree to the license
+E_USER: Out of range#->#An out of range index was passed to the Simulator
+E_NOT_FOUND: port named#->#Simulator reports that one of your components does not have a required input. Check that there are inputs to all your Component ports.
+E_USER: Error connecting to External program#->#Could not connect to the required external program: are the port numbers matching?
