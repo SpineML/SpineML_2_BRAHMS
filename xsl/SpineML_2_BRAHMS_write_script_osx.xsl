@@ -54,9 +54,9 @@ cp ../model/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> ./component.cpp ../i
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/release.xml
 
 if [ $DEBUG = "true" ]; then
-echo 'g++ -g -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32  -Werror  -O0 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
+echo 'g++ -g -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32    -O0 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
 else
-echo 'g++ -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32  -Werror  -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
+echo 'g++ -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32    -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
 fi
 cd $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
@@ -98,10 +98,10 @@ mkdir -p $DIRNAME
 cp ../model/<xsl:value-of select="$wu_url"/> ./component.cpp ../include/rng.h ../include/impulse.h $DIRNAME/
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $DIRNAME/release.xml
 if [ $DEBUG = "true" ]; then
-echo 'g++ -g -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -Werror  -O0 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
+echo 'g++ -g -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC   -O0 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
 cd $DIRNAME/
 else 
-echo 'g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -Werror  -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
+echo 'g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC   -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
 cd $DIRNAME/
 fi
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
@@ -124,10 +124,10 @@ mkdir -p $DIRNAME
 cp ../model/<xsl:value-of select="$ps_url"/> ./component.cpp ../include/rng.h ../include/impulse.h $DIRNAME/
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $DIRNAME/release.xml
 if [ $DEBUG = "true" ]; then
-echo 'g++ -g -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -Werror  -O0 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
+echo 'g++ -g -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC   -O0 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
 cd $DIRNAME/
 else
-echo 'g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -Werror  -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
+echo 'g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC   -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
 cd $DIRNAME/
 fi
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
@@ -188,7 +188,7 @@ mkdir -p $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_
 cp ../model/<xsl:value-of select="./SMLNL:Neuron/@url"/> ./component.cpp ../include/rng.h ../include/impulse.h $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/release.xml
 
-echo 'g++ -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32  -Werror  -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $BRAHMS_NS/dev/SpineML/temp/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
+echo 'g++ -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32    -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $BRAHMS_NS/dev/SpineML/temp/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
 cd $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
 chmod +x build
@@ -228,7 +228,7 @@ mkdir -p $DIRNAME
 cp ../model/<xsl:value-of select="$wu_url"/> ./component.cpp ../include/rng.h ../include/impulse.h $DIRNAME/
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $DIRNAME/release.xml
 
-echo 'g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -Werror  -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
+echo 'g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC   -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
 cd $DIRNAME/
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
 chmod +x build
@@ -249,7 +249,7 @@ mkdir -p $DIRNAME
 cp ../model/<xsl:value-of select="$ps_url"/> ./component.cpp ../include/rng.h ../include/impulse.h $DIRNAME/
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $DIRNAME/release.xml
 
-echo 'g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -Werror  -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
+echo 'g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC   -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
 cd $DIRNAME/
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
 chmod +x build

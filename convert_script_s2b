@@ -94,6 +94,7 @@ else
         echo "Tools compiled correctly"
     else
         echo "OS change detected, recompiling tools..."
+        pwd
         pushd tools
         pushd allToAll/brahms/0/
         ./build
