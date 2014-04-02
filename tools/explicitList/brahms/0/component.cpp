@@ -107,6 +107,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			for (int i = 0; i < size.size(); ++i) {
 				numElementsOut *= size[i];
 			}	
+			
+			string binpath = nodeState.getField("binpath").getSTRING();
 
 			// get the connectivity
 			if (nodeState.hasField("_bin_file_name")) {
@@ -118,7 +120,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				// open the file for reading
 				FILE * binfile;
 				// FIXME: We really need an absolute path here, generated at runtime
-				fileName = "../model/" + fileName;
+				fileName = binpath + fileName;
 				binfile = fopen(fileName.c_str(),"rb");
 				if (!binfile) {
 					// That failed; try the default location for

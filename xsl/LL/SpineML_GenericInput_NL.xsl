@@ -10,6 +10,8 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 <!-- START TEMPLATE -->
 <xsl:template name="networkLayerGenericInputs">
 
+<xsl:param name="spineml_2_brahms_dir" select="'../../'"/>
+
 <!-- GET A LINK TO THE EXPERIMENT FILE FOR LATER USE -->
 <xsl:variable name="expt_root" select="/"/>
 
@@ -162,7 +164,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 <xsl:if test="count(.//SMLNL:FixedProbabilityConnection)=1">
 <Process>
 	<Name><xsl:value-of select="concat('remap',generate-id(.))"/></Name>
-	<Class>dev/SpineML/tools/explicitList</Class>
+	<Class>dev/SpineML/tools/fixedProbability</Class>
 	<Time>
 		<SampleRate><xsl:value-of select="$sampleRate"/></SampleRate>
 	</Time>
@@ -216,13 +218,14 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	</Time>
 	<State>
 	<xsl:attribute name="c">z</xsl:attribute>
-	<xsl:attribute name="a">sizeIn;sizeOut;<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">_bin_file_name;_bin_num_conn;_bin_has_delay;</xsl:if><xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Connection)>0">src;dst;</xsl:if></xsl:attribute>
+	<xsl:attribute name="a">sizeIn;sizeOut;binpath;<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">_bin_file_name;_bin_num_conn;_bin_has_delay;</xsl:if><xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Connection)>0">src;dst;</xsl:if></xsl:attribute>
 	<xsl:attribute name="Format">DataML</xsl:attribute>
 	<xsl:attribute name="Version">5</xsl:attribute>
 	<xsl:attribute name="AuthTool">SpineML to BRAHMS XSLT translator</xsl:attribute>
 	<xsl:attribute name="AuthToolVersion">0</xsl:attribute>
 	<m c="f"><xsl:value-of select="$sizeIn"/></m>
 	<m c="f"><xsl:value-of select="$sizeOut"/></m>
+	<m><xsl:value-of select="$spineml_2_brahms_dir"/>/model/</m>
 	<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">
 		<m><xsl:value-of select="./SMLNL:ConnectionList/SMLNL:BinaryFile/@file_name"/></m>
 		<m c="f"><xsl:value-of select="./SMLNL:ConnectionList/SMLNL:BinaryFile/@num_connections"/></m>
