@@ -3,9 +3,10 @@
 ##############################################################
 # SpineML to BRAHMS platform specific wrapper ('NIX)         #
 # Alex Cope 2012 /Updated 2013. Updates 2014: Seb James      #
-#
-# This script...
-#
+#                                                            #
+# convert_script_s2b is used to process a SpineML model into #
+# Brahms-compatible executable components.                   #
+#                                                            #
 ##############################################################
 
 
@@ -14,15 +15,25 @@ function usage () {
 
 usage: $0 [options]
 
-convert_script_s2b is generally invoked by SpineCreator, though
-it can also be invoked manually as long as there is a model in
-SPINEML_2_BRAHMS_DIR/model/
+convert_script_s2b is used to process a model in SPINEML_2_BRAHMS_DIR/model/.
+
+It creates executable components from the SpineML descriptions provided in
+SPINEML_2_BRAHMS_DIR/model/ using XSL transformations. It outputs source code
+and executable code into a working directory, which defaults to
+$HOME/spineml-2-brahms
+
+It can use pre-compiled components from /usr/lib/spineml-2-brahms and pre-
+installed XSL files from /usr/share/spineml-2-brahms if it has been correctly
+installed on a Unix or Linux system, or it can be executed in-place using the
+source code as downloaded. In the case the working directory is the downloaded
+directory, SpineML_2_BRAHMS.
 
 Options are:
 
-  -w dirpath   Set the working directory - SPINEML_2_BRAHMS_DIR. If left un set, This will
-               default either to $HOME/SpineML_2_BRAHMS (only if it already exists) or to
-               $HOME/spineml-2-brahms.
+  -w dirpath   Set the working directory - SPINEML_2_BRAHMS_DIR. If left un set,
+               This will default either to SpineML_2_BRAHMS in the current
+               working directory, $HOME/SpineML_2_BRAHMS (if it already exists)
+               or to $HOME/spineml-2-brahms.
 
 EOF
    exit 0
@@ -30,11 +41,17 @@ EOF
 
 # The default location for the spineml-2-brahms temporary files and input model(s)
 SPINEML_2_BRAHMS_DIR=$HOME"/spineml-2-brahms"
-# User may have SpineML_2_BRAHMS in their home directory, in which
-# case use that instead (this is for developers to use a localised
-# version of SpineML_2_BRAHMS, and for Mac)
-if [ -d $HOME/SpineML_2_BRAHMS ]; then
-    # Working with a $HOME/SpineML_2_BRAHMS installation - "in-place" style.
+
+# User may have SpineML_2_BRAHMS in the current working directory, or
+# in the their home directory, in which case use that instead (this is
+# for developers to use a localised version of SpineML_2_BRAHMS, and
+# for Mac)
+if [ -d `pwd`/SpineML_2_BRAHMS ]; then
+    # Working with SpineML_2_BRAHMS in current working directory - "in-place" style.
+    SPINEML_2_BRAHMS_DIR=`pwd`/SpineML_2_BRAHMS
+
+elif [ -d $HOME/SpineML_2_BRAHMS ]; then
+    # Working with a $HOME/SpineML_2_BRAHMS installation - "in-home-dir" style.
     SPINEML_2_BRAHMS_DIR=$HOME/SpineML_2_BRAHMS
 fi
 
