@@ -39,7 +39,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
         <State>
             <xsl:attribute name="c">z</xsl:attribute>
             <xsl:attribute name="a">
-                <xsl:text>port;size;</xsl:text>
+                <xsl:text>port;size;host;skip;</xsl:text>
             </xsl:attribute>
             <xsl:attribute name="Format">DataML</xsl:attribute>
             <xsl:attribute name="Version">5</xsl:attribute>
@@ -47,6 +47,8 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
             <xsl:attribute name="AuthToolVersion">0</xsl:attribute>
             <m c="f"><xsl:value-of select="@tcp_port"/></m>
             <m c="f"><xsl:value-of select="@size"/></m>
+            <m><xsl:value-of select="@host"/></m>
+            <m c="f"><xsl:value-of select="@timestep"/></m>
         </State>
     </Process>
     <xsl:variable name="dstPortRef" select="@port"/>

@@ -37,7 +37,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	<xsl:attribute name="c">z</xsl:attribute>
 	<xsl:attribute name="a">
 	<!-- TCP/IP PORT; COMPONENT PORT TYPE -->
-	<xsl:text>port;type;</xsl:text>
+	<xsl:text>port;type;host;skip;</xsl:text>
 	<!-- LOG, WHERE NOT LOGGING 'ALL' -->
 	<xsl:if test="self::node()[@indices]">
 		<!---->logInds;<!---->
@@ -69,6 +69,8 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	<xsl:if test="document($main_root//*[@name=$target]/@url)//SMLCL:ImpulseSendPort[@name=$port]">
 		<m c="f">2</m>
 	</xsl:if>
+	<m><xsl:value-of select="@host"/></m>
+	<m c="f"><xsl:value-of select="@timestep"/></m>
 	<!-- LOGS, WHERE NOT LOGGING 'ALL' -->
 	<xsl:if test="self::node()[@indices]">
 		<m><xsl:attribute name="b">1 <!---->
