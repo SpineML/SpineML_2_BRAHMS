@@ -95,6 +95,8 @@ string baseNameForLogs;
 
 bool logAll;
 
+float skip;
+float next_t;
 float dt;
 
 };
@@ -125,6 +127,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			} else {
 				server = "localhost";
 			}
+
+            // how often to send an output
+            if (nodeState.hasField("skip")) {
+                skip = nodeState.getField("skip").getDOUBLE();
+            } else {
+                skip = 0.01;
+            }
 			
 			// Log base name
 			baseNameForLogs = nodeState.getField("logfileNameForComponent").getSTRING();
@@ -166,6 +175,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 	
 			dt = 1000.0f * time->sampleRate.den / time->sampleRate.num; // time step in ms
 	
+            next_t = 0;
+
 			return C_OK;
 
 
@@ -209,19 +220,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 								berr << client.getLastError();
 							}
 						}
-						
-						// start client
-						/*client.connectClient(portno);
-			
-						// handshake
-						client.handShake(RESP_AM_SOURCE);
-			
-						// send data type
-						client.sendDataType(dataType);*/
-						
 
-							
-							
 					}	
 						break;
 						
@@ -247,44 +246,48 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 		case EVENT_RUN_SERVICE:
 		{
 		
-			/*if (time->now > 0) {
-				client.sendContinue();
-			}*/
-		
+            // current simulation time
+            double t = float(time->now) * dt;
+
             switch (dataType) {
-            	case ANALOG:
-            	{
-					// get internal data
-					DOUBLE * data = (DOUBLE *) in.getContent();
-					
-					if (logAll) {
-					
-						client.sendData((char *) data, size*sizeof(double));
-					
-					}
-					else {
-						
-						VDOUBLE buffer;
-						
-						// remap data
-						for (int i = 0; i < logMap.size(); ++i) {
-						
-							buffer.push_back(data[logMap[i]]);
-						
-						}
-						
-						// send data
-						client.sendData((char *) &(buffer[0]), buffer.size()*sizeof(double));
-					}
-								
-				}
-            		break;
-            	case EVENT:
-            		{berr << "Not implemented yet";}
-            		break;
-            	case IMPULSE:
-             		{berr << "Not implemented yet";}
-            		break;           	
+                case ANALOG:
+                {
+                    // get internal data
+                    DOUBLE * data = (DOUBLE *) in.getContent();
+
+                    // implement skipping
+                    if (t > next_t) {
+                        next_t = t + skip;
+
+                        if (logAll) {
+
+                            client.sendData((char *) data, size*sizeof(double));
+
+                        }
+                        else {
+
+                            VDOUBLE buffer;
+
+                            // remap data
+                            for (int i = 0; i < logMap.size(); ++i) {
+
+                                buffer.push_back(data[logMap[i]]);
+
+                            }
+
+                            // send data
+                            client.sendData((char *) &(buffer[0]), buffer.size()*sizeof(double));
+                        }
+                    }
+
+                }
+                    break;
+                case EVENT:
+                    {berr << "Not implemented yet";}
+                    break;
+                case IMPULSE:
+                    {berr << "Not implemented yet";}
+                    break;
             }
 
 								

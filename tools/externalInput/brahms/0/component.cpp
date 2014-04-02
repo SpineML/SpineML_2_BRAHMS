@@ -81,6 +81,9 @@ int numElementsOut;
     
 int size;
 string server;
+float skip;
+float dt;
+float next_t;
 
 spineMLNetworkClient client;
 
@@ -103,7 +106,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 	switch(event->type)
 	{
 		case EVENT_STATE_SET:
-		{
+        {
 		
 			//	extract DataML
 			EventStateSet* data = (EventStateSet*) event->data;
@@ -122,6 +125,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			} else {
 				server = "localhost";
 			}
+
+            // how often to send an output
+            if (nodeState.hasField("skip")) {
+                skip = nodeState.getField("skip").getDOUBLE();
+            } else {
+                skip = 0.01;
+            }
             
             /*string command = nodeState.getField("command").getSTRING();
             
@@ -134,6 +144,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			
 			// scale buffer	
 			buffer.resize(size,0);
+
+            dt = 1000.0f * time->sampleRate.den / time->sampleRate.num;
+            next_t = 0;
 			
 			return C_OK;
 
@@ -196,25 +209,29 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 		case EVENT_RUN_SERVICE:
 		{
             
-			/*if (time->now > 0) {
-				client.sendContinue();
-			}*/
-            
-            // only analog for now - will add spikes etc.. later
-            
-            switch (dataType) {
-                case EVENT:
-                    {berr << "Not implemented";}
-                    break;
-                case ANALOG:
-				    client.recvData((char *) &(buffer[0]), buffer.size()*sizeof(double));
-					out.setContent(&(buffer[0]));
-                    break;
-                case IMPULSE:
-                	{berr << "Not implemented";}
-                	break;    
-            }
+        // current simulation time
+            double t = float(time->now) * dt;
 
+            // implement skipping
+            if (t > next_t) {
+                next_t = t + skip;
+
+                // only analog for now - will add spikes etc.. later
+
+                switch (dataType) {
+                    case EVENT:
+                        {berr << "Not implemented";}
+                        break;
+                    case ANALOG:
+                        client.recvData((char *) &(buffer[0]), buffer.size()*sizeof(double));
+                        out.setContent(&(buffer[0]));
+                        break;
+                    case IMPULSE:
+                        {berr << "Not implemented";}
+                        break;
+                }
+
+            }
 						
 			//	ok
 			return C_OK;
