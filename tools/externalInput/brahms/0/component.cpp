@@ -80,6 +80,7 @@ int numElementsIn;
 int numElementsOut;
     
 int size;
+string server;
 
 spineMLNetworkClient client;
 
@@ -114,6 +115,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             numElementsOut = size;
 
 			portno = nodeState.getField("port").getINT32();
+			
+			// get the server name
+			if (nodeState.hasField("server")) {
+				server = nodeState.getField("server").getSTRING();
+			} else {
+				server = "localhost";
+			}
             
             /*string command = nodeState.getField("command").getSTRING();
             
@@ -161,7 +169,11 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				// connect the socket:
 			
 				// start client
-				client.connectClient(portno);
+				if (!client.createClient(server, portno, size, dataType, RESP_AM_TARGET)) {
+					berr << client.getLastError();
+				}
+				
+				/*client.connectClient(portno);
 			
 				// handshake
 				client.handShake(RESP_AM_TARGET);
@@ -174,7 +186,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				int confirmSize = client.recvSize(ok);
 				if (size != confirmSize)
 					berr << "Wrong size of data coming into External Source: " << double(confirmSize) << " should be: " << double(size);
-			
+				*/
 			}
 
 			//	ok

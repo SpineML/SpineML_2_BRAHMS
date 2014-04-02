@@ -83,6 +83,7 @@ int numElementsIn;
 int numElementsOut;
     
 int portno;
+string server;
 
 vector < float > logT;
 vector < int > logIndex;
@@ -117,6 +118,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			portno = nodeState.getField("port").getINT32();
 			
 			dataType = (dataTypes) nodeState.getField("type").getINT32();
+			
+			// get the server name
+			if (nodeState.hasField("server")) {
+				server = nodeState.getField("server").getSTRING();
+			} else {
+				server = "localhost";
+			}
 			
 			// Log base name
 			baseNameForLogs = nodeState.getField("logfileNameForComponent").getSTRING();
@@ -191,21 +199,27 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 						}
 						// send fixed size
 						
-						
+
+						if (logAll) {
+							if (!client.createClient(server, portno, size, dataType, RESP_AM_SOURCE)) {
+								berr << client.getLastError();
+							}
+						} else {
+							if (!client.createClient(server, portno, logMap.size(), dataType, RESP_AM_SOURCE)) {
+								berr << client.getLastError();
+							}
+						}
 						
 						// start client
-						client.connectClient(portno);
+						/*client.connectClient(portno);
 			
 						// handshake
 						client.handShake(RESP_AM_SOURCE);
 			
 						// send data type
-						client.sendDataType(dataType);
+						client.sendDataType(dataType);*/
 						
-						if (logAll)
-							client.sendSize(size);
-						else
-							client.sendSize(logMap.size());
+
 							
 							
 					}	
