@@ -98,7 +98,6 @@ if [ $(uname) = 'Linux' ]; then
         OS='Linux64'
     fi
 elif [ $(uname) = 'Windows_NT' ] || [ $(uname) = 'MINGW32_NT-6.1' ]; then
-    echo "We are windows."
     OS='Windows'
 else
     OS='OSX'
