@@ -116,6 +116,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 					</xsl:for-each>
 					<!---->\"/&gt;\n",numEl_BRAHMS);
 				}
+				fprintf(<xsl:value-of select="@name"/>LOGREPORT,"		&lt;TimeStep dt=\"%f\"/&gt;\n", dt);
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "	&lt;/AnalogLog&gt;\n");
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "&lt;/LogReport&gt;\n");
 				

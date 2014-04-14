@@ -2,7 +2,7 @@
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer" xmlns:SMLNL="http://www.shef.ac.uk/SpineMLNetworkLayer" xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:fn="http://www.w3.org/2005/xpath-functions">
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
-<xsl:param name="spineml_2_brahms_dir" select="'../../'"/>
+<xsl:param name="spineml_2_brahms_dir" select="'not_used'"/>
 
 <xsl:include href="SpineML_helpers.xsl"/>
 
@@ -16,8 +16,12 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <!-- Here we use the numbers to determine what we are outputting -->
 <xsl:variable name="number1"><xsl:number count="//SMLLOWNL:Population" format="1"/></xsl:variable>
 <xsl:variable name="number2"><xsl:number count="//SMLLOWNL:Projection" format="1"/></xsl:variable>
+<xsl:variable name="dir_for_numbers">
+    <xsl:if test="$spineml_2_brahms_dir='not_used'">../../</xsl:if>
+    <xsl:if test="not($spineml_2_brahms_dir='not_used')"><xsl:value-of select="$spineml_2_brahms_dir"/></xsl:if>
+</xsl:variable>
 <xsl:variable name="number3"><xsl:number count="//SMLLOWNL:Synapse" format="1"/></xsl:variable>
-<xsl:if test="$number1 = number(document(concat($spineml_2_brahms_dir,'/temp/counter.file'))/Nums/Number1) and $number2 = number(document(concat($spineml_2_brahms_dir,'/temp/counter.file'))/Nums/Number2) and $number3 = number(document(concat($spineml_2_brahms_dir,'/temp/counter.file'))/Nums/Number3)">
+<xsl:if test="$number1 = number(document(concat($dir_for_numbers,'/temp/counter.file'))/Nums/Number1) and $number2 = number(document(concat($dir_for_numbers,'/temp/counter.file'))/Nums/Number2) and $number3 = number(document(concat($dir_for_numbers,'/temp/counter.file'))/Nums/Number3)">
 
 <xsl:variable name="dstPopName" select="../../@dst_population"/>
 <xsl:variable name="dstPop" select="//SMLLOWNL:Population[SMLLOWNL:Neuron/@name=$dstPopName]"/>
@@ -286,7 +290,11 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				
 				// open the file for reading
 				FILE * binfile;
-				fileName = "<xsl:value-of select="$spineml_2_brahms_dir"/>/model/" + fileName;
+                <xsl:variable name="dir_for_bin_files">
+                    <xsl:if test="$spineml_2_brahms_dir='not_used'">../</xsl:if>
+                    <xsl:if test="not($spineml_2_brahms_dir='not_used')"><xsl:value-of select="$spineml_2_brahms_dir"/></xsl:if>
+                </xsl:variable>
+				fileName = "<xsl:value-of select="$dir_for_bin_files"/>/model/" + fileName;
 				binfile = fopen(fileName.c_str(),"rb");
 				
 				if (!binfile)
@@ -313,7 +321,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			}
 			
 			numConn_BRAHMS = srcInds.size();
-			
+            
 			// sanity check on index values
 			for (unsigned int i_BRAHMS = 0; i_BRAHMS &lt; srcInds.size(); ++i_BRAHMS) {
 				if (srcInds[i_BRAHMS] >= numElementsIn_BRAHMS || dstInds[i_BRAHMS] >= numElements_BRAHMS)

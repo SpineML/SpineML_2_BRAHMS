@@ -120,8 +120,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			portno = nodeState.getField("port").getINT32();
 			
 			// get the server name
-			if (nodeState.hasField("server")) {
-				server = nodeState.getField("server").getSTRING();
+			if (nodeState.hasField("host")) {
+				server = nodeState.getField("host").getSTRING();
 			} else {
 				server = "localhost";
 			}
@@ -211,6 +211,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             
         // current simulation time
             double t = float(time->now) * dt;
+            
+            //cout << "Input t = " << t << endl;
 
             // implement skipping
             if (t > next_t) {

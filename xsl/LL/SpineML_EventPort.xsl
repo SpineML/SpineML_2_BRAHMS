@@ -103,6 +103,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				}
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT,"		&lt;LogCol heading=\"t\" dims=\"ms\" type=\"double\"/&gt;\n");
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT,"		&lt;LogCol heading=\"index\" dims=\"\" type=\"int\"/&gt;\n");
+				fprintf(<xsl:value-of select="@name"/>LOGREPORT,"		&lt;TimeStep dt=\"%f\"/&gt;\n", dt);
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "	&lt;/EventLog&gt;\n");
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "&lt;/LogReport&gt;\n");
 				

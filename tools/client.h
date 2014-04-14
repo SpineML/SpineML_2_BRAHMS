@@ -65,7 +65,7 @@ bool spineMLNetworkClient::createClient(string hostname, int port, int size, dat
 
 error = "done start";
 
-    if (!this->connectClient(port, "143.167.182.151")) {
+    if (!this->connectClient(port, hostname.c_str())) {
     //if (!this->connectClient(port, "143.167.10.48")) {
         return false;
     }error = "done connect";
@@ -325,6 +325,9 @@ bool spineMLNetworkClient::sendData(char * ptr, int size) {
         error =  "Error writing to socket  (sendData)";
         return false;
         }
+    
+    
+    //cout << "Sent data" << endl;
 
     // get reply
     n = recv(sockfd,&(returnVal),1, MSG_WAITALL);
@@ -337,6 +340,7 @@ bool spineMLNetworkClient::sendData(char * ptr, int size) {
     	error =  "External target aborted the simulation after send data"; 
     	return false;
         }
+    //cout << "data send confirmed" << endl;;
 
 	return true;
 
