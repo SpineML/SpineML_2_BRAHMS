@@ -377,6 +377,52 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				
 			
 			}
+            
+            
+			// check for probabilistic delay
+			if (nodeState.hasField("pDelay")) {
+			
+				delayForConnTemp = nodeState.getField("pDelay").getArrayDOUBLE();
+				bout &lt;&lt; "have p delays" &lt;&lt; D_INFO;
+				
+			} 
+			
+			// check what is happening
+			if (delayForConnTemp.size() == 4) {
+			
+				bout &lt;&lt; "have p delays: right size" &lt;&lt; D_INFO;
+			
+				// resize the buffer
+				delayForConn.resize(numConn_BRAHMS);
+				
+				float max_delay_val = 0;
+				float most_delay_accuracy = (1000.0f * time->sampleRate.den / time->sampleRate.num);
+				
+				// generate the delays:
+				if (delayForConnTemp[0] == 1) { // Normal distribution
+					seed = delayForConnTemp[3]; 
+					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
+						delayForConn[i_BRAHMS] = round((RNOR*delayForConnTemp[2]+delayForConnTemp[1])/most_delay_accuracy);
+						bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
+						if (delayForConn[i_BRAHMS] &lt; 0) delayForConn[i_BRAHMS] = 0;
+						if (delayForConn[i_BRAHMS] &gt; max_delay_val) max_delay_val = delayForConn[i_BRAHMS];
+					}
+				}
+				if (delayForConnTemp[0] == 2) { // Uniform distribution
+					seed = delayForConnTemp[3]; 
+					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
+						delayForConn[i_BRAHMS] = round((randomUniform*(delayForConnTemp[2]-delayForConnTemp[1])+delayForConnTemp[1])/most_delay_accuracy);
+						bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
+						if (delayForConn[i_BRAHMS] &gt; max_delay_val) max_delay_val = delayForConn[i_BRAHMS];
+					}
+				}
+				
+				bout &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; " = moo" &lt;&lt; D_INFO;
+				
+				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
+				delayedImpulseVals.resize(round(max_delay_val/most_delay_accuracy)+1);
+			
+			}
 
 //debug
 //bout &lt;&lt; float(numConn_BRAHMS) &lt;&lt; D_INFO;
@@ -494,6 +540,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 <!---->
 
 			}
+			
+			// re-seed
+			seed = getTime();
 
 			//	ok
 			return C_OK;

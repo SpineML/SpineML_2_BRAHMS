@@ -58,7 +58,15 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	</Time>
 	<State>
 	<xsl:attribute name="c">z</xsl:attribute>
-        <xsl:attribute name="a">sizeIn;sizeOut;<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">_bin_file_name;_bin_num_conn;_bin_has_delay;</xsl:if><xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Connection)>0">src;dst;<xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Delay)=0">delayForConn;</xsl:if></xsl:if><xsl:if test="count(.//SMLNL:FixedProbabilityConnection)=1">probabilityValue;</xsl:if>
+        <xsl:attribute name="a">sizeIn;sizeOut;<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">_bin_file_name;_bin_num_conn;_bin_has_delay;</xsl:if><xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Connection)>0">src;dst;<xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Delay)=0">delayForConn;</xsl:if>
+        </xsl:if>
+        <xsl:if test="count(.//SMLNL:Delay/SMLNL:UniformDistribution)=1">
+			<!---->pDelay;<!---->
+		</xsl:if>
+		<xsl:if test="count(.//SMLNL:Delay/SMLNL:NormalDistribution)=1">
+			<!---->pDelay;<!---->
+		</xsl:if>
+        <xsl:if test="count(.//SMLNL:FixedProbabilityConnection)=1">probabilityValue;</xsl:if>
         <xsl:for-each select="SMLLOWNL:WeightUpdate/SMLNL:Property | $expt_root//SMLEXPT:Experiment//SMLEXPT:Configuration[@target=$curr_syn/@name]/SMLNL:Property">
         	<xsl:value-of select="@name"/>
         	<xsl:if test="count(.//SMLNL:UniformDistribution)>0 or count(.//SMLNL:NormalDistribution)>0">
@@ -74,8 +82,13 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 		    	<!---->;<!---->
         	</xsl:if>
         </xsl:for-each>
-        <!-- LOGS -->
-        <xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@tcp_port) and @target=$curr_syn/@name]">
+        <!-- LOGS, WHERE NOT LOGGING 'ALL' -->
+        <xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@tcp_port) and @indices and @target=$curr_syn/@name]">
+        	<xsl:value-of select="concat(@port,'LOG')"/>
+        	<!---->;<!---->
+        </xsl:for-each>
+        <!-- LOGS, WHERE LOGGING 'ALL' -->
+        <xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@tcp_port) and not(@indices) and @target=$curr_syn/@name]">
         	<xsl:value-of select="concat(@port,'LOG')"/>
         	<!---->;<!---->
         </xsl:for-each>
@@ -96,17 +109,37 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
         <xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Connection)>0">
         <m><xsl:attribute name="b">1 <xsl:value-of select="count(./SMLNL:ConnectionList/SMLNL:Connection)"/></xsl:attribute><xsl:attribute name="c">d</xsl:attribute>
         <xsl:for-each select="./SMLNL:ConnectionList/SMLNL:Connection"><xsl:value-of select="@src_neuron"/><xsl:text> </xsl:text></xsl:for-each>
-	</m>
+		</m>
         <m><xsl:attribute name="b">1 <xsl:value-of select="count(./SMLNL:ConnectionList/SMLNL:Connection)"/></xsl:attribute><xsl:attribute name="c">d</xsl:attribute>
         <xsl:for-each select="./SMLNL:ConnectionList/SMLNL:Connection"><xsl:value-of select="@dst_neuron"/><xsl:text> </xsl:text></xsl:for-each>
-	</m>
-        <xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Delay)=0">
+		</m>
+    	<xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Delay)=0">
         <m><xsl:attribute name="b">1 <xsl:value-of select="count(./SMLNL:ConnectionList/SMLNL:Connection)"/></xsl:attribute><xsl:attribute name="c">d</xsl:attribute>
         <xsl:for-each select="./SMLNL:ConnectionList/SMLNL:Connection"><xsl:value-of select="@delay"/><xsl:text> </xsl:text></xsl:for-each>
-	</m>
+		</m>
+		</xsl:if>
 	</xsl:if>
+	<xsl:if test="count(.//SMLNL:Delay/SMLNL:UniformDistribution)=1">
+			<m b="1 4" c="f">
+			<!---->2 <!---->
+			<xsl:value-of select=".//SMLNL:Delay/SMLNL:UniformDistribution/@minimum"/>
+			<xsl:text> </xsl:text>
+			<xsl:value-of select=".//SMLNL:Delay/SMLNL:UniformDistribution/@maximum"/>
+			<xsl:text> </xsl:text>
+		    <xsl:value-of select=".//SMLNL:Delay/SMLNL:UniformDistribution/@seed"/>
+			</m>
 	</xsl:if>
-        <xsl:if test="count(./SMLNL:FixedProbabilityConnection)=1"><m c="f"><xsl:value-of select=".//SMLNL:FixedProbabilityConnection/@probability"/></m></xsl:if>
+	<xsl:if test="count(.//SMLNL:Delay/SMLNL:NormalDistribution)=1">
+		    <m b="1 4" c="f">
+		    <!---->1 <!---->
+		    <xsl:value-of select=".//SMLNL:Delay/SMLNL:NormalDistribution/@mean"/>
+		    <xsl:text> </xsl:text>
+		    <xsl:value-of select=".//SMLNL:Delay/SMLNL:NormalDistribution/@variance"/>
+		    <xsl:text> </xsl:text>
+		    <xsl:value-of select=".//SMLNL:Delay/SMLNL:NormalDistribution/@seed"/>
+		    </m>
+	</xsl:if>
+    <xsl:if test="count(./SMLNL:FixedProbabilityConnection)=1"><m c="f"><xsl:value-of select=".//SMLNL:FixedProbabilityConnection/@probability"/></m></xsl:if>
         <xsl:for-each select="SMLLOWNL:WeightUpdate//SMLNL:Property | $expt_root//SMLEXPT:Experiment//SMLEXPT:Configuration[@target=$curr_syn/@name]/SMLNL:Property">
         
         <!-- NO VALUE -->
@@ -140,7 +173,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 			<xsl:text> </xsl:text>
 			<xsl:value-of select=".//SMLNL:UniformDistribution/@maximum"/>
 			<xsl:text> </xsl:text>
-		    	<xsl:value-of select=".//SMLNL:UniformDistribution/@seed"/>
+		    <xsl:value-of select=".//SMLNL:UniformDistribution/@seed"/>
 			</m>
 		</xsl:if>
 		<!-- VALUE LIST -->

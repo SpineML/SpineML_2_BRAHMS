@@ -171,7 +171,7 @@ fi
 	</xsl:for-each>
 </xsl:for-each>
 echo "Building the system..."
-xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/sys.xml $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
+xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/sys.xml --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
 echo "Building the execution..."
 xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_EXPT.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
 echo "Done!"
