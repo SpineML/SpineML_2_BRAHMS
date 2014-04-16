@@ -352,14 +352,14 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				
 				// resize buffer
 				float max_delay_val = 0;
-				float most_delay_accuracy = (1000.0f * time->sampleRate.den / time->sampleRate.num)*10;
+				float most_delay_accuracy = (1000.0f * time->sampleRate.den / time->sampleRate.num);
 				for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConnTemp.size(); ++i_BRAHMS) {
 					delayForConnTemp[i_BRAHMS];
 					if (delayForConnTemp[i_BRAHMS] > max_delay_val) max_delay_val = delayForConnTemp[i_BRAHMS];					
 				}
 				
-				delayBuffer.resize(round(max_delay_val*most_delay_accuracy)+1);
-				delayedImpulseVals.resize(round(max_delay_val*most_delay_accuracy)+1);
+				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
+				delayedImpulseVals.resize(round(max_delay_val/most_delay_accuracy)+1);
 				
 				// remap the delays to indices
 				delayForConn.resize(delayForConnTemp.size());
@@ -367,10 +367,10 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				//delayBufferIndexCounter = 0;
 				//delayBufferIndexCounterMax = round(most_delay_accuracy/(1000.0f * time->sampleRate.den / time->sampleRate.num));
 				
-				bout&lt;&lt; most_delay_accuracy &lt;&lt; D_INFO;
-				bout&lt;&lt; float(delayBuffer.size()) &lt;&lt; D_INFO;
+				//bout&lt;&lt; most_delay_accuracy &lt;&lt; D_INFO;
+				//bout&lt;&lt; float(delayBuffer.size()) &lt;&lt; D_INFO;
 				for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConnTemp.size(); ++i_BRAHMS) {
-					delayForConn[i_BRAHMS] = round(delayForConnTemp[i_BRAHMS]*most_delay_accuracy);
+					delayForConn[i_BRAHMS] = round(delayForConnTemp[i_BRAHMS]/most_delay_accuracy);
 					//&lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
 				}
 				
