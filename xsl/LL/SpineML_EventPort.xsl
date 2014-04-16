@@ -54,10 +54,16 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 <xsl:template match="SMLCL:EventSendPort" mode="makeSendPortLogs">
 				if (<xsl:value-of select="@name"/>LOGMAP.size() &gt; 0) {
 					for (unsigned int i_BRAHMS = 0; i_BRAHMS &lt; DATAOut<xsl:value-of select="@name"/>.size(); i_BRAHMS++) {
-						if (<xsl:value-of select="@name"/>LOGMAP[DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]]+1 || <xsl:value-of select="@name"/>LOGMAP[0] &lt; -1.1) {
+						if (<xsl:value-of select="@name"/>LOGMAP[0] &lt; -1.1) {
 							<xsl:value-of select="@name"/>LOGT.push_back(t);
 							<xsl:value-of select="@name"/>LOGVAR.push_back(DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]);
 						}
+						if (<xsl:value-of select="@name"/>LOGMAP.size() > DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]) {
+							if (<xsl:value-of select="@name"/>LOGMAP[DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]]+1) {
+								<xsl:value-of select="@name"/>LOGT.push_back(t);
+								<xsl:value-of select="@name"/>LOGVAR.push_back(DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]);
+							}
+						} 
 					}
 					if (<xsl:value-of select="@name"/>LOGVAR.size() &gt; 100000) {
 						for (unsigned int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="@name"/>LOGVAR.size(); i_BRAHMS++) {

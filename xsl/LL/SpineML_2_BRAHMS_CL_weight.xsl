@@ -343,12 +343,12 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				delayForConnTemp = nodeState.getField("delayForConn").getArrayDOUBLE();
 				
 			}
+
+			delayBufferIndex = 0;
 			
 			if (delayForConnTemp.size() > 0) {
 
 				if (delayForConnTemp.size() != numConn_BRAHMS) berr &lt;&lt; "Connectivity delay list has incorrect size";
-				
-				delayBufferIndex = 0;
 				
 				// resize buffer
 				float max_delay_val = 0;
@@ -403,7 +403,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					seed = delayForConnTemp[3]; 
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
 						delayForConn[i_BRAHMS] = round((RNOR*delayForConnTemp[2]+delayForConnTemp[1])/most_delay_accuracy);
-						bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
+						//bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
 						if (delayForConn[i_BRAHMS] &lt; 0) delayForConn[i_BRAHMS] = 0;
 						if (delayForConn[i_BRAHMS] &gt; max_delay_val) max_delay_val = delayForConn[i_BRAHMS];
 					}
@@ -412,7 +412,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					seed = delayForConnTemp[3]; 
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
 						delayForConn[i_BRAHMS] = round((randomUniform*(delayForConnTemp[2]-delayForConnTemp[1])+delayForConnTemp[1])/most_delay_accuracy);
-						bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
+						//bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
 						if (delayForConn[i_BRAHMS] &gt; max_delay_val) max_delay_val = delayForConn[i_BRAHMS];
 					}
 				}

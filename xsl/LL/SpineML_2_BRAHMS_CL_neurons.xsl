@@ -319,6 +319,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			}
 
+			// re-seed
+			seed = getTime();
+
 			//	ok
 			return C_OK;
 		}
