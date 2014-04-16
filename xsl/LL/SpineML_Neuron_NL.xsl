@@ -55,8 +55,13 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 		    	<!---->;<!---->
         	</xsl:if>
         </xsl:for-each>
-        <!-- LOGS -->
-        <xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@tcp_port) and @target=$curr_pop/SMLLOWNL:Neuron/@name]">
+        <!-- LOGS, WHERE NOT LOGGING 'ALL' -->
+        <xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@tcp_port) and @indices and @target=$curr_pop/SMLLOWNL:Neuron/@name]">
+        	<xsl:value-of select="concat(@port,'LOG')"/>
+        	<!---->;<!---->
+        </xsl:for-each>
+        <!-- LOGS, WHERE LOGGING 'ALL' -->
+        <xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@tcp_port) and not(@indices) and @target=$curr_pop/SMLLOWNL:Neuron/@name]">
         	<xsl:value-of select="concat(@port,'LOG')"/>
         	<!---->;<!---->
         </xsl:for-each>
