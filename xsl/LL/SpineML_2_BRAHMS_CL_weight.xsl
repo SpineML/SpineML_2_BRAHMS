@@ -287,6 +287,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             	string fileName = nodeState.getField("_bin_file_name").getSTRING();
             	int _num_conn = (int) nodeState.getField("_bin_num_conn").getDOUBLE();
             	bool _has_delay = (bool) nodeState.getField("_bin_has_delay").getDOUBLE();
+            	
+            	//bout &lt;&lt; _has_delay &lt;&lt; D_WARN; 
 				
 				// open the file for reading
 				FILE * binfile;
@@ -302,14 +304,21 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				srcInds.resize(_num_conn);
 				dstInds.resize(_num_conn);
-				if (_has_delay)
+				if (_has_delay) {
 					delayForConnTemp.resize(_num_conn);
+				}
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; _num_conn; ++i_BRAHMS) {
 					size_t ret_FOR_BRAHMS = fread(&amp;srcInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
-					ret_FOR_BRAHMS = fread(&amp;dstInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
-					if (_has_delay)
-						ret_FOR_BRAHMS = fread(&amp;delayForConnTemp[i_BRAHMS], sizeof(unsigned int), 1, binfile);
 					if (ret_FOR_BRAHMS == -1) berr &lt;&lt; "Error loading binary connections";
+					ret_FOR_BRAHMS = fread(&amp;dstInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
+					if (ret_FOR_BRAHMS == -1) berr &lt;&lt; "Error loading binary connections";
+					if (_has_delay) {
+						float tempDelay_FOR_BRAHMS;
+						ret_FOR_BRAHMS = fread(&amp;tempDelay_FOR_BRAHMS, sizeof(float), 1, binfile);
+						delayForConnTemp[i_BRAHMS] = tempDelay_FOR_BRAHMS;
+					}
+					if (ret_FOR_BRAHMS == -1) berr &lt;&lt; "Error loading binary connections";
+					//bout  &lt;&lt; srcInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; dstInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; delayForConnTemp[i_BRAHMS] &lt;&lt; D_WARN; 
 				} 				
 			} else {
 				srcInds = nodeState.getField("src").getArrayINT32();
