@@ -17,7 +17,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 		<xsl:variable name="endTemp" select="substring-after($end,$alias)"/>			
 		<xsl:variable name="math" select = "$aliases[1]/SMLCL:MathInline"/>
 			<xsl:choose>
-			<xsl:when test="contains('+-*/() =&lt;&gt;',substring($startTemp,string-length($startTemp),1)) and contains('+-*/() =&lt;&gt;',substring($endTemp,1,1))">
+			<xsl:when test="contains('+-*/() =,&lt;&gt;',substring($startTemp,string-length($startTemp),1)) and contains('+-*/() =,&lt;&gt;',substring($endTemp,1,1))">
 			<xsl:call-template name="alias_replace_helper">
 				<xsl:with-param name="allaliases" select="$allaliases"/>
 				<xsl:with-param name="aliases" select="$aliases"/>
@@ -117,9 +117,9 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 		<xsl:variable name="startTemp" select="concat($start,substring-before($end,$param))"/>
 		<xsl:variable name="endTemp" select="substring-after($end,$param)"/>
 			<xsl:choose>
-			<xsl:when test="contains('+-*/() =&lt;&gt;',substring($startTemp,string-length($startTemp),1))">
+			<xsl:when test="contains('+-*/() =,&lt;&gt;',substring($startTemp,string-length($startTemp),1))">
 			<xsl:choose>
-			<xsl:when test="contains('+-*/() =&lt;&gt;',substring($endTemp,1,1))">
+			<xsl:when test="contains('+-*/() =,&lt;&gt;',substring($endTemp,1,1))">
 				<xsl:call-template name="add_indices_helper">
 					<xsl:with-param name="params" select="$params"/>
 					<xsl:with-param name="param" select="$param"/>
