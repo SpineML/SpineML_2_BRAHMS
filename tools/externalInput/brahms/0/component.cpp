@@ -117,6 +117,11 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
         size = nodeState.getField("size").getINT32();
         numElementsOut = size;
 
+        // Hard-code dataType initialization. I don't know if theres a
+        // way to set this in the XML. It doesn't seem to get set when
+        // SpineCreator writes out the experiment.xml file.
+        dataType = ANALOG;
+
         portno = nodeState.getField("port").getINT32();
 
         // get the server name
