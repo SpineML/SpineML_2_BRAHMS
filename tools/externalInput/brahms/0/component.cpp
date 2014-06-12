@@ -149,8 +149,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
         next_t = 0;
 
         return C_OK;
-
-
     }
 
     // CREATE THE PORTS
@@ -172,6 +170,11 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             case IMPULSE:
             {
                 berr << "Not implemented";
+                break;
+            }
+            default:
+            {
+                berr << "Unknown dataType: " << (int)dataType;
                 break;
             }
             }
