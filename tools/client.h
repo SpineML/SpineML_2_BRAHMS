@@ -7,6 +7,7 @@
 #define RESP_RECVD 42
 #define RESP_ABORT 43
 #define RESP_FINISHED 44
+#define NOT_SET 99
 
 #include <iostream>
 #include <arpa/inet.h>
@@ -180,6 +181,14 @@ bool spineMLNetworkClient::sendDataType(dataTypes dataType)
     case IMPULSE:
         sendVal = RESP_DATA_IMPULSES;
         break;
+    default:
+        sendVal = NOT_SET;
+        break;
+    }
+
+    if (sendVal == NOT_SET) {
+        error = "Error - wrong value for dataType (sendDataType)";
+        return false;
     }
 
     n = send(sockfd,&sendVal,1, MSG_WAITALL);
