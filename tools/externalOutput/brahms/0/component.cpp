@@ -258,7 +258,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
                     DOUBLE * data = (DOUBLE *) in.getContent();
 
                     // implement skipping
-                    if (t > next_t) {
+                    if (t > next_t - dt + 0.00001) {
                         next_t = t + skip;
 
                         if (logAll) {

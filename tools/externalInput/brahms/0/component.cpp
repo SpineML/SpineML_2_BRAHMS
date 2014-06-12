@@ -215,7 +215,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             //cout << "Input t = " << t << endl;
 
             // implement skipping
-            if (t > next_t) {
+            if (t > next_t - dt + 0.00001) {
                 next_t = t + skip;
 
                 // only analog for now - will add spikes etc.. later

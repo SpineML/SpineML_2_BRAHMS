@@ -124,7 +124,7 @@ int numElementsIn_BRAHMS;
 VUINT32 delayForConn;
 
 vector &lt; VINT32 &gt; delayBuffer;
-vector &lt; VDOUBLE &gt; delayedImpulseVals;
+vector &lt; VDOUBLE &gt; delayedAnalogVals;
 
 int delayBufferIndex;
 
@@ -368,7 +368,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				}
 				
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
-				delayedImpulseVals.resize(round(max_delay_val/most_delay_accuracy)+1);
+				delayedAnalogVals.resize(round(max_delay_val/most_delay_accuracy)+1);
 				
 				// remap the delays to indices
 				delayForConn.resize(delayForConnTemp.size());
@@ -429,7 +429,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				bout &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; " = moo" &lt;&lt; D_INFO;
 				
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
-				delayedImpulseVals.resize(round(max_delay_val/most_delay_accuracy)+1);
+				delayedAnalogVals.resize(round(max_delay_val/most_delay_accuracy)+1);
 			
 			}
 
