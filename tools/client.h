@@ -34,12 +34,13 @@ public:
     ~spineMLNetworkClient() {}
 
     string getLastError();
-    bool createClient(string, int, int, dataTypes, int);
+    bool createClient(string, int, int, dataTypes, int, string connectionName = "unset");
     bool connectClient(int portno, string hostname = "localhost");
     bool handShake(char);
     bool sendDataType(dataTypes dataType);
     dataTypes recvDataType(bool &ok);
     bool sendSize(int size);
+    bool sendName(const string& connName);
     int recvSize(bool &ok);
     bool sendData(char * ptr, int size);
     bool recvData(char * data, int size);
@@ -63,7 +64,7 @@ string spineMLNetworkClient::getLastError()
 }
 
 bool spineMLNetworkClient::createClient(string hostname, int port, int size,
-                                        dataTypes datatype, int targetOrSource)
+                                        dataTypes datatype, int targetOrSource, string connectionName)
 {
     error = "done start";
 
@@ -91,6 +92,12 @@ bool spineMLNetworkClient::createClient(string hostname, int port, int size,
         return false;
     }
     error = "done size";
+
+    ok = this->sendName(connectionName);
+    if (!ok) {
+        return false;
+    }
+    error = "done name";
 
     return true;
 }
@@ -207,8 +214,8 @@ bool spineMLNetworkClient::sendDataType(dataTypes dataType)
     }
 
     if (returnVal == RESP_ABORT) {
-    	error =  "External target aborted the simulation due to the data type";
-    	return false;
+        error =  "External target aborted the simulation due to the data type";
+        return false;
     }
 
     return true;
@@ -259,12 +266,17 @@ dataTypes spineMLNetworkClient::recvDataType(bool &ok)
     return (dataTypes) dataType;
 }
 
+/*!
+ * Send the \param size over the network - \param size is the number
+ * of double-precision numbers (4 bytes per double) which should be
+ * transmitted for each timestep in the simulation/execution.
+ */
 bool spineMLNetworkClient::sendSize(int size)
 {
     //std::cout << "size send\n";
 
     // send size
-    n = send(sockfd,&size,sizeof(int), MSG_WAITALL);
+    n = send(sockfd, &size, sizeof(int), MSG_WAITALL);
     if (n < 1) {
         error =  "Error writing to socket (sendSize)";
         return false;
@@ -280,8 +292,8 @@ bool spineMLNetworkClient::sendSize(int size)
     }
 
     if (returnVal == RESP_ABORT) {
-    	error =  "External target aborted the simulation due to the data size";
-    	return false;
+        error =  "External target aborted the simulation due to the data size";
+        return false;
     }
 
     //std::cout << "size reply recv'd\n";
@@ -289,6 +301,43 @@ bool spineMLNetworkClient::sendSize(int size)
     return true;
 }
 
+bool spineMLNetworkClient::sendName(const string& connName)
+{
+    // send connection name, preceded by its length in bytes.
+    int namesize = connName.size();
+    n = send(sockfd, &namesize, sizeof(int), MSG_WAITALL);
+    if (n < 1) {
+        error =  "Error writing name size to socket (sendName)";
+        return false;
+    }
+    n = send(sockfd, connName.c_str(), namesize, MSG_WAITALL);
+    if (n < 1) {
+        error =  "Error writing name to socket (sendName)";
+        return false;
+    }
+
+    // get reply
+    n = recv(sockfd,&(returnVal),1, MSG_WAITALL);
+    if (n < 1) {
+        error =  "Error reading from socket (sendName)";
+        return false;
+    }
+
+    if (returnVal == RESP_ABORT) {
+        error =  "External target aborted the simulation as it didn't like the name!";
+        return false;
+    }
+
+    return true;
+}
+
+/*!
+ * Receive (from the network) the "size" - the number of
+ * double-precision numbers (4 bytes per double) which should be
+ * transmitted for each timestep in the simulation/execution.
+ *
+ * \return Number of doubles of data transmitted per timestep.
+ */
 int spineMLNetworkClient::recvSize(bool &ok)
 {
     //std::cout << "size recv\n";
@@ -323,12 +372,16 @@ int spineMLNetworkClient::recvSize(bool &ok)
     return size;
 }
 
-bool spineMLNetworkClient::sendData(char * ptr, int size)
+/*!
+ * Send
+ */
+bool spineMLNetworkClient::sendData(char * ptr, int datasizeBytes)
 {
     // send data
     int sent_bytes = 0;
-    while (sent_bytes < size)
-    	sent_bytes += send(sockfd,ptr+sent_bytes,size, MSG_DONTWAIT);
+    while (sent_bytes < datasizeBytes) {
+        sent_bytes += send(sockfd,ptr+sent_bytes,datasizeBytes, MSG_DONTWAIT);
+    }
     n = sent_bytes;
     if (n < 1) {
         error =  "Error writing to socket  (sendData)";
@@ -353,14 +406,17 @@ bool spineMLNetworkClient::sendData(char * ptr, int size)
     return true;
 }
 
-bool spineMLNetworkClient::recvData(char * data, int size)
+/*!
+ * datasizeBytes is 4 * the size sent by sendSize or received by recvSize.
+ */
+bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
 {
-    //std::cout << "recvdata\n";
+    // std::cout << "recvdata called to receive " << datasizeBytes << " input bytes\n";
 
     // get data
     int recv_bytes = 0;
-    while (recv_bytes < size) {
-    	recv_bytes += recv(sockfd,data+recv_bytes,size, MSG_WAITALL);
+    while (recv_bytes < datasizeBytes) {
+        recv_bytes += recv(sockfd,data+recv_bytes,datasizeBytes, MSG_WAITALL);
     }
     n = recv_bytes;
     if (n < 1) {
@@ -370,7 +426,7 @@ bool spineMLNetworkClient::recvData(char * data, int size)
 
     //std::cout << "received " << float(recv_bytes) << " of data!\n";
 
-    if (size < 0) {
+    if (datasizeBytes < 0) {
     	error =  "Bad data sent to external input";
     	return false;
     }

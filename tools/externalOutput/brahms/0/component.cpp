@@ -84,6 +84,7 @@ private:
 
     int portno;
     string server;
+    string conn_name;
 
     vector < float > logT;
     vector < int > logIndex;
@@ -124,6 +125,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             server = nodeState.getField("host").getSTRING();
         } else {
             server = "localhost";
+        }
+
+        // get the connection name
+        if (nodeState.hasField("name")) {
+            conn_name = nodeState.getField("name").getSTRING();
+        } else {
+            conn_name = "unknown";
         }
 
         // how often to send an output
@@ -203,7 +211,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 
                 if (logAll) {
-                    if (!client.createClient(server, portno, size, dataType, RESP_AM_SOURCE)) {
+                    if (!client.createClient(server, portno, size, dataType, RESP_AM_SOURCE, conn_name)) {
                         berr << client.getLastError();
                     }
                 } else {

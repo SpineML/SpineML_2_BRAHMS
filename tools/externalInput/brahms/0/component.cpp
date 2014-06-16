@@ -81,6 +81,7 @@ private:
 
     int size;
     string server;
+    string conn_name;
     float skip;
     float dt;
     float next_t;
@@ -129,6 +130,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             server = nodeState.getField("host").getSTRING();
         } else {
             server = "localhost";
+        }
+
+        // get the connection name
+        if (nodeState.hasField("name")) {
+            conn_name = nodeState.getField("name").getSTRING();
+        } else {
+            conn_name = "unknown";
         }
 
         // how often to send an output
@@ -192,7 +200,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             // connect the socket:
 
             // start client
-            if (!client.createClient(server, portno, size, dataType, RESP_AM_TARGET)) {
+            if (!client.createClient(server, portno, size, dataType, RESP_AM_TARGET, conn_name)) {
                 berr << client.getLastError();
             }
 
@@ -218,7 +226,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
     case EVENT_RUN_SERVICE:
     {
-
         // current simulation time
         double t = float(time->now) * dt;
 
@@ -232,15 +239,24 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
             switch (dataType) {
             case EVENT:
-            {berr << "Not implemented";}
-            break;
+            {
+                berr << "Not implemented";
+                break;
+            }
             case ANALOG:
                 client.recvData((char *) &(buffer[0]), buffer.size()*sizeof(double));
                 out.setContent(&(buffer[0]));
                 break;
             case IMPULSE:
-            {berr << "Not implemented";}
-            break;
+            {
+                berr << "Not implemented";
+                break;
+            }
+            default:
+            {
+                berr << "Bad value for dataType in EVENT_RUN_SERVICE";
+                break;
+            }
             }
 
         }
