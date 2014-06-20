@@ -39,7 +39,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
         <State>
             <xsl:attribute name="c">z</xsl:attribute>
             <xsl:attribute name="a">
-                <xsl:text>port;size;host;skip;</xsl:text>
+                <xsl:text>port;size;host;skip;name;</xsl:text>
             </xsl:attribute>
             <xsl:attribute name="Format">DataML</xsl:attribute>
             <xsl:attribute name="Version">5</xsl:attribute>
@@ -49,6 +49,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
             <m c="f"><xsl:value-of select="@size"/></m>
             <m><xsl:value-of select="@host"/></m>
             <m c="f"><xsl:value-of select="@timestep"/></m>
+            <m><xsl:value-of select="@name"/></m>
         </State>
     </Process>
     <xsl:variable name="dstPortRef" select="@port"/>

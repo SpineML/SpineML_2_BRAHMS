@@ -35,6 +35,14 @@ Options are:
                working directory, $HOME/SpineML_2_BRAHMS (if it already exists)
                or to $HOME/spineml-2-brahms.
 
+  -s           DON'T rebuild sys.xml and sys-exe.xml (The BRAHMS SystemML 
+               description of the SpineML model). This prevents the calls to
+               xsltproc which create temp/sys(-exe).xml, as long as
+               temp/sys(-exe).xml exists. Added to speed up development when the
+               same experiment is being called repeatedly. If sys.xml doesn't
+               exist, the xsltproc calls DO go ahead, despite the presence of
+               this option.
+
 EOF
    exit 0
 }
@@ -56,11 +64,18 @@ elif [ -d "$HOME/SpineML_2_BRAHMS" ]; then
     SPINEML_2_BRAHMS_DIR="$HOME/SpineML_2_BRAHMS"
 fi
 
+# Rebuild temp/sys(-exe).xml? Defaults to "true". Ideally, this would
+# check a timestamp on the experiment/model.xml etc, and determine if
+# the rebuild needs to go ahead.
+REBUILD_SYSTEMML="true"
+
 # Parse cmd line options
-while getopts w:\? opt
+while getopts w:s\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
+            ;;
+        s)  REBUILD_SYSTEMML="false"
             ;;
         \?) usage
             ;;
@@ -244,8 +259,8 @@ fi
 # run the script
 pushd "$SPINEML_2_BRAHMS_DIR/temp"
 echo "In directory: " `pwd`
-echo "Execute: ./output.script experiment.xml $REBUILD $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH"
-./output.script experiment.xml "$REBUILD" "$SPINEML_2_BRAHMS_DIR" "$XSL_SCRIPT_PATH"
+echo "Execute: ./output.script experiment.xml $REBUILD $SPINEML_2_BRAHMS_DIR  $REBUILD_SYSTEMML $XSL_SCRIPT_PATH"
+./output.script experiment.xml "$REBUILD" "$SPINEML_2_BRAHMS_DIR" "$REBUILD_SYSTEMML" "$XSL_SCRIPT_PATH"
 if [ "$?" -ne "0" ]; then
     echo "Failed to run output.script on the experiment.xml. Falling at the last hurdle."
     exit -1;

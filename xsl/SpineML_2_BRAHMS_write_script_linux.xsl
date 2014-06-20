@@ -18,7 +18,8 @@ INPUT=$1
 REBUILD=$2
 #BRAHMS_NS=$3
 SPINEML_2_BRAHMS_DIR=$3
-XSL_SCRIPT_PATH=$4
+REBUILD_SYSTEMML=$4
+XSL_SCRIPT_PATH=$5
 if [ "x$XSL_SCRIPT_PATH" = "x" ]; then
 XSL_SCRIPT_PATH="../xsl"
 fi
@@ -170,10 +171,18 @@ fi
 		</xsl:for-each>
 	</xsl:for-each>
 </xsl:for-each>
-echo "Building the system..."
+if [ $REBUILD_SYSTEMML = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys.xml ] ; then
+echo "Building the SystemML system..."
 xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/sys.xml --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
-echo "Building the execution..."
+else
+echo "Re-using the SystemML system."
+fi
+if [ $REBUILD_SYSTEMML = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml ] ; then
+echo "Building the SystemML execution..."
 xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_EXPT.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
+else
+echo "Re-using the SystemML execution."
+fi
 echo "Done!"
 
 # run!
@@ -303,10 +312,18 @@ fi
 		</xsl:for-each>
 	</xsl:for-each>
 </xsl:for-each>
-echo "Building the system..."
+if [ $REBUILD_SYSTEMML = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys.xml ] ; then
+echo "Building the SystemML system..."
 xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/sys.xml --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/HL/SpineML_2_BRAHMS_NL.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
-echo "Building the execution..."
+else
+echo "Re-using the SystemML system."
+fi
+if [ $REBUILD_SYSTEMML = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml ] ; then
+echo "Building the SystemML execution..."
 xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml $XSL_SCRIPT_PATH/HL/SpineML_2_BRAHMS_EXPT.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
+else
+echo "Re-using the SystemML execution."
+fi
 echo "Done!"
 
 # run!

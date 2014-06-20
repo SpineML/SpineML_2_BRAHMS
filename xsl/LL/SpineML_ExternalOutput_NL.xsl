@@ -37,7 +37,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	<xsl:attribute name="c">z</xsl:attribute>
 	<xsl:attribute name="a">
 	<!-- TCP/IP PORT; COMPONENT PORT TYPE -->
-	<xsl:text>port;type;host;skip;</xsl:text>
+	<xsl:text>port;type;host;skip;name;</xsl:text>
 	<!-- LOG, WHERE NOT LOGGING 'ALL' -->
 	<xsl:if test="self::node()[@indices]">
 		<!---->logInds;<!---->
@@ -71,6 +71,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	</xsl:if>
 	<m><xsl:value-of select="@host"/></m>
 	<m c="f"><xsl:value-of select="@timestep"/></m>
+        <m><xsl:value-of select="@name"/></m>
 	<!-- LOGS, WHERE NOT LOGGING 'ALL' -->
 	<xsl:if test="self::node()[@indices]">
 		<m><xsl:attribute name="b">1 <!---->
