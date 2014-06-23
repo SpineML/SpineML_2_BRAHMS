@@ -215,7 +215,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
                         berr << client.getLastError();
                     }
                 } else {
-                    if (!client.createClient(server, portno, logMap.size(), dataType, RESP_AM_SOURCE)) {
+                    if (!client.createClient(server, portno, logMap.size(), dataType, RESP_AM_SOURCE, conn_name)) {
                         berr << client.getLastError();
                     }
                 }

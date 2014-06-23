@@ -156,12 +156,12 @@ int numElements_BRAHMS;
 </xsl:for-each>
 
 // euler
-float integrate(float x, float (COMPONENT_CLASS_CPP::*func)(float, int), int num) {
+/*float integrate(float x, float (COMPONENT_CLASS_CPP::*func)(float, int), int num) {
 
 	return x + (*this.*func)(x,num)*dt;
 
-}
-/*
+}*/
+
 // Runge Kutta 4th order
 float integrate(float x, float (COMPONENT_CLASS_CPP::*func)(float, int), int num) {
 
@@ -171,7 +171,7 @@ float integrate(float x, float (COMPONENT_CLASS_CPP::*func)(float, int), int num
 	float k4 = dt*(*this.*func)(x+k3,num);
 	return x + (1.0/6.0)*(k1 + 2.0*k2 + 2.0*k3 + k4);
 
-}*/
+}
 
 float old_vals[3];
 
