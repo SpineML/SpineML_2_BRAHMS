@@ -16,7 +16,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 #!/bin/bash
 INPUT=$1
 REBUILD=$2
-BRAHMS_NS=$3
+#BRAHMS_NS=$3
+SPINEML_2_BRAHMS_DIR=$3
 REBUILD_SYSTEMML=$4
 XSL_SCRIPT_PATH=$5
 DEBUG="false"
@@ -24,6 +25,8 @@ DEBUG="false"
 if [ $DEBUG = "true" ]; then
 REBUILD="true"
 fi
+
+BRAHMS_NS=$SPINEML_2_BRAHMS_DIR
 
 # exit on first error
 #set -e
@@ -141,15 +144,16 @@ fi
 		</xsl:for-each>
 	</xsl:for-each>
 </xsl:for-each>
+echo "Dir = "$SPINEML_2_BRAHMS_DIR
 if [ $REBUILD_SYSTEMML = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys.xml ] ; then
 echo "Building the SystemML system..."
-xsltproc -o sys.xml ../xsl/LL/SpineML_2_BRAHMS_NL.xsl ../model/$INPUT
+xsltproc -o sys.xml --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $SPINEML_2_BRAHMS_DIR/xsl/LL/SpineML_2_BRAHMS_NL.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
 else
 echo "Re-using the SystemML system."
 fi
 if [ $REBUILD_SYSTEMML = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml ] ; then
 echo "Building the SystemML execution..."
-xsltproc -o sys-exe.xml ../xsl/LL/SpineML_2_BRAHMS_EXPT.xsl ../model/$INPUT
+xsltproc -o sys-exe.xml $SPINEML_2_BRAHMS_DIR/xsl/LL/SpineML_2_BRAHMS_EXPT.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
 else
 echo "Re-using the SystemML execution."
 fi
@@ -270,6 +274,7 @@ fi
 		</xsl:for-each>
 	</xsl:for-each>
 </xsl:for-each>
+
 if [ $REBUILD_SYSTEMML = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys.xml ] ; then
 echo "Building the SystemML system..."
 xsltproc -o sys.xml ../xsl/HL/SpineML_2_BRAHMS_NL.xsl ../model/$INPUT
