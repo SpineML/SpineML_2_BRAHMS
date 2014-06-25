@@ -101,7 +101,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			size = nodeState.getField("size").getUINT32();
 			
-			if (!(values.size() == 1 || values.size() == size)) {
+			if (!(values.size() == 1 || values.size() == (unsigned int)size)) {
 				// bad data
 				berr << "Error: incorrect number of values for Event Constant Input";
 			}
@@ -150,7 +150,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			nextSpike.resize(size);
 			
 			if (values.size() == 1) {
-				for (UINT32 i = 0; i < size; ++i) {
+			  for (UINT32 i = 0; i < (UINT32)size; ++i) {
 					if (type == Poisson) {
 						nextSpike[i] =  1000.0*log(1.0-UNI)/-values[0];
 					} else if (type == Regular) {
@@ -204,7 +204,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			vector < int > spikes;
 		
 			if (values.size() == 1) {
-				for (UINT32 i = 0; i < size; ++i) {
+			  for (UINT32 i = 0; i < (UINT32)size; ++i) {
 					if (nextSpike[i] <= t) {
 						spikes.push_back(i);
 						if (logOn) {

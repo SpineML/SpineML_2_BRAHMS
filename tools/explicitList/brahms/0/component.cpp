@@ -98,13 +98,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// obtain the parameters
 			VDOUBLE size = nodeState.getField("sizeIn").getArrayDOUBLE();
 			numElementsIn = 1;
-			for (int i = 0; i < size.size(); ++i) {
+			for (unsigned int i = 0; i < size.size(); ++i) {
 				numElementsIn *= size[i];
 			}		
 
 			size = nodeState.getField("sizeOut").getArrayDOUBLE();
 			numElementsOut = 1;
-			for (int i = 0; i < size.size(); ++i) {
+			for (unsigned int i = 0; i < size.size(); ++i) {
 				numElementsOut *= size[i];
 			}	
 			
@@ -115,7 +115,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				string fileName = nodeState.getField("_bin_file_name").getSTRING();
 				int _num_conn = (int) nodeState.getField("_bin_num_conn").getDOUBLE();
-				bool _has_delay = (bool) nodeState.getField("_bin_has_delay").getDOUBLE();
+				//bool _has_delay = (bool) nodeState.getField("_bin_has_delay").getDOUBLE();
 
 				// open the file for reading
 				FILE * binfile;
@@ -195,7 +195,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					
 					// create lookup for spikes
 					spikeInds.resize(numElementsIn);
-					for (int i = 0; i < srcInds.size(); ++i) {
+					for (UINT32 i = 0; i < srcInds.size(); ++i) {
 						spikeInds[srcInds[i]].push_back(dstInds[i]);			
 					}
 					
@@ -208,7 +208,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				
 					// create lookup for spikes
 					spikeInds.resize(numElementsIn);
-					for (int i = 0; i < srcInds.size(); ++i) {
+					for (UINT32 i = 0; i < srcInds.size(); ++i) {
 						spikeInds[srcInds[i]].push_back(dstInds[i]);			
 					}
 				
@@ -266,7 +266,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				UINT32 count;
 				count = ini.getContent(data);
 						
-				DOUBLE totalImpulse = 0;
+				//DOUBLE totalImpulse = 0;
 						
 				VINT32 outData;
 				// for each impulse

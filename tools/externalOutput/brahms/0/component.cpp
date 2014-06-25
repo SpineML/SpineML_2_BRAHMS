@@ -202,7 +202,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
                 const numeric::Structure * structure = in.getStructure();
                 size = structure->dims.dims[0];
                 // sanity check
-                for (int i = 0; i < logMap.size(); ++i) {
+                for (unsigned int i = 0; i < logMap.size(); ++i) {
                     if (logMap[i] > size-1) {
                         berr << "Requested index out of range on External Output";
                     }
@@ -264,7 +264,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
                     VDOUBLE buffer;
 
                     // remap data
-                    for (int i = 0; i < logMap.size(); ++i) {
+                    for (unsigned int i = 0; i < logMap.size(); ++i) {
                         buffer.push_back(data[logMap[i]]);
                     }
 
