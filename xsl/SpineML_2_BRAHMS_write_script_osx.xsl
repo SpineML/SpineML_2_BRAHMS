@@ -163,6 +163,7 @@ echo "Done!"
 echo "Running!"
 #chmod +x brahms_launch
 
+echo "Executing brahms --par-NamespaceRoots=$BRAHMS_NS:../tools sys-exe.xml"
 brahms --par-NamespaceRoots=$BRAHMS_NS:../tools sys-exe.xml
 
 </xsl:when>
@@ -293,6 +294,7 @@ echo "Done!"
 echo "Running!"
 #chmod +x brahms_launch
 
+echo "Executing: brahms --par-NamespaceRoots=$BRAHMS_NS:../tools sys-exe.xml"
 brahms --par-NamespaceRoots=$BRAHMS_NS:../tools sys-exe.xml
 
 
