@@ -193,11 +193,11 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
         //	on last call
         if (event->flags & F_LAST_CALL) {
-            int inputs;
+            //int inputs; // commented out because inputs was "set but not used" (compiler warning)
             switch (dataType) {
             case ANALOG:
             {
-                inputs = iif.getNumberOfPorts();
+                /*inputs =*/ iif.getNumberOfPorts();
                 in.attach(hComponent, "in");
                 const numeric::Structure * structure = in.getStructure();
                 size = structure->dims.dims[0];
@@ -225,7 +225,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
             case EVENT:
             {
-                inputs = iif.getNumberOfPorts();
+                /*inputs =*/ iif.getNumberOfPorts();
                 ins.attach(hComponent, "in");
             }
             break;

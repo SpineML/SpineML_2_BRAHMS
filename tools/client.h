@@ -250,7 +250,7 @@ dataTypes spineMLNetworkClient::recvDataType(bool &ok)
         return IMPULSE;
     }
 
-    dataTypes dataType;
+    dataTypes dataType = ANALOG;
     switch (returnVal) {
     case RESP_DATA_NUMS:
         dataType = ANALOG;
@@ -260,6 +260,9 @@ dataTypes spineMLNetworkClient::recvDataType(bool &ok)
         break;
     case RESP_DATA_IMPULSES:
         dataType = IMPULSE;
+        break;
+    default:
+        dataType = ANALOG;
         break;
     }
 
