@@ -39,6 +39,16 @@ For the adventurous:
 Manually compiling
 ------------------
 
+You can go ahead and call the ./build script in each of the component
+directories within tools. You have to set SYSTEMML_INSTALL_PATH. So,
+for example, to compile externalInput:
+
+cd tools/externalInput/brahms/0
+SYSTEMML_INSTALL_PATH=/Applications/spinecreator.app/Contents/MacOS/SystemML/ ./build
+
+Manually compiling with Autotools (a work in progress at least on Mac)
+----------------------------------------------------------------------
+
 There IS a set of autotools configuration files in SpineML_2_BRAHMS
 which are used when a Linux package is compiled. On Linux, we compile
 and install in the usual way, rather than expecting the user to keep a

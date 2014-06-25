@@ -28,3 +28,5 @@ model
 temp
 # Created on Mac (by autotools, I think)
 compile
+# Ignore emacs backup files:
+*~
