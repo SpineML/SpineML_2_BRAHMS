@@ -32,6 +32,10 @@ environment variables in:
 
 Preferences -> Simulators
 
+Finally, you probably need X windows installed on your Mac - Brahms uses
+this to display a progress window. I'm not sure what would happen if
+you didn't have X.
+
 
 
 For the adventurous:
