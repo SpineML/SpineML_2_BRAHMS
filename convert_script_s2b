@@ -238,12 +238,13 @@ if [ -z "$BRAHMS_NS" ]; then
         if [ -f /usr/bin/brahms ]; then
             # packaged brahms
             echo "Setting BRAHMS_NS, REBUILD and SYSTEMML_INSTALL_PATH to suit packaged brahms"
-            export SYSTEMML_INSTALL_PATH=""
+            export SYSTEMML_INSTALL_PATH="" # this should be empty
+            BRAHMS_NS="/var/lib/brahms/Namespace"
         else
-            # non-packaged brahms
-            export SYSTEMML_INSTALL_PATH="/usr/local/SystemML"
+            # non-packaged brahms, assume SystemML folder in home directory.
+            export SYSTEMML_INSTALL_PATH="$HOME/SystemML"
+            BRAHMS_NS="$HOME/SystemML/Namespace"
         fi
-        BRAHMS_NS="$SPINEML_2_BRAHMS_DIR/Namespace"
     fi
 
     if [ $OS = 'OSX' ]; then
@@ -259,8 +260,8 @@ fi
 # run the script
 pushd "$SPINEML_2_BRAHMS_DIR/temp"
 echo "In directory: " `pwd`
-echo "Execute: ./output.script experiment.xml $REBUILD $SPINEML_2_BRAHMS_DIR  $REBUILD_SYSTEMML $XSL_SCRIPT_PATH"
-./output.script experiment.xml "$REBUILD" "$SPINEML_2_BRAHMS_DIR" "$REBUILD_SYSTEMML" "$XSL_SCRIPT_PATH"
+echo "Execute: ./output.script experiment.xml $REBUILD $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $REBUILD_SYSTEMML $XSL_SCRIPT_PATH"
+./output.script experiment.xml "$REBUILD" "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$REBUILD_SYSTEMML" "$XSL_SCRIPT_PATH"
 if [ "$?" -ne "0" ]; then
     echo "Failed to run output.script on the experiment.xml. Falling at the last hurdle."
     exit -1;
