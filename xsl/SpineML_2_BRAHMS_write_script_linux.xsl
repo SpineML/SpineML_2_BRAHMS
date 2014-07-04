@@ -77,14 +77,11 @@ echo "&lt;Number&gt;<xsl:value-of select="$number"/>&lt;/Number&gt;" &amp;&gt; c
 
 DIRNAME=$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
 
-diff -q $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> $DIRNAME/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/>
-DIFFRTN=$?
-
-if [ $DIFFRTN == 0 ] &amp;&amp; [ -f $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.cpp ] &amp;&amp; [ -f $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.so ]; then
+diff -q $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> $DIRNAME/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> &amp;> /dev/null
+if [ $? == 0 ] &amp;&amp; [ -f $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.cpp ] &amp;&amp; [ -f $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.so ]; then
 echo "Component for population <xsl:value-of select="$number"/> exists, skipping"
 else
 echo "Creating component.cpp for population <xsl:value-of select="$number"/> in directory $DIRNAME"
-#echo "Command: xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/component.cpp --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_CL_neurons.xsl $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$model_xml"/>"
 xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/component.cpp --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_CL_neurons.xsl $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$model_xml"/>
 
 if [ ! -f component.cpp ]; then
@@ -103,7 +100,6 @@ fi # if DEBUG
 cd $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
 chmod +x build
-pwd
 echo "Compiling component.so"
 ./build
 cd - &amp;&gt; /dev/null
@@ -154,8 +150,6 @@ cd $DIRNAME/
 fi
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
 chmod +x build
-pwd
-echo "Compiling component.so"
 ./build
 cd - &amp;&gt; /dev/null
 fi
@@ -184,8 +178,6 @@ fi
 cd $DIRNAME/
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
 chmod +x build
-pwd
-echo "Compiling component.so"
 ./build
 cd - &amp;&gt; /dev/null
 fi
@@ -226,7 +218,7 @@ BRAHMS_NS=$3
 set -e
 if [ "$REBUILD" = "true" ]; then
 # clean up the temporary dirs - we don't want old component versions lying around!
-rm -R $BRAHMS_NS/dev/SpineML/temp/*
+rm -R $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/*
 fi
 echo "Creating the Neuron populations..."
 <xsl:for-each select="/SMLNL:SpineML/SMLNL:Population">
@@ -288,7 +280,7 @@ if [ $?  == 0 ] &amp;&amp; [ -f component.cpp ]; then
 LA="moo"
 #echo "Weight Update component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping"
 else
-echo "Building weight update component.cpp for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/>"
+echo "Building weight update component.cpp for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> in directory $DIRNAME"
 xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/component.cpp --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/HL/SpineML_2_BRAHMS_CL_weight.xsl $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$model_xml"/>
 if [ ! -f component.cpp ]; then
 echo "Error: no component.cpp was generated by xsltproc from HL/SpineML_2_BRAHMS_CL_weight.xsl and the model"

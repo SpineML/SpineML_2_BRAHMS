@@ -11,28 +11,57 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 
 <xsl:choose>
 
-<xsl:when test="SMLLOWNL:SpineML">
-
-#!/bin/bash
+<xsl:when test="SMLLOWNL:SpineML">#!/bin/bash
 INPUT=$1
 REBUILD=$2
-#BRAHMS_NS=$3
-SPINEML_2_BRAHMS_DIR=$3
-REBUILD_SYSTEMML=$4
-XSL_SCRIPT_PATH=$5
+BRAHMS_NS=$3
+SPINEML_2_BRAHMS_DIR=$4
+REBUILD_SYSTEMML=$5
+XSL_SCRIPT_PATH=$6
+if [ "x$XSL_SCRIPT_PATH" = "x" ]; then
+XSL_SCRIPT_PATH="../xsl"
+fi
+
+# Working directory - need to pass this to xsl scripts as we no longer have them inside the current working tree.
+echo "SPINEML_2_BRAHMS_DIR is $SPINEML_2_BRAHMS_DIR"
+
+# A note about Namespaces
+#
+# A Brahms installation will exist along with a SpineML_2_BRAHMS installation.
+# Each installation may have its own namespace, and these are referred to here
+# as BRAHMS_NS and SPINEML_2_BRAHMS_NS.
+#
+# All SpineML_2_BRAHMS components are compiled and held in the SPINEML_2_BRAHMS_NS
+# The BRAHMS_NS contains the Brahms components, as distributed either as the Debian
+# package or the Brahms binary package. Both namespaces are passed to the brahms call.
+#
+SPINEML_2_BRAHMS_NS=$SPINEML_2_BRAHMS_DIR/Namespace
+echo "SPINEML_2_BRAHMS_NS is $SPINEML_2_BRAHMS_NS"
+echo "BRAHMS_NS is $BRAHMS_NS"
+
 DEBUG="false"
 
 if [ $DEBUG = "true" ]; then
 REBUILD="true"
 fi
 
-BRAHMS_NS=$SPINEML_2_BRAHMS_DIR
+# Set up the include path for rng.h and impulse.h
+if [ -f /usr/include/spineml-2-brahms/rng.h ]; then
+    # In this case, it looks like the user has the debian package
+    SPINEML_2_BRAHMS_INCLUDE_PATH=/usr/include/spineml-2-brahms
+else
+    # Use a path relative to SPINEML_2_BRAHMS_DIR
+    SPINEML_2_BRAHMS_INCLUDE_PATH=$SPINEML_2_BRAHMS_DIR/include
+fi
+echo "SPINEML_2_BRAHMS_INCLUDE_PATH=$SPINEML_2_BRAHMS_INCLUDE_PATH"
+
+# Set up the path to the "tools" directory.
 
 # exit on first error
 #set -e
-if [ $REBUILD = "true" ]; then
+if [ "$REBUILD" = "true" ]; then
 # clean up the temporary dirs - we don't want old component versions lying around!
-rm -R $BRAHMS_NS/dev/SpineML/temp/*  &amp;> /dev/null
+rm -R $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/*  &amp;> /dev/null
 fi
 echo "Creating the Neuron populations..."
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
@@ -45,29 +74,37 @@ echo "SpikeSource, skipping compile"
 <!-- Here we use the population number to determine which Neuron type we are outputting -->
 <xsl:variable name="number"><xsl:number count="/SMLLOWNL:SpineML/SMLLOWNL:Population" format="1"/></xsl:variable>
 echo "&lt;Number&gt;<xsl:value-of select="$number"/>&lt;/Number&gt;" &amp;&gt; counter.file
-DIRNAME=$BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
-#if [ -d "$DIRNAME" ]; then
-diff -q ../model/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> $DIRNAME/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> &amp;> /dev/null
-if [ $?  == 0 ]; then
+
+DIRNAME=$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
+
+diff -q $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> $DIRNAME/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> &amp;> /dev/null
+if [ $?  == 0 ] &amp;&amp; [ -f $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.cpp ] &amp;&amp; [ -f $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.dylib ]; then
 echo "Component for population <xsl:value-of select="$number"/> exists, skipping"
 else
-xsltproc -o component.cpp ../xsl/LL/SpineML_2_BRAHMS_CL_neurons.xsl ../model/<xsl:value-of select="$model_xml"/>
-echo "Building component for population <xsl:value-of select="$number"/>"
-mkdir -p $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
-cp ../model/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> ./component.cpp ../include/rng.h ../include/impulse.h $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
-echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/release.xml
+echo "Creating component.cpp for population <xsl:value-of select="$number"/> in directory $DIRNAME"
+xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/component.cpp --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_CL_neurons.xsl $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$model_xml"/>
+
+if [ ! -f component.cpp ]; then
+echo "Error: no component.cpp was generated by xsltproc from LL/SpineML_2_BRAHMS_CL_neurons.xsl and the model"
+exit -1
+fi
+mkdir -p $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
+cp $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> ./component.cpp $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
+echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/release.xml
 
 if [ $DEBUG = "true" ]; then
-echo 'g++ -g -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32    -O0 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
+echo 'g++ -g -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32    -O0 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
 else
-echo 'g++ -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32    -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
+echo 'g++ -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32    -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
 fi
-cd $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
+cd $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
 chmod +x build
+echo "Compiling component.so"
 ./build
 cd - &amp;&gt; /dev/null
-fi
+fi # The check if component exists
+
 </xsl:otherwise>
 </xsl:choose>
 </xsl:for-each>
@@ -89,17 +126,20 @@ echo "&lt;Nums&gt;&lt;Number1&gt;<xsl:value-of select="$number1"/>&lt;/Number1&g
 <xsl:variable name="linked_file2" select="document(SMLLOWNL:PostSynapse/@url)"/>
 <xsl:variable name="wu_url" select="SMLLOWNL:WeightUpdate/@url"/>
 <xsl:variable name="ps_url" select="SMLLOWNL:PostSynapse/@url"/>
-DIRNAME=$BRAHMS_NS/dev/SpineML/temp/WU/<xsl:value-of select="local-name(SMLNL:ConnectionList)"/><xsl:value-of select="local-name(SMLNL:FixedProbabilityConnection)"/><xsl:value-of select="local-name(SMLNL:AllToAllConnection)"/><xsl:value-of select="local-name(SMLNL:OneToOneConnection)"/><xsl:value-of select="translate(document(SMLLOWNL:WeightUpdate/@url)//SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
-#if [ -d "$DIRNAME" ]; then
-diff -q ../model/<xsl:value-of select="$wu_url"/> $DIRNAME/<xsl:value-of select="$wu_url"/> &amp;> /dev/null
-if [ $? == 0 ]; then
+DIRNAME=$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/WU/<xsl:value-of select="local-name(SMLNL:ConnectionList)"/><xsl:value-of select="local-name(SMLNL:FixedProbabilityConnection)"/><xsl:value-of select="local-name(SMLNL:AllToAllConnection)"/><xsl:value-of select="local-name(SMLNL:OneToOneConnection)"/><xsl:value-of select="translate(document(SMLLOWNL:WeightUpdate/@url)//SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
+diff -q $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$wu_url"/> $DIRNAME/<xsl:value-of select="$wu_url"/> &amp;> /dev/null
+if [ $? == 0 ] &amp;&amp; [ -f component.cpp ]; then
 LA="moo"
 #echo "Weight Update component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping"
 else
-xsltproc -o component.cpp ../xsl/LL/SpineML_2_BRAHMS_CL_weight.xsl ../model/<xsl:value-of select="$model_xml"/>
-echo "Building weight update component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/>"
+echo "Building weight update component.cpp for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> in directory $DIRNAME"
+xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/component.cpp --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_CL_weight.xsl $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$model_xml"/>
+if [ ! -f component.cpp ]; then
+echo "Error: no component.cpp was generated by xsltproc from LL/SpineML_2_BRAHMS_CL_weight.xsl and the model"
+exit -1
+fi
 mkdir -p $DIRNAME
-cp ../model/<xsl:value-of select="$wu_url"/> ./component.cpp ../include/rng.h ../include/impulse.h $DIRNAME/
+cp $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$wu_url"/> ./component.cpp $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h $DIRNAME/
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $DIRNAME/release.xml
 if [ $DEBUG = "true" ]; then
 echo 'g++ -g -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC   -O0 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
@@ -114,26 +154,28 @@ chmod +x build
 cd - &amp;&gt; /dev/null
 fi
 
-DIRNAME=$BRAHMS_NS/dev/SpineML/temp/PS/<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass"><xsl:value-of select="translate(@name,' -', 'oH')"/>
+DIRNAME=$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/PS/<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass"><xsl:value-of select="translate(@name,' -', 'oH')"/>
 </xsl:for-each>/brahms/0
-#if [ -d "$DIRNAME" ]; then
-diff -q ../model/<xsl:value-of select="$ps_url"/> $DIRNAME/<xsl:value-of select="$ps_url"/> &amp;> /dev/null
-if [ $? == 0 ]; then
+diff -q $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$ps_url"/> $DIRNAME/<xsl:value-of select="$ps_url"/> &amp;> /dev/null
+if [ $? == 0 ] &amp;&amp; [ -f component.cpp ]; then
 LA="moo"
 #echo "PostSynapse component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping"
 else
-xsltproc -o component.cpp ../xsl/LL/SpineML_2_BRAHMS_CL_postsyn.xsl ../model/<xsl:value-of select="$model_xml"/>
-echo "Building postsynapse component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/>"
+echo "Building postsynapse component.cpp for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> in directory $DIRNAME"
+xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/component.cpp --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_CL_postsyn.xsl $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$model_xml"/>
+if [ ! -f component.cpp ]; then
+echo "Error: no component.cpp was generated by xsltproc from LL/SpineML_2_BRAHMS_CL_postsyn.xsl and the model"
+exit -1
+fi
 mkdir -p $DIRNAME
-cp ../model/<xsl:value-of select="$ps_url"/> ./component.cpp ../include/rng.h ../include/impulse.h $DIRNAME/
+cp $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$ps_url"/> ./component.cpp $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h $DIRNAME/
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $DIRNAME/release.xml
 if [ $DEBUG = "true" ]; then
 echo 'g++ -g -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC   -O0 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
-cd $DIRNAME/
 else
 echo 'g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC   -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
-cd $DIRNAME/
 fi
+cd $DIRNAME/
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
 chmod +x build
 ./build
@@ -144,16 +186,15 @@ fi
 		</xsl:for-each>
 	</xsl:for-each>
 </xsl:for-each>
-echo "Dir = "$SPINEML_2_BRAHMS_DIR
-if [ $REBUILD_SYSTEMML = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys.xml ] ; then
+if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys.xml ] ; then
 echo "Building the SystemML system..."
-xsltproc -o sys.xml --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $SPINEML_2_BRAHMS_DIR/xsl/LL/SpineML_2_BRAHMS_NL.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
+xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/sys.xml --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
 else
 echo "Re-using the SystemML system."
 fi
-if [ $REBUILD_SYSTEMML = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml ] ; then
+if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml ] ; then
 echo "Building the SystemML execution..."
-xsltproc -o sys-exe.xml $SPINEML_2_BRAHMS_DIR/xsl/LL/SpineML_2_BRAHMS_EXPT.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
+xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_EXPT.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
 else
 echo "Re-using the SystemML execution."
 fi
@@ -163,8 +204,8 @@ echo "Done!"
 echo "Running!"
 #chmod +x brahms_launch
 
-echo "Executing brahms --par-NamespaceRoots=$BRAHMS_NS:../tools sys-exe.xml"
-brahms --par-NamespaceRoots=$BRAHMS_NS:../tools sys-exe.xml
+echo "Executing: brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:../tools sys-exe.xml"
+brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:../tools sys-exe.xml
 
 </xsl:when>
 <xsl:when test="SMLNL:SpineML">
@@ -175,9 +216,9 @@ REBUILD=$2
 BRAHMS_NS=$3
 # exit on first error
 set -e
-if [ $REBUILD = "true" ]; then
+if [ "$REBUILD" = "true" ]; then
 # clean up the temporary dirs - we don't want old component versions lying around!
-rm -R $BRAHMS_NS/dev/SpineML/temp/*
+rm -R $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/*
 fi
 echo "Creating the Neuron populations..."
 <xsl:for-each select="/SMLNL:SpineML/SMLNL:Population">
@@ -190,20 +231,23 @@ echo "SpikeSource, skipping compile"
 <!-- Here we use the population number to determine which Neuron type we are outputting -->
 <xsl:variable name="number"><xsl:number count="/SMLNL:SpineML/SMLNL:Population" format="1"/></xsl:variable>
 echo "&lt;Number&gt;<xsl:value-of select="$number"/>&lt;/Number&gt;" &amp;&gt; counter.file
-DIRNAME=$BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
-#if [ -d "$DIRNAME" ]; then
-diff -q ../model/<xsl:value-of select="./SMLNL:Neuron/@url"/> $DIRNAME/<xsl:value-of select="./SMLNL:Neuron/@url"/> &amp;> /dev/null
-if [ $?  == 0 ]; then
+DIRNAME=$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
+diff -q $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="./SMLNL:Neuron/@url"/> $DIRNAME/<xsl:value-of select="./SMLNL:Neuron/@url"/> &amp;> /dev/null
+if [ $?  == 0 ] &amp;&amp; [ -f component.cpp ]; then
 echo "Component for population <xsl:value-of select="$number"/> exists, skipping"
 else
-xsltproc -o component.cpp ../xsl/HL/SpineML_2_BRAHMS_CL_neurons.xsl ../model/<xsl:value-of select="$model_xml"/>
-echo "Building component for population <xsl:value-of select="$number"/>"
-mkdir -p $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
-cp ../model/<xsl:value-of select="./SMLNL:Neuron/@url"/> ./component.cpp ../include/rng.h ../include/impulse.h $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
-echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/release.xml
+echo "Creating component.cpp for population <xsl:value-of select="$number"/>"
+xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/component.cpp --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/HL/SpineML_2_BRAHMS_CL_neurons.xsl $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$model_xml"/>
+if [ ! -f component.cpp ]; then
+echo "Error: no component.cpp was generated by xsltproc from HL/SpineML_2_BRAHMS_CL_neurons.xsl and the model"
+exit -1
+fi
+mkdir -p $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
+cp $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="./SMLNL:Neuron/@url"/> ./component.cpp $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
+echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/release.xml
 
-echo 'g++ -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32    -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $BRAHMS_NS/dev/SpineML/temp/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
-cd $BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
+echo 'g++ -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32    -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH//BRAHMS/bin" -lbrahms-engine' &amp;> $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build
+cd $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;> ../../node.xml
 chmod +x build
 ./build
@@ -230,16 +274,20 @@ echo "&lt;Nums&gt;&lt;Number1&gt;<xsl:value-of select="$number1"/>&lt;/Number1&g
 <xsl:variable name="linked_file2" select="document(SMLNL:PostSynapse/@url)"/>
 <xsl:variable name="wu_url" select="SMLNL:WeightUpdate/@url"/>
 <xsl:variable name="ps_url" select="SMLNL:PostSynapse/@url"/>
-DIRNAME=$BRAHMS_NS/dev/SpineML/temp/WU/<xsl:value-of select="local-name(SMLNL:ConnectionList)"/><xsl:value-of select="local-name(SMLNL:FixedProbabilityConnection)"/><xsl:value-of select="local-name(SMLNL:AllToAllConnection)"/><xsl:value-of select="local-name(SMLNL:OneToOneConnection)"/><xsl:value-of select="translate(document(SMLNL:WeightUpdate/@url)//SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
-diff -q ../model/<xsl:value-of select="$wu_url"/> $DIRNAME/<xsl:value-of select="$wu_url"/> &amp;> /dev/null
-if [ $?  == 0 ]; then
+DIRNAME=$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/WU/<xsl:value-of select="local-name(SMLNL:ConnectionList)"/><xsl:value-of select="local-name(SMLNL:FixedProbabilityConnection)"/><xsl:value-of select="local-name(SMLNL:AllToAllConnection)"/><xsl:value-of select="local-name(SMLNL:OneToOneConnection)"/><xsl:value-of select="translate(document(SMLNL:WeightUpdate/@url)//SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
+diff -q $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$wu_url"/> $DIRNAME/<xsl:value-of select="$wu_url"/> &amp;> /dev/null
+if [ $?  == 0 ] &amp;&amp; [ -f component.cpp ]; then
 LA="moo"
 #echo "Weight Update component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping"
 else
-xsltproc -o component.cpp ../xsl/HL/SpineML_2_BRAHMS_CL_weight.xsl ../model/<xsl:value-of select="$model_xml"/>
-echo "Building weight update component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/>"
+echo "Building weight update component.cpp for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> in directory $DIRNAME"
+xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/component.cpp --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/HL/SpineML_2_BRAHMS_CL_weight.xsl $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$model_xml"/>
+if [ ! -f component.cpp ]; then
+echo "Error: no component.cpp was generated by xsltproc from HL/SpineML_2_BRAHMS_CL_weight.xsl and the model"
+exit -1
+fi
 mkdir -p $DIRNAME
-cp ../model/<xsl:value-of select="$wu_url"/> ./component.cpp ../include/rng.h ../include/impulse.h $DIRNAME/
+cp $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$wu_url"/> ./component.cpp $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h $DIRNAME/
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $DIRNAME/release.xml
 
 echo 'g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC   -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
@@ -250,17 +298,21 @@ chmod +x build
 cd - &amp;&gt; /dev/null
 fi
 
-DIRNAME=$BRAHMS_NS/dev/SpineML/temp/PS/<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass"><xsl:value-of select="translate(@name,' -', 'oH')"/>
+DIRNAME=$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/PS/<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass"><xsl:value-of select="translate(@name,' -', 'oH')"/>
 </xsl:for-each>/brahms/0
-diff -q ../model/<xsl:value-of select="$ps_url"/> $DIRNAME/<xsl:value-of select="$ps_url"/> &amp;> /dev/null
-if [ $?  == 0 ]; then
+diff -q $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$ps_url"/> $DIRNAME/<xsl:value-of select="$ps_url"/> &amp;> /dev/null
+if [ $?  == 0 ] &amp;&amp; [ -f component.cpp ]; then
 LA="moo"
 #echo "PostSynapse component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping"
 else
-xsltproc -o component.cpp ../xsl/HL/SpineML_2_BRAHMS_CL_postsyn.xsl ../model/<xsl:value-of select="$model_xml"/>
-echo "Building postsynapse component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/>"
+echo "Building postsynapse component.cpp for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> in directory $DIRNAME"
+xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/component.cpp --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/HL/SpineML_2_BRAHMS_CL_postsyn.xsl $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$model_xml"/>
+if [ ! -f component.cpp ]; then
+echo "Error: no component.cpp was generated by xsltproc from HL/SpineML_2_BRAHMS_CL_postsyn.xsl and the model"
+exit -1
+fi
 mkdir -p $DIRNAME
-cp ../model/<xsl:value-of select="$ps_url"/> ./component.cpp ../include/rng.h ../include/impulse.h $DIRNAME/
+cp $SPINEML_2_BRAHMS_DIR/model/<xsl:value-of select="$ps_url"/> ./component.cpp $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h $DIRNAME/
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;> $DIRNAME/release.xml
 
 echo 'g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC   -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine' &amp;> $DIRNAME/build
@@ -275,16 +327,15 @@ fi
 		</xsl:for-each>
 	</xsl:for-each>
 </xsl:for-each>
-
-if [ $REBUILD_SYSTEMML = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys.xml ] ; then
+if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys.xml ] ; then
 echo "Building the SystemML system..."
-xsltproc -o sys.xml ../xsl/HL/SpineML_2_BRAHMS_NL.xsl ../model/$INPUT
+xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/sys.xml --stringparam spineml_2_brahms_dir $SPINEML_2_BRAHMS_DIR $XSL_SCRIPT_PATH/HL/SpineML_2_BRAHMS_NL.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
 else
 echo "Re-using the SystemML system."
 fi
-if [ $REBUILD_SYSTEMML = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml ] ; then
+if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml ] ; then
 echo "Building the SystemML execution..."
-xsltproc -o sys-exe.xml ../xsl/HL/SpineML_2_BRAHMS_EXPT.xsl ../model/$INPUT
+xsltproc -o $SPINEML_2_BRAHMS_DIR/temp/sys-exe.xml $XSL_SCRIPT_PATH/HL/SpineML_2_BRAHMS_EXPT.xsl $SPINEML_2_BRAHMS_DIR/model/$INPUT
 else
 echo "Re-using the SystemML execution."
 fi
@@ -294,8 +345,8 @@ echo "Done!"
 echo "Running!"
 #chmod +x brahms_launch
 
-echo "Executing: brahms --par-NamespaceRoots=$BRAHMS_NS:../tools sys-exe.xml"
-brahms --par-NamespaceRoots=$BRAHMS_NS:../tools sys-exe.xml
+echo "Executing: brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:../tools sys-exe.xml"
+brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:../tools sys-exe.xml
 
 
 </xsl:when>
