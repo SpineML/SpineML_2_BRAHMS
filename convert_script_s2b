@@ -130,7 +130,7 @@ fi
 
 if [ -d /usr/lib/spineml-2-brahms ]; then
     # We have a pre-compiled spineml-2-brahms
-    echo "You have a pre-compiled spineml-2-brahms namespace installed. Copying this into your spineml-2-brahms dir"
+    echo "You have a pre-compiled spineml-2-brahms namespace installed. Copying this into your spineml-2-brahms dir ($SPINEML_2_BRAHMS_DIR/Namespace)"
     set -e
     mkdir -p "$SPINEML_2_BRAHMS_DIR/Namespace"
     cp -Ra /usr/lib/spineml-2-brahms/* "$SPINEML_2_BRAHMS_DIR/Namespace/"
@@ -182,7 +182,7 @@ fi
 
 # Check if we have packaged/pre-installed xsl scripts
 XSL_SCRIPT_PATH="$SPINEML_2_BRAHMS_DIR/xsl"
-if [ -f "/usr/share/spineml-2-brahms/xsl/SpineML_2_BRAHMS_write_script_linux.xsl" ]; then
+if [ -f "/usr/share/spineml-2-brahms/xsl/SpineML_2_BRAHMS_write_script.xsl" ]; then
     echo "Using packaged version of the SpineML to BRAHMS xsl scripts"
     XSL_SCRIPT_PATH="/usr/share/spineml-2-brahms/xsl/"
 fi
