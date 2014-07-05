@@ -242,9 +242,19 @@ if [ -z "$BRAHMS_NS" ]; then
     fi
 
     if [ $OS = 'OSX' ]; then
-        export SYSTEMML_INSTALL_PATH="/Applications/SystemML"
-        # FIXME!
-        BRAHMS_NS="/Users/alex/Downloads/SpineML_2_BRAHMS/temp/Namespace"
+	if [ -d $HOME/SystemML ]; then
+	    # Use Brahms in home.
+	    export SYSTEMML_INSTALL_PATH="$HOME/SystemML"
+	    BRAHMS_NS="$HOME/SystemML/Namespace"
+	# Poss: elif [ -d /Applications/SystemML ]; then
+	    # Use installed Brahms
+	else
+	    # Assume User has installed SpineCreator and has the bundled Brahms
+            export SYSTEMML_INSTALL_PATH="/Applications/spinecreator.app/Contents/MacOS/SystemML"
+	    # This is the SpineCreator-bundled path to Namespace:
+            # /Applications/spinecreator.app/Contents/MacOS/SystemML/Namespace/
+            BRAHMS_NS="/Applications/spinecreator.app/Contents/MacOS/SystemML/Namespace"
+	fi
     fi
 fi
 
