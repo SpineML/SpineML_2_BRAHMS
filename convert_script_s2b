@@ -43,6 +43,8 @@ Options are:
                exist, the xsltproc calls DO go ahead, despite the presence of
                this option.
 
+  -r           DO rebuild the Brahms components, even if they already exist.
+
 EOF
    exit 0
 }
@@ -69,13 +71,17 @@ fi
 # the rebuild needs to go ahead.
 REBUILD_SYSTEMML="true"
 
+REBUILD_COMPONENTS="false"
+
 # Parse cmd line options
-while getopts w:s\? opt
+while getopts w:sr\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
             ;;
         s)  REBUILD_SYSTEMML="false"
+            ;;
+        r)  REBUILD_COMPONENTS="true"
             ;;
         \?) usage
             ;;
@@ -201,22 +207,10 @@ rm "$SPINEML_2_BRAHMS_DIR/temp/rep*xml*" >/dev/null 2>&1
 rm "$SPINEML_2_BRAHMS_DIR/temp/sys*" >/dev/null 2>&1
 rm "$SPINEML_2_BRAHMS_DIR/temp/output_script" >/dev/null 2>&1
 
-# create script (platform specific)
-if [ $OS = 'Linux32' ]; then
-    xsltproc -o "$SPINEML_2_BRAHMS_DIR/temp/output.script" \
-        "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script_linux.xsl" \
-        "$SPINEML_2_BRAHMS_DIR/model/experiment.xml"
-fi
-if [ $OS = 'Linux64' ]; then
-    xsltproc -o "$SPINEML_2_BRAHMS_DIR/temp/output.script" \
-        "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script_linux.xsl" \
-        "$SPINEML_2_BRAHMS_DIR/model/experiment.xml"
-fi
-if [ $OS = 'OSX' ]; then
-    xsltproc -o "$SPINEML_2_BRAHMS_DIR/temp/output.script" \
-        "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script_osx.xsl" \
-        "$SPINEML_2_BRAHMS_DIR/model/experiment.xml"
-fi
+# create the output script using an xsl translation and the experiment.xml file
+xsltproc -o "$SPINEML_2_BRAHMS_DIR/temp/output.script" --stringparam hostos "$OS" \
+         "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script.xsl" \
+         "$SPINEML_2_BRAHMS_DIR/model/experiment.xml"
 if [ "$?" -ne "0" ]; then
     echo "Failed to run xsltproc to produce the output script from your model. Exiting."
     exit -1;
@@ -232,7 +226,7 @@ fi
 
 # Configure environment variables for brahms
 if [ -z "$BRAHMS_NS" ]; then
-    echo "Using defaults for BRAHMS_NS, REBUILD and SYSTEMML_INSTALL_PATH."
+    echo "Using defaults for BRAHMS_NS and SYSTEMML_INSTALL_PATH."
 
     if [ $OS = 'Linux32' ] || [ $OS = 'Linux64' ]; then
         if [ -f /usr/bin/brahms ]; then
@@ -252,16 +246,13 @@ if [ -z "$BRAHMS_NS" ]; then
         # FIXME!
         BRAHMS_NS="/Users/alex/Downloads/SpineML_2_BRAHMS/temp/Namespace"
     fi
-
-    # Rebuild defaults to false for all platforms
-    REBUILD="false"
 fi
 
 # run the script
 pushd "$SPINEML_2_BRAHMS_DIR/temp"
 echo "In directory: " `pwd`
 echo "Execute: ./output.script experiment.xml $REBUILD $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $REBUILD_SYSTEMML $XSL_SCRIPT_PATH"
-./output.script experiment.xml "$REBUILD" "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$REBUILD_SYSTEMML" "$XSL_SCRIPT_PATH"
+./output.script experiment.xml "$REBUILD_COMPONENTS" "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$REBUILD_SYSTEMML" "$XSL_SCRIPT_PATH"
 if [ "$?" -ne "0" ]; then
     echo "Failed to run output.script on the experiment.xml. Falling at the last hurdle."
     exit -1;
