@@ -225,7 +225,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	<xsl:attribute name="AuthToolVersion">0</xsl:attribute>
 	<m c="f"><xsl:value-of select="$sizeIn"/></m>
 	<m c="f"><xsl:value-of select="$sizeOut"/></m>
-	<m><xsl:value-of select="$spineml_2_brahms_dir"/>/model/</m>
+	<m><xsl:value-of select="$spineml_model_dir"/>/</m>
 	<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">
 		<m><xsl:value-of select="./SMLNL:ConnectionList/SMLNL:BinaryFile/@file_name"/></m>
 		<m c="f"><xsl:value-of select="./SMLNL:ConnectionList/SMLNL:BinaryFile/@num_connections"/></m>

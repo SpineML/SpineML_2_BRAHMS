@@ -46,6 +46,10 @@ Options are:
   -r           DO rebuild the Brahms components, even if they already exist.
 
   -m modeldir  Set the model directory - the location of the experiment xml files.
+               Defaults to $SPINEML_2_BRAHMS_DIR/model.
+
+  -o outdir    Set the output directory for temporary files and data output.
+               Defaults to $SPINEML_2_BRAHMS_DIR/temp.
 
 EOF
    exit 0
@@ -75,11 +79,13 @@ REBUILD_SYSTEMML="true"
 
 REBUILD_COMPONENTS="false"
 
-# Input directory containin the model. This is the default.
-MODEL_DIR="$SPINEML_2_BRAHMS_DIR/model"
+# Input directory containing the model.
+MODEL_DIR="model"
+# The output directory for temporary files and output logs.
+OUTPUT_DIR="temp"
 
 # Parse cmd line options
-while getopts w:srm:\? opt
+while getopts w:srm:o:\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -88,8 +94,9 @@ do
             ;;
         r)  REBUILD_COMPONENTS="true"
             ;;
-        m)
-            MODEL_DIR="$OPTARG"
+        m)  MODEL_DIR="$OPTARG"
+            ;;
+        o)  OUTPUT_DIR="$OPTARG"
             ;;
         \?) usage
             ;;
@@ -108,14 +115,23 @@ if [ ! -d "$SPINEML_2_BRAHMS_DIR" ]; then
 fi
 
 # Make sure we have both model and temp directories.
+if [ "x$MODEL_DIR" = "xmodel" ]; then
+    MODEL_DIR="$SPINEML_2_BRAHMS_DIR/model"
+fi
+echo "MODEL_DIR: $MODEL_DIR"
 mkdir -p "$MODEL_DIR"
 if [ "$?" -ne "0" ]; then
     echo "Failed to create model directory"
     exit -1
 fi
-mkdir -p "$SPINEML_2_BRAHMS_DIR/temp"
+
+if [ "x$OUTPUT_DIR" = "xtemp" ]; then
+    OUTPUT_DIR="$SPINEML_2_BRAHMS_DIR/temp"
+fi
+echo "OUTPUT_DIR: $OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR"
 if [ "$?" -ne "0" ]; then
-    echo "Failed to create temp directory"
+    echo "Failed to create temp/output directory"
     exit -1
 fi
 
@@ -211,12 +227,12 @@ if [ "x$XSLTPROC_BIN" = "x" ]; then
 fi
 
 # Clean up any old reports (MOVE?)
-rm "$SPINEML_2_BRAHMS_DIR/temp/rep*xml*" >/dev/null 2>&1
-rm "$SPINEML_2_BRAHMS_DIR/temp/sys*" >/dev/null 2>&1
-rm "$SPINEML_2_BRAHMS_DIR/temp/output_script" >/dev/null 2>&1
+rm "$OUTPUT_DIR/rep*xml*" >/dev/null 2>&1
+rm "$OUTPUT_DIR/sys*" >/dev/null 2>&1
+rm "$OUTPUT_DIR/output_script" >/dev/null 2>&1
 
 # create the output script using an xsl translation and the experiment.xml file
-xsltproc -o "$SPINEML_2_BRAHMS_DIR/temp/output.script" --stringparam hostos "$OS" \
+xsltproc -o "$OUTPUT_DIR/output.script" --stringparam hostos "$OS" \
          "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script.xsl" \
          "$MODEL_DIR/experiment.xml"
 if [ "$?" -ne "0" ]; then
@@ -225,8 +241,8 @@ if [ "$?" -ne "0" ]; then
 fi
 
 # script permissions
-if [ -e "$SPINEML_2_BRAHMS_DIR/temp/output.script" ]; then
-    chmod +x "$SPINEML_2_BRAHMS_DIR/temp/output.script"
+if [ -e "$OUTPUT_DIR/output.script" ]; then
+    chmod +x "$OUTPUT_DIR/output.script"
 else
     echo "ERROR: conversion script not created - is xsltproc installed?"
     exit -1
@@ -267,7 +283,7 @@ if [ -z "$BRAHMS_NS" ]; then
 fi
 
 # run the script
-pushd "$SPINEML_2_BRAHMS_DIR/temp"
+pushd "$OUTPUT_DIR"
 echo "In directory: " `pwd`
 echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $MODEL_DIR experiment.xml $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH"
 ./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$MODEL_DIR" experiment.xml "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"
