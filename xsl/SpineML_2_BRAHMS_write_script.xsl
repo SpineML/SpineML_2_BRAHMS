@@ -224,7 +224,7 @@ echo "Done!"
 
 # run!
 echo "Executing: brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:../tools $OUTPUT_DIR/sys-exe.xml"
-brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:../tools $OUTPUT_DIR/sys-exe.xml
+brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools $OUTPUT_DIR/sys-exe.xml
 
 </xsl:when>
 <!-- SpineML high level network layer -->
