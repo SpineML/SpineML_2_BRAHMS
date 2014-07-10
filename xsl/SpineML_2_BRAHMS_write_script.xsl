@@ -37,7 +37,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 
 <xsl:choose>
 
-<!-- SpineML low level network layer: -->
+<!-- SpineML low level network layer: START SMLLOWNL SECTION -->
 <xsl:when test="SMLLOWNL:SpineML">#!/bin/bash
 REBUILD_COMPONENTS=$1
 REBUILD_SYSTEMML=$2
@@ -223,14 +223,15 @@ fi
 echo "Done!"
 
 # run!
-echo "Executing: brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:../tools $OUTPUT_DIR/sys-exe.xml"
+echo "Executing: brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools $OUTPUT_DIR/sys-exe.xml"
 brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools $OUTPUT_DIR/sys-exe.xml
 
-</xsl:when>
+</xsl:when> <!-- END SMLLOWNL SECTION -->
+
 <!-- SpineML high level network layer -->
 <!-- FIXME: Need to reproduce the script above for SMLLOWNL here, with SMLLOWNL replaced by SMLNL: -->
 <xsl:when test="SMLNL:SpineML">#/bin/bash
-echo "Duplicate code for the SMLNL case."
+echo "Duplicate code for the SMLLOWNL case from START SMLLOWNL SECTION to END SMLLOWNL SECTION."
 exit 1
 </xsl:when>
 <xsl:otherwise>
