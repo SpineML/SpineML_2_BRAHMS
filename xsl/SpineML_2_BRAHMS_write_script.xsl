@@ -42,28 +42,81 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 REBUILD_COMPONENTS=$1
 REBUILD_SYSTEMML=$2
 MODEL_DIR=$3
-INPUT=$4 # always experiment.xml.
+INPUT=$4 <!-- always experiment.xml -->
 BRAHMS_NS=$5
 SPINEML_2_BRAHMS_DIR=$6
-OUTPUT_DIR=$7 # The directory in which to generate output script and produce actual output.
+OUTPUT_DIR=$7 <!-- The directory in which to generate output script and produce actual output. -->
 XSL_SCRIPT_PATH=$8
+NODES=$9 <!-- Number of machine nodes to use. If >1, then this assumes we're using Sun Grid Engine. -->
 
-# Working directory - need to pass this to xsl scripts as we no longer have them inside the current working tree.
+if [ "x$NODES" = "x" ]; then
+  NODES=1
+fi
+
+# Are we in Sun Grid Engine mode?
+if [[ "$NODES" -gt 1 ]]; then
+  echo "Submitting execution Sun Grid Engine with $NODES nodes."
+fi
+
+<!-- Working directory - need to pass this to xsl scripts as we no
+     longer have them inside the current working tree. -->
 echo "SPINEML_2_BRAHMS_DIR is $SPINEML_2_BRAHMS_DIR"
 
-# A note about Namespaces
-#
-# A Brahms installation will exist along with a SpineML_2_BRAHMS installation.
-# Each installation may have its own namespace, and these are referred to here
-# as BRAHMS_NS and SPINEML_2_BRAHMS_NS.
-#
-# All SpineML_2_BRAHMS components are compiled and held in the SPINEML_2_BRAHMS_NS
-# The BRAHMS_NS contains the Brahms components, as distributed either as the Debian
-# package or the Brahms binary package. Both namespaces are passed to the brahms call.
-#
+<!--
+A note about Namespaces
+
+A Brahms installation will exist along with a SpineML_2_BRAHMS installation.
+Each installation may have its own namespace, and these are referred to here
+as BRAHMS_NS and SPINEML_2_BRAHMS_NS.
+
+All SpineML_2_BRAHMS components are compiled and held in the SPINEML_2_BRAHMS_NS
+The BRAHMS_NS contains the Brahms components, as distributed either as the Debian
+package or the Brahms binary package. Both namespaces are passed to the brahms call.
+-->
 SPINEML_2_BRAHMS_NS=$SPINEML_2_BRAHMS_DIR/Namespace
 echo "SPINEML_2_BRAHMS_NS is $SPINEML_2_BRAHMS_NS"
 echo "BRAHMS_NS is $BRAHMS_NS"
+
+<!-- We have enough information at this point in the script to build our BRAHMS_CMD: -->
+BRAHMS_CMD="brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools $OUTPUT_DIR/sys-exe.xml"
+
+<!--
+ If we're in "Sun Grid Engine mode", we can submit our brahms execution scripts
+ to the Sun Grid Engine. For each node:
+ 1. Write out the script (in our OUTPUT_DIR).
+ 2. qsub it.
+-->
+if [[ "$NODES" -gt 1 ]]; then # Sun Grid Engine mode
+
+  <!-- Ensure sys-exe.xml is not present to begin with: -->
+  rm -f $OUTPUT_DIR/sys-exe.xml
+
+  <!-- For each node: -->
+  for (( NODE=1; NODE&lt;=$NODES; NODE++ )); do
+  <!-- for NODE in {1..$NODES}; do --> <!-- bash version 3+ required -->
+    echo "Writing run_brahms qsub shell script: $OUTPUT_DIR/run_brahms_$NODE.sh for node $NODE of $NODES"
+    cat &gt; "$OUTPUT_DIR/run_brahms_$NODE.sh" &lt;&lt;EOF
+#!/bin/sh
+#$  -l mem=8G -l h_rt=04:00:00
+# First, before executing brahms, this script must find out its IP address and write this into a file. 
+
+# Obtain first IPv4 address from an eth device.
+
+MYIP=\`ip addr show|grep eth[0-9]|grep inet | awk -F ' ' '{print \$2}' | awk -F '/' '{print \$1}' | head -n1\`
+echo "\$MYIP" &gt; $OUTPUT_DIR/brahms_$NODE.ip
+
+# Now wait until sys-exe.xml has appeared
+while [ ! -f $OUTPUT_DIR/sys-exe.xml ]; do
+  sleep 1
+done
+
+# Finally, can run brahms
+$BRAHMS_CMD --voice-$NODE
+EOF
+
+  qsub $OUTPUT_DIR/run_brahms_$NODE.sh
+done
+fi
 
 DEBUG="false"
 
@@ -90,7 +143,7 @@ echo "SPINEML_2_BRAHMS_INCLUDE_PATH=$SPINEML_2_BRAHMS_INCLUDE_PATH"
 #set -e
 if [ "$REBUILD_COMPONENTS" = "true" ]; then
 # clean up the temporary dirs - we don't want old component versions lying around!
-rm -R $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/*  &amp;> /dev/null
+rm -R $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/*  &amp;&gt; /dev/null
 fi
 echo "Creating the Neuron populations..."
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
@@ -208,26 +261,62 @@ fi
 		</xsl:for-each>
 	</xsl:for-each>
 </xsl:for-each>
+
 if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f $OUTPUT_DIR/sys.xml ] ; then
-echo "Building the SystemML system..."
-xsltproc -o $OUTPUT_DIR/sys.xml --stringparam spineml_model_dir $MODEL_DIR $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl $MODEL_DIR/$INPUT
+  echo "Building the SystemML system..."
+  xsltproc -o $OUTPUT_DIR/sys.xml --stringparam spineml_model_dir $MODEL_DIR $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl $MODEL_DIR/$INPUT
 else
-echo "Re-using the SystemML system."
+  echo "Re-using the SystemML system."
 fi
+
 if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f $OUTPUT_DIR/sys-exe.xml ] ; then
+
 echo "Building the SystemML execution..."
-xsltproc -o $OUTPUT_DIR/sys-exe.xml $XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_EXPT.xsl $MODEL_DIR/$INPUT
+
+<!--
+If in Sun Grid Engine mode, need to read all IP addresses before building sys-exe.xml.
+Write the voices into a small xml file which will be used as input to xsltproc.
+-->
+if [[ "$NODES" -gt 1 ]]; then
+  for (( NODE=1; NODE&lt;=$NODES; NODE++ )); do
+    COUNTER="1"
+    while [ ! -f $OUTPUT_DIR/brahms_$NODE.ip ] &amp;&amp; [ "$COUNTER" -lt 10 ]; do
+      sleep 1
+      COUNTER=$((COUNTER+1))
+    done
+    if [ ! -f $OUTPUT_DIR/brahms_$NODE.ip ]; then
+      <!-- Still no IP, that's an error. -->
+      echo "Error: Failed to learn IP address for brahms node $NODE, exiting."
+      exit -1
+    fi <!-- else we have the IP, so can read it to send it into the xsltproc call. -->
+  done
+
+  echo -n "&lt;Voices&gt;" &gt; "$OUTPUT_DIR/brahms_voices.xml"
+  for (( NODE=1; NODE&lt;=$NODES; NODE++ )); do
+    read NODEIP &lt; "$OUTPUT_DIR/brahms_$NODE.ip"
+    echo -n "&lt;Voice&gt;&lt;Address protocol=\&quot;sockets\&quot;&gt;$NODEIP&lt;/Address&gt;&lt;/Voice&gt;" &gt;&gt; "$OUTPUT_DIR/brahms_voices.xml"
+  done
+  echo -n "&lt;/Voices&gt;" &gt;&gt; "$OUTPUT_DIR/brahms_voices.xml"
 else
-echo "Re-using the SystemML execution."
+  echo "&lt;Voices&gt;&lt;Voice/&gt;&lt;/Voices&gt;" &gt; "$OUTPUT_DIR/brahms_voices.xml"
 fi
+
+echo xsltproc -o "$OUTPUT_DIR/sys-exe.xml" --stringparam voices_file "$OUTPUT_DIR/brahms_voices.xml" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_EXPT.xsl" "$MODEL_DIR/$INPUT"
+xsltproc -o "$OUTPUT_DIR/sys-exe.xml" --stringparam voices_file "$OUTPUT_DIR/brahms_voices.xml" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_EXPT.xsl" "$MODEL_DIR/$INPUT"
+
+else
+  echo "Re-using the SystemML execution."
+fi
+
 echo "Done!"
 
-# run!
-echo "Executing: brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools $OUTPUT_DIR/sys-exe.xml"
-brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools $OUTPUT_DIR/sys-exe.xml
-
-</xsl:when> <!-- END SMLLOWNL SECTION -->
-
+<!-- If not in Sun Grid Engine mode, run! -->
+if [[ "$NODES" -eq 1 ]]; then
+  echo "Executing: $BRAHMS_CMD"
+  $BRAHMS_CMD
+fi
+</xsl:when>
+<!-- END SMLLOWNL SECTION -->
 <!-- SpineML high level network layer -->
 <!-- FIXME: Need to reproduce the script above for SMLLOWNL here, with SMLLOWNL replaced by SMLNL: -->
 <xsl:when test="SMLNL:SpineML">#/bin/bash
