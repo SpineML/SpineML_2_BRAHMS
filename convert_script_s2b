@@ -51,6 +51,9 @@ Options are:
   -o outdir    Set the output directory for temporary files and data output.
                Defaults to $SPINEML_2_BRAHMS_DIR/temp.
 
+  -n nodes     Sun Grid Engine: Number of nodes on which to launch brahms
+               instances.
+
 EOF
    exit 0
 }
@@ -84,8 +87,11 @@ MODEL_DIR="model"
 # The output directory for temporary files and output logs.
 OUTPUT_DIR="temp"
 
+# Number of nodes
+NODES=1
+
 # Parse cmd line options
-while getopts w:srm:o:\? opt
+while getopts w:srm:o:n:\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -98,18 +104,27 @@ do
             ;;
         o)  OUTPUT_DIR="$OPTARG"
             ;;
+        n)  NODES="$OPTARG"
+            ;;
         \?) usage
             ;;
     esac
 done
 shift `expr $OPTIND - 1`
 
+# Check NODES is a number:
+re='^[0-9]+$'
+if ! [[ $NODES =~ $re ]] ; then
+    echo "Please enter a positive integer for the number of processing nodes." >&2
+    exit -1
+fi
+
 # Do we have the ~/spineml-2-brahms directory in place? If not, create
 # it.
 if [ ! -d "$SPINEML_2_BRAHMS_DIR" ]; then
     mkdir -p "$SPINEML_2_BRAHMS_DIR"
     if [ "$?" -ne "0" ]; then
-        echo "Failed to create directory $SPINEML_2_BRAHMS_DIR. Exiting."
+        echo "Failed to create directory $SPINEML_2_BRAHMS_DIR. Exiting." >&2
         exit -1
     fi
 fi
@@ -121,7 +136,7 @@ fi
 echo "MODEL_DIR: $MODEL_DIR"
 mkdir -p "$MODEL_DIR"
 if [ "$?" -ne "0" ]; then
-    echo "Failed to create model directory"
+    echo "Failed to create model directory" >&2
     exit -1
 fi
 
@@ -131,7 +146,7 @@ fi
 echo "OUTPUT_DIR: $OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 if [ "$?" -ne "0" ]; then
-    echo "Failed to create temp/output directory"
+    echo "Failed to create temp/output directory" >&2
     exit -1
 fi
 
@@ -214,15 +229,15 @@ fi
 # First check we have an experiment.xml file to work from.
 # Could use cmd-line arg $INPUT here for the experiment file.
 if [ ! -f "$MODEL_DIR/experiment.xml" ]; then
-    echo "No experiment description to work from in $MODEL_DIR/experiment.xml"
-    echo "Exiting."
+    echo "No experiment description to work from in $MODEL_DIR/experiment.xml" >&2
+    echo "Exiting." >&2
     exit -1
 fi
 
 # Check we have xsltproc
 XSLTPROC_BIN=`which xsltproc`
 if [ "x$XSLTPROC_BIN" = "x" ]; then
-    echo "Couldn't find the xsltproc binary, exiting."
+    echo "Couldn't find the xsltproc binary, exiting." >&2
     exit -1
 fi
 
@@ -236,7 +251,7 @@ xsltproc -o "$OUTPUT_DIR/output.script" --stringparam hostos "$OS" \
          "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script.xsl" \
          "$MODEL_DIR/experiment.xml"
 if [ "$?" -ne "0" ]; then
-    echo "Failed to run xsltproc to produce the output script from your model. Exiting."
+    echo "Failed to run xsltproc to produce the output script from your model. Exiting." >&2
     exit -1;
 fi
 
@@ -244,7 +259,7 @@ fi
 if [ -e "$OUTPUT_DIR/output.script" ]; then
     chmod +x "$OUTPUT_DIR/output.script"
 else
-    echo "ERROR: conversion script not created - is xsltproc installed?"
+    echo "ERROR: conversion script not created - is xsltproc installed?" >&2
     exit -1
 fi
 
@@ -285,10 +300,10 @@ fi
 # run the script
 pushd "$OUTPUT_DIR"
 echo "In directory: " `pwd`
-echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $MODEL_DIR experiment.xml $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH"
-./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$MODEL_DIR" experiment.xml "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"
+echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $MODEL_DIR experiment.xml $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH $NODES"
+./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$MODEL_DIR" experiment.xml "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH" "$NODES"
 if [ "$?" -ne "0" ]; then
-    echo "Failed to run output.script on the experiment.xml. Falling at the last hurdle."
+    echo "Failed to run output.script on the experiment.xml. Falling at the last hurdle." >&2
     exit -1;
 fi
 popd
