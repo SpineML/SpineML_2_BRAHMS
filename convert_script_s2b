@@ -51,8 +51,12 @@ Options are:
   -o outdir    Set the output directory for temporary files and data output.
                Defaults to $SPINEML_2_BRAHMS_DIR/temp.
 
-  -n nodes     Sun Grid Engine: Number of nodes on which to launch brahms
-               instances.
+  -n nodes     Use Sun Grid Engine: Provide the number of nodes on which to
+               launch brahms instances. NB: Currently, only IPv4 TCP/IP is used
+               to transfer data between nodes, not MPI/Infiniband.
+
+  -a arch      Request specific architecture for each node (amd or intel). Only
+               takes effect when using Sun Grid Engine mode (-n)
 
 EOF
    exit 0
@@ -88,10 +92,11 @@ MODEL_DIR="model"
 OUTPUT_DIR="temp"
 
 # Number of nodes
-NODES=1
+NODES=""
+NODEARCH=""
 
 # Parse cmd line options
-while getopts w:srm:o:n:\? opt
+while getopts w:srm:o:n:a:\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -106,6 +111,8 @@ do
             ;;
         n)  NODES="$OPTARG"
             ;;
+	a)  NODEARCH="$OPTARG"
+	    ;;
         \?) usage
             ;;
     esac
@@ -113,10 +120,15 @@ done
 shift `expr $OPTIND - 1`
 
 # Check NODES is a number:
-re='^[0-9]+$'
-if ! [[ $NODES =~ $re ]] ; then
-    echo "Please enter a positive integer for the number of processing nodes." >&2
-    exit -1
+if [[ "x$NODES" -ne "x" ]]; then # user provided -n option.
+    re='^[0-9]+$'
+    if ! [[ $NODES =~ $re ]] ; then
+	echo "Please enter a positive integer for the number of processing nodes." >&2
+	exit -1
+    fi
+
+    echo "Submitting execution on $NODES nodes."
+    echo "Node architecture requested: $NODEARCH"
 fi
 
 # Do we have the ~/spineml-2-brahms directory in place? If not, create
@@ -300,8 +312,8 @@ fi
 # run the script
 pushd "$OUTPUT_DIR"
 echo "In directory: " `pwd`
-echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $MODEL_DIR experiment.xml $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH $NODES"
-./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$MODEL_DIR" experiment.xml "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH" "$NODES"
+echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $MODEL_DIR experiment.xml $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH $NODES $NODEARCH"
+./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$MODEL_DIR" experiment.xml "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH" "$NODES" "$NODEARCH"
 if [ "$?" -ne "0" ]; then
     echo "Failed to run output.script on the experiment.xml. Falling at the last hurdle." >&2
     exit -1;

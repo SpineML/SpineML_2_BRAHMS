@@ -48,13 +48,24 @@ SPINEML_2_BRAHMS_DIR=$6
 OUTPUT_DIR=$7 <!-- The directory in which to generate output script and produce actual output. -->
 XSL_SCRIPT_PATH=$8
 NODES=$9 <!-- Number of machine nodes to use. If >1, then this assumes we're using Sun Grid Engine. -->
+NODEARCH=${10}
 
 if [ "x$NODES" = "x" ]; then
-  NODES=1
+  NODES=0
+fi
+
+<!-- Is user requesting specific architecture? -->
+if [ "x$NODEARCH" = "xamd" ]; then
+  NODEARCH="-l arch=amd*"
+elif [ "x$NODEARCH" = "xintel" ]; then
+  NODEARCH="-l arch=intel*"
+else
+  echo "Ignoring invalid node architecture '$NODEARCH'"
+  NODEARCH=""
 fi
 
 # Are we in Sun Grid Engine mode?
-if [[ "$NODES" -gt 1 ]]; then
+if [[ "$NODES" -gt 0 ]]; then
   echo "Submitting execution Sun Grid Engine with $NODES nodes."
 fi
 
@@ -86,18 +97,17 @@ BRAHMS_CMD="brahms --par-NamespaceRoots=$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML
  1. Write out the script (in our OUTPUT_DIR).
  2. qsub it.
 -->
-if [[ "$NODES" -gt 1 ]]; then # Sun Grid Engine mode
+if [[ "$NODES" -gt 0 ]]; then # Sun Grid Engine mode
 
   <!-- Ensure sys-exe.xml is not present to begin with: -->
   rm -f $OUTPUT_DIR/sys-exe.xml
 
   <!-- For each node: -->
   for (( NODE=1; NODE&lt;=$NODES; NODE++ )); do
-  <!-- for NODE in {1..$NODES}; do --> <!-- bash version 3+ required -->
     echo "Writing run_brahms qsub shell script: $OUTPUT_DIR/run_brahms_$NODE.sh for node $NODE of $NODES"
     cat &gt; "$OUTPUT_DIR/run_brahms_$NODE.sh" &lt;&lt;EOF
 #!/bin/sh
-#$  -l mem=8G -l h_rt=04:00:00
+#$  -l mem=8G -l h_rt=04:00:00 $NODEARCH
 # First, before executing brahms, this script must find out its IP address and write this into a file. 
 
 # Obtain first IPv4 address from an eth device.
@@ -276,8 +286,9 @@ if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f $OUTPUT_DIR/sys-exe.xml ] ; then
 echo "Building the SystemML execution..."
 
 <!--
-If in Sun Grid Engine mode, need to read all IP addresses before building sys-exe.xml.
-Write the voices into a small xml file which will be used as input to xsltproc.
+If in Sun Grid Engine mode and NODES is greater than 1, need to read all IP addresses
+before building sys-exe.xml. Write the voices into a small xml file - brahms_voices.xml
+- which will be used as input to xsltproc.
 -->
 if [[ "$NODES" -gt 1 ]]; then
   for (( NODE=1; NODE&lt;=$NODES; NODE++ )); do
@@ -313,9 +324,11 @@ fi
 echo "Done!"
 
 <!-- If not in Sun Grid Engine mode, run! -->
-if [[ "$NODES" -eq 1 ]]; then
+if [[ "$NODES" -eq 0 ]]; then
   echo "Executing: $BRAHMS_CMD"
   $BRAHMS_CMD
+else
+  echo "Simulation has been submitted to Sun Grid Engine."
 fi
 </xsl:when>
 <!-- END SMLLOWNL SECTION -->
