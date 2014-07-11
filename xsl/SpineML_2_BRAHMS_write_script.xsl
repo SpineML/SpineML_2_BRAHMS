@@ -142,6 +142,7 @@ echo "SPINEML_2_BRAHMS_INCLUDE_PATH=$SPINEML_2_BRAHMS_INCLUDE_PATH"
 # exit on first error
 #set -e
 if [ "$REBUILD_COMPONENTS" = "true" ]; then
+echo "Removing existing components in advance of rebuilding..."
 # clean up the temporary dirs - we don't want old component versions lying around!
 rm -R $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/*  &amp;&gt; /dev/null
 fi
@@ -160,7 +161,8 @@ echo "&lt;Number&gt;<xsl:value-of select="$number"/>&lt;/Number&gt;" &amp;&gt; c
 DIRNAME=$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0
 
 diff -q $MODEL_DIR/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> $DIRNAME/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/> &amp;> /dev/null
-if [ $? == 0 ] &amp;&amp; [ -f $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.cpp ] &amp;&amp; [ -f $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.so ]; then
+<!-- Check if the component exists and has changed -->
+if [ $? == 0 ] &amp;&amp; [ -f $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.cpp ] &amp;&amp; [ -f $SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/<xsl:value-of select="$component_output_file"/> ]; then
 echo "Component for population <xsl:value-of select="$number"/> exists, skipping"
 else
 echo "Creating component.cpp for population <xsl:value-of select="$number"/> in directory $DIRNAME"
