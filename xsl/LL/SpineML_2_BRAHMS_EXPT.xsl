@@ -6,6 +6,7 @@ xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer"
 xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer" 
 xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLOWNL SMLNL SMLCL SMLEXPT fn">
 <xsl:output method="xml" omit-xml-declaration="no" version="1.0" encoding="UTF-8" indent="yes"/>
+<xsl:param name="voices_file" select="'unknown'"/>
 <!--
 
 Ok, here we make an execution file from the Experiment file
@@ -30,9 +31,9 @@ Ok, here we make an execution file from the Experiment file
 			</xsl:if>
 		</xsl:for-each-->
 	</Logs>
-	<Voices>
-	<Voice/>
-	</Voices>
+	<xsl:copy>
+		<xsl:copy-of select="document($voices_file)"/>
+	</xsl:copy>
 	<Affinity/>
 	<ExecutionParameters>
 	<MaxThreadCount>x2</MaxThreadCount>

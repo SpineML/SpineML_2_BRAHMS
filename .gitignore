@@ -30,3 +30,4 @@ temp
 compile
 # Ignore emacs backup files:
 *~
+counter.file
