@@ -64,7 +64,7 @@ else
   NODEARCH=""
 fi
 
-# Are we in Sun Grid Engine mode?
+<!-- Are we in Sun Grid Engine mode? -->
 if [[ "$NODES" -gt 0 ]]; then
   echo "Submitting execution Sun Grid Engine with $NODES nodes."
 fi
@@ -293,7 +293,11 @@ before building sys-exe.xml. Write the voices into a small xml file - brahms_voi
 if [[ "$NODES" -gt 1 ]]; then
   for (( NODE=1; NODE&lt;=$NODES; NODE++ )); do
     COUNTER="1"
-    while [ ! -f $OUTPUT_DIR/brahms_$NODE.ip ] &amp;&amp; [ "$COUNTER" -lt 10 ]; do
+    <!-- Note that we have a 120 second timeout for getting the node IP here - this
+         is effectively the time that you have to wait for the SGE to start the job. -->
+    SUN_GRID_ENGINE_TIMEOUT="120"
+    echo "Waiting up to $SUN_GRID_ENGINE_TIMEOUT seconds for node $NODE to record its IP address..." 
+    while [ ! -f $OUTPUT_DIR/brahms_$NODE.ip ] &amp;&amp; [ "$COUNTER" -lt "$SUN_GRID_ENGINE_TIMEOUT" ]; do
       sleep 1
       COUNTER=$((COUNTER+1))
     done
