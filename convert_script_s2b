@@ -62,6 +62,23 @@ EOF
    exit 0
 }
 
+# A function to convert a relative path into an absolute path.
+function abspath {
+    # NB: Don't do any echos to stdout in here!
+    if [[ -d "$1" ]]; then
+        pushd "$1" >/dev/null
+        pwd
+        popd >/dev/null
+    elif [[ -e $1 ]]; then
+        pushd "$(dirname "$1")" >/dev/null
+        echo "$(pwd)/$(basename "$1")"
+        popd >/dev/null
+    else
+        echo "$1" does not exist! >&2
+        return 127
+    fi
+}
+
 # The default location for the spineml-2-brahms temporary files and input model(s)
 SPINEML_2_BRAHMS_DIR=$HOME"/spineml-2-brahms"
 
@@ -145,6 +162,7 @@ fi
 if [ "x$MODEL_DIR" = "xmodel" ]; then
     MODEL_DIR="$SPINEML_2_BRAHMS_DIR/model"
 fi
+MODEL_DIR=$(abspath $MODEL_DIR)
 echo "MODEL_DIR: $MODEL_DIR"
 mkdir -p "$MODEL_DIR"
 if [ "$?" -ne "0" ]; then
@@ -155,6 +173,7 @@ fi
 if [ "x$OUTPUT_DIR" = "xtemp" ]; then
     OUTPUT_DIR="$SPINEML_2_BRAHMS_DIR/temp"
 fi
+OUTPUT_DIR=$(abspath $OUTPUT_DIR)
 echo "OUTPUT_DIR: $OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 if [ "$?" -ne "0" ]; then
