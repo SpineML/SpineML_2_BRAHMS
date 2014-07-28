@@ -162,9 +162,9 @@ fi
 if [ "x$MODEL_DIR" = "xmodel" ]; then
     MODEL_DIR="$SPINEML_2_BRAHMS_DIR/model"
 fi
+mkdir -p "$MODEL_DIR"
 MODEL_DIR=$(abspath $MODEL_DIR)
 echo "MODEL_DIR: $MODEL_DIR"
-mkdir -p "$MODEL_DIR"
 if [ "$?" -ne "0" ]; then
     echo "Failed to create model directory" >&2
     exit -1
@@ -173,9 +173,9 @@ fi
 if [ "x$OUTPUT_DIR" = "xtemp" ]; then
     OUTPUT_DIR="$SPINEML_2_BRAHMS_DIR/temp"
 fi
+mkdir -p "$OUTPUT_DIR"
 OUTPUT_DIR=$(abspath $OUTPUT_DIR)
 echo "OUTPUT_DIR: $OUTPUT_DIR"
-mkdir -p "$OUTPUT_DIR"
 if [ "$?" -ne "0" ]; then
     echo "Failed to create temp/output directory" >&2
     exit -1
