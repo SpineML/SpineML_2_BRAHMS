@@ -6,7 +6,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:param name="hostos" select="'unknown'" />
 
 <xsl:template match="/">
-<!-- THIS IS A NON-PLATFORM SPECIFIC XSLT SCRIPT THAT GENERATES THE SIMPLE SCRIPT TO CREATE
+<!-- THIS IS A NON-PLATFORM SPECIFIC XSLT SCRIPT THAT GENERATES THE BASH SCRIPT TO CREATE
      THE PROCESSES / SYSTEM -->
 <!-- VERSION = LINUX OR OSX -->
 
@@ -142,7 +142,8 @@ while [ ! -f "$OUTPUT_DIR/sys-exe.xml" ]; do
 done
 
 # Finally, can run brahms
-eval $BRAHMS_CMD --voice-$NODE
+BRAHMS_CMD="brahms --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$OUTPUT_DIR/sys-exe.xml\" --voice-$NODE"
+eval \$BRAHMS_CMD
 EOF
 
   qsub "$OUTPUT_DIR/run_brahms_$NODE.sh"
@@ -338,7 +339,6 @@ else
   echo "&lt;Voices&gt;&lt;Voice/&gt;&lt;/Voices&gt;" &gt; "$OUTPUT_DIR/brahms_voices.xml"
 fi
 
-echo xsltproc -o "$OUTPUT_DIR/sys-exe.xml" --stringparam voices_file "$OUTPUT_DIR_XSL_FRIENDLY/brahms_voices.xml" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_EXPT.xsl" "$MODEL_DIR/$INPUT"
 xsltproc -o "$OUTPUT_DIR/sys-exe.xml" --stringparam voices_file "$OUTPUT_DIR_XSL_FRIENDLY/brahms_voices.xml" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_EXPT.xsl" "$MODEL_DIR/$INPUT"
 
 else
