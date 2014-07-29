@@ -58,6 +58,12 @@ Options are:
   -a arch      Request specific architecture for each node (amd or intel). Only
                takes effect when using Sun Grid Engine mode (-n)
 
+  -v           Make brahms output verbose debugging information (by passing the
+               --d brahms option)
+
+  -V           Make brahms output very verbose debugging information (by passing
+               the --dd brahms option)
+
 EOF
    exit 0
 }
@@ -87,13 +93,22 @@ SPINEML_2_BRAHMS_DIR=$HOME"/spineml-2-brahms"
 # for developers to use a localised version of SpineML_2_BRAHMS, and
 # for Mac)
 PWD=`pwd`
-if [ -d "$PWD/SpineML_2_BRAHMS" ]; then
+if [ $(basename $PWD) = "SpineML_2_BRAHMS" ]; then
+    # Really in-place style
+    SPINEML_2_BRAHMS_DIR=$PWD
+    echo "in-place style; SpineML 2 BRAHMS dir: $SPINEML_2_BRAHMS_DIR"
+
+elif [ -d "$PWD/SpineML_2_BRAHMS" ]; then
     # Working with SpineML_2_BRAHMS in current working directory - "in-place" style.
     SPINEML_2_BRAHMS_DIR="$PWD/SpineML_2_BRAHMS"
+    echo "Just outside in-place style; SpineML 2 BRAHMS dir: $SPINEML_2_BRAHMS_DIR"
 
 elif [ -d "$HOME/SpineML_2_BRAHMS" ]; then
     # Working with a $HOME/SpineML_2_BRAHMS installation - "in-home-dir" style.
     SPINEML_2_BRAHMS_DIR="$HOME/SpineML_2_BRAHMS"
+    echo "in-home-dir style SpineML 2 BRAHMS dir: $SPINEML_2_BRAHMS_DIR"
+else
+    echo "Working with SpineML 2 BRAHMS dir as $SPINEML_2_BRAHMS_DIR"
 fi
 
 # Rebuild temp/sys(-exe).xml? Defaults to "true". Ideally, this would
@@ -112,8 +127,10 @@ OUTPUT_DIR="temp"
 NODES=""
 NODEARCH=""
 
+VERBOSE_BRAHMS="no"
+
 # Parse cmd line options
-while getopts w:srm:o:n:a:\? opt
+while getopts w:srm:o:n:a:vV\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -130,6 +147,10 @@ do
             ;;
 	a)  NODEARCH="$OPTARG"
 	    ;;
+        v)  VERBOSE_BRAHMS="--d"
+            ;;
+        V)  VERBOSE_BRAHMS="--dd"
+            ;;
         \?) usage
             ;;
     esac
@@ -278,6 +299,9 @@ rm "$OUTPUT_DIR/sys*" >/dev/null 2>&1
 rm "$OUTPUT_DIR/output_script" >/dev/null 2>&1
 
 # create the output script using an xsl translation and the experiment.xml file
+echo xsltproc -o "$OUTPUT_DIR/output.script" --stringparam hostos "$OS" \
+         "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script.xsl" \
+         "$MODEL_DIR/experiment.xml"
 xsltproc -o "$OUTPUT_DIR/output.script" --stringparam hostos "$OS" \
          "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script.xsl" \
          "$MODEL_DIR/experiment.xml"
@@ -332,7 +356,7 @@ fi
 pushd "$OUTPUT_DIR"
 echo "In directory: " `pwd`
 echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $MODEL_DIR experiment.xml $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH $NODES $NODEARCH"
-./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$MODEL_DIR" experiment.xml "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH" "$NODES" "$NODEARCH"
+./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$MODEL_DIR" experiment.xml "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"  "$VERBOSE_BRAHMS" "$NODES" "$NODEARCH"
 if [ "$?" -ne "0" ]; then
     echo "Failed to run output.script on the experiment.xml. Falling at the last hurdle." >&2
     exit -1;

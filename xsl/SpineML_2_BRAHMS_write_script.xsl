@@ -47,8 +47,17 @@ BRAHMS_NS=$5
 SPINEML_2_BRAHMS_DIR=$6
 OUTPUT_DIR=$7 <!-- The directory in which to generate output script and produce actual output. -->
 XSL_SCRIPT_PATH=$8
-NODES=$9 <!-- Number of machine nodes to use. If >1, then this assumes we're using Sun Grid Engine. -->
-NODEARCH=${10}
+VERBOSE_BRAHMS=${9}
+NODES=${10} <!-- Number of machine nodes to use. If >1, then this assumes we're using Sun Grid Engine. -->
+NODEARCH=${11}
+
+echo "VERBOSE_BRAHMS: $VERBOSE_BRAHMS"
+echo "NODES: $NODES"
+echo "NODEARCH: $NODEARCH"
+
+if [ "x$VERBOSE_BRAHMS" = "xno" ]; then
+  VERBOSE_BRAHMS=""
+fi
 
 if [ "x$NODES" = "x" ]; then
   NODES=0
@@ -110,7 +119,7 @@ echo "SPINEML_2_BRAHMS_NS is $SPINEML_2_BRAHMS_NS"
 echo "BRAHMS_NS is $BRAHMS_NS"
 
 <!-- We have enough information at this point in the script to build our BRAHMS_CMD: -->
-BRAHMS_CMD="brahms --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$OUTPUT_DIR/sys-exe.xml\""
+BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$OUTPUT_DIR/sys-exe.xml\""
 
 <!--
  If we're in "Sun Grid Engine mode", we can submit our brahms execution scripts
@@ -142,7 +151,7 @@ while [ ! -f "$OUTPUT_DIR/sys-exe.xml" ]; do
 done
 
 # Finally, can run brahms
-BRAHMS_CMD="brahms --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$OUTPUT_DIR/sys-exe.xml\" --voice-$NODE"
+BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$OUTPUT_DIR/sys-exe.xml\" --voice-$NODE"
 eval \$BRAHMS_CMD
 EOF
 
