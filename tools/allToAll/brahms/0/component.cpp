@@ -93,13 +93,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// obtain the parameters
 			VDOUBLE size = nodeState.getField("sizeIn").getArrayDOUBLE();
 			numElementsIn = 1;
-			for (int i = 0; i < size.size(); ++i) {
+			for (unsigned int i = 0; i < size.size(); ++i) {
 				numElementsIn *= size[i];
 			}		
 
 			size = nodeState.getField("sizeOut").getArrayDOUBLE();
 			numElementsOut = 1;
-			for (int i = 0; i < size.size(); ++i) {
+			for (unsigned int i = 0; i < size.size(); ++i) {
 				numElementsOut *= size[i];
 			}
 			
@@ -158,7 +158,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				inData = (DOUBLE*) in.getContent();
 			
 				DOUBLE sum = 0;
-				for (UINT32 i = 0; i < numElementsIn; ++i) {
+				for (UINT32 i = 0; i < (UINT32)numElementsIn; ++i) {
 					sum += inData[i];
 				}
 			
@@ -176,7 +176,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				
 			
 				VINT32 outData;
-				for (UINT32 i = 0; i < numElementsOut; ++i) {
+				for (UINT32 i = 0; i < (UINT32)numElementsOut; ++i) {
 					for (UINT32 j = 0; j < numSpikes; ++j) {
 						outData.push_back(i);
 					}
@@ -203,7 +203,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				}
 			
 				VINT32 outData;
-				for (UINT32 i = 0; i < numElementsOut; ++i) {
+				for (UINT32 i = 0; i < (UINT32)numElementsOut; ++i) {
 					addImpulse(outData, i, totalImpulse);
 				}
 	

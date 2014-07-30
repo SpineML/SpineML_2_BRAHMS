@@ -193,16 +193,16 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
         //	on last call
         if (event->flags & F_LAST_CALL) {
-            int inputs;
+            //int inputs; // commented out because inputs was "set but not used" (compiler warning)
             switch (dataType) {
             case ANALOG:
             {
-                inputs = iif.getNumberOfPorts();
+                /*inputs =*/ iif.getNumberOfPorts();
                 in.attach(hComponent, "in");
                 const numeric::Structure * structure = in.getStructure();
                 size = structure->dims.dims[0];
                 // sanity check
-                for (int i = 0; i < logMap.size(); ++i) {
+                for (unsigned int i = 0; i < logMap.size(); ++i) {
                     if (logMap[i] > size-1) {
                         berr << "Requested index out of range on External Output";
                     }
@@ -225,7 +225,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
             case EVENT:
             {
-                inputs = iif.getNumberOfPorts();
+                /*inputs =*/ iif.getNumberOfPorts();
                 ins.attach(hComponent, "in");
             }
             break;
@@ -264,7 +264,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
                     VDOUBLE buffer;
 
                     // remap data
-                    for (int i = 0; i < logMap.size(); ++i) {
+                    for (unsigned int i = 0; i < logMap.size(); ++i) {
                         buffer.push_back(data[logMap[i]]);
                     }
 

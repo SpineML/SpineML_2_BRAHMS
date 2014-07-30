@@ -99,13 +99,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// obtain the parameters
 			VDOUBLE size = nodeState.getField("sizeIn").getArrayDOUBLE();
 			numElementsIn = 1;
-			for (int i = 0; i < size.size(); ++i) {
+			for (unsigned int i = 0; i < size.size(); ++i) {
 				numElementsIn *= size[i];
 			}		
 
 			size = nodeState.getField("sizeOut").getArrayDOUBLE();
 			numElementsOut = 1;
-			for (int i = 0; i < size.size(); ++i) {
+			for (unsigned int i = 0; i < size.size(); ++i) {
 				numElementsOut *= size[i];
 			}
 			
@@ -116,8 +116,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			seed = seedVal;
 
 			// generate connectivity
-			for (UINT32 i = 0; i < numElementsIn; ++i) {
-				for (UINT32 j = 0; j < numElementsOut; ++j) {
+			for (UINT32 i = 0; i < (UINT32)numElementsIn; ++i) {
+			  for (UINT32 j = 0; j < (UINT32)numElementsOut; ++j) {
 					if (p < uniformGCC()) {
 						srcInds.push_back(i);
 						dstInds.push_back(j);
@@ -157,7 +157,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					
 					// create lookup for spikes
 					spikeInds.resize(numElementsIn);
-					for (int i = 0; i < srcInds.size(); ++i) {
+					for (unsigned int i = 0; i < srcInds.size(); ++i) {
 						spikeInds[srcInds[i]].push_back(dstInds[i]);			
 					}
 					
@@ -170,7 +170,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				
 					// create lookup for spikes
 					spikeInds.resize(numElementsIn);
-					for (int i = 0; i < srcInds.size(); ++i) {
+					for (unsigned int i = 0; i < srcInds.size(); ++i) {
 						spikeInds[srcInds[i]].push_back(dstInds[i]);			
 					}
 				
@@ -227,7 +227,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				UINT32 count;
 				count = ini.getContent(data);
 						
-				DOUBLE totalImpulse = 0;
+				//DOUBLE totalImpulse = 0;
 					
 				VINT32 outData;	
 				// for each impulse

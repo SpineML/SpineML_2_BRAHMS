@@ -17,7 +17,7 @@ int getTime() {
 float uniformGCC() {
 	
 	seed = abs(seed*a_RNG+c_RNG);
-	float val;
+	//float val;
 	float seed2 = seed/2147483648.0;
 	return seed2;
 }
@@ -39,7 +39,7 @@ float nfix(void) { /*provides RNOR if #define cannot */
     return (hz>0)? r+x : -r-x;
     }
     if( fn[iz]+UNI*(fn[iz-1]-fn[iz]) < exp(-.5*x*x) ) return x;
-    hz=SHR3; iz=hz&127;if(abs(hz)<kn[iz]) return (hz*wn[iz]);
+    hz=SHR3; iz=hz&127;if(abs(hz)<(int)kn[iz]) return (hz*wn[iz]);
     }
 }
 float efix(void) { /*provides REXP if #define cannot */
@@ -90,7 +90,7 @@ void zigset(unsigned int jsrseed) {
 int slowBinomial(int N, float p) {
 	
 	int num = 0;
-	for (unsigned int i = 0; i < N; ++i) {
+	for (int i = 0; i < N; ++i) {
 		if (UNI < p)
 			++num;
 	}

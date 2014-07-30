@@ -19,9 +19,15 @@ missing
 *.libs
 *component.la
 *component.lo
+*component.dylib
 # Files created when running in "monolithic mode":
 *component.so
 Namespace
 current_os
 model
 temp
+# Created on Mac (by autotools, I think)
+compile
+# Ignore emacs backup files:
+*~
+counter.file

@@ -18,9 +18,9 @@ usage: $0 [options]
 convert_script_s2b is used to process a model in SPINEML_2_BRAHMS_DIR/model/.
 
 It creates executable components from the SpineML descriptions provided in
-SPINEML_2_BRAHMS_DIR/model/ using XSL transformations. It outputs source code
-and executable code into a working directory, which defaults to
-$HOME/spineml-2-brahms
+SPINEML_2_BRAHMS_DIR/model/ (or your model dir) using XSL transformations. It
+outputs source code and executable code into a working directory, which defaults
+to $HOME/spineml-2-brahms
 
 It can use pre-compiled components from /usr/lib/spineml-2-brahms and pre-
 installed XSL files from /usr/share/spineml-2-brahms if it has been correctly
@@ -43,8 +43,46 @@ Options are:
                exist, the xsltproc calls DO go ahead, despite the presence of
                this option.
 
+  -r           DO rebuild the Brahms components, even if they already exist.
+
+  -m modeldir  Set the model directory - the location of the experiment xml files.
+               Defaults to $SPINEML_2_BRAHMS_DIR/model.
+
+  -o outdir    Set the output directory for temporary files and data output.
+               Defaults to $SPINEML_2_BRAHMS_DIR/temp.
+
+  -n nodes     Use Sun Grid Engine: Provide the number of nodes on which to
+               launch brahms instances. NB: Currently, only IPv4 TCP/IP is used
+               to transfer data between nodes, not MPI/Infiniband.
+
+  -a arch      Request specific architecture for each node (amd or intel). Only
+               takes effect when using Sun Grid Engine mode (-n)
+
+  -v           Make brahms output verbose debugging information (by passing the
+               --d brahms option)
+
+  -V           Make brahms output very verbose debugging information (by passing
+               the --dd brahms option)
+
 EOF
    exit 0
+}
+
+# A function to convert a relative path into an absolute path.
+function abspath {
+    # NB: Don't do any echos to stdout in here!
+    if [[ -d "$1" ]]; then
+        pushd "$1" >/dev/null
+        pwd
+        popd >/dev/null
+    elif [[ -e $1 ]]; then
+        pushd "$(dirname "$1")" >/dev/null
+        echo "$(pwd)/$(basename "$1")"
+        popd >/dev/null
+    else
+        echo "$1" does not exist! >&2
+        return 127
+    fi
 }
 
 # The default location for the spineml-2-brahms temporary files and input model(s)
@@ -55,13 +93,22 @@ SPINEML_2_BRAHMS_DIR=$HOME"/spineml-2-brahms"
 # for developers to use a localised version of SpineML_2_BRAHMS, and
 # for Mac)
 PWD=`pwd`
-if [ -d "$PWD/SpineML_2_BRAHMS" ]; then
+if [ $(basename $PWD) = "SpineML_2_BRAHMS" ]; then
+    # Really in-place style
+    SPINEML_2_BRAHMS_DIR=$PWD
+    echo "in-place style; SpineML 2 BRAHMS dir: $SPINEML_2_BRAHMS_DIR"
+
+elif [ -d "$PWD/SpineML_2_BRAHMS" ]; then
     # Working with SpineML_2_BRAHMS in current working directory - "in-place" style.
     SPINEML_2_BRAHMS_DIR="$PWD/SpineML_2_BRAHMS"
+    echo "Just outside in-place style; SpineML 2 BRAHMS dir: $SPINEML_2_BRAHMS_DIR"
 
 elif [ -d "$HOME/SpineML_2_BRAHMS" ]; then
     # Working with a $HOME/SpineML_2_BRAHMS installation - "in-home-dir" style.
     SPINEML_2_BRAHMS_DIR="$HOME/SpineML_2_BRAHMS"
+    echo "in-home-dir style SpineML 2 BRAHMS dir: $SPINEML_2_BRAHMS_DIR"
+else
+    echo "Working with SpineML 2 BRAHMS dir as $SPINEML_2_BRAHMS_DIR"
 fi
 
 # Rebuild temp/sys(-exe).xml? Defaults to "true". Ideally, this would
@@ -69,13 +116,40 @@ fi
 # the rebuild needs to go ahead.
 REBUILD_SYSTEMML="true"
 
+REBUILD_COMPONENTS="false"
+
+# Input directory containing the model.
+MODEL_DIR="model"
+# The output directory for temporary files and output logs.
+OUTPUT_DIR="temp"
+
+# Number of nodes
+NODES=""
+NODEARCH=""
+
+VERBOSE_BRAHMS="no"
+
 # Parse cmd line options
-while getopts w:s\? opt
+while getopts w:srm:o:n:a:vV\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
             ;;
         s)  REBUILD_SYSTEMML="false"
+            ;;
+        r)  REBUILD_COMPONENTS="true"
+            ;;
+        m)  MODEL_DIR="$OPTARG"
+            ;;
+        o)  OUTPUT_DIR="$OPTARG"
+            ;;
+        n)  NODES="$OPTARG"
+            ;;
+	a)  NODEARCH="$OPTARG"
+	    ;;
+        v)  VERBOSE_BRAHMS="--d"
+            ;;
+        V)  VERBOSE_BRAHMS="--dd"
             ;;
         \?) usage
             ;;
@@ -83,25 +157,48 @@ do
 done
 shift `expr $OPTIND - 1`
 
+# Check NODES is a number:
+if [[ "x$NODES" -ne "x" ]]; then # user provided -n option.
+    re='^[0-9]+$'
+    if ! [[ $NODES =~ $re ]] ; then
+	echo "Please enter a positive integer for the number of processing nodes." >&2
+	exit -1
+    fi
+
+    echo "Submitting execution on $NODES nodes."
+    echo "Node architecture requested: $NODEARCH"
+fi
+
 # Do we have the ~/spineml-2-brahms directory in place? If not, create
 # it.
 if [ ! -d "$SPINEML_2_BRAHMS_DIR" ]; then
     mkdir -p "$SPINEML_2_BRAHMS_DIR"
     if [ "$?" -ne "0" ]; then
-        echo "Failed to create directory $SPINEML_2_BRAHMS_DIR. Exiting."
+        echo "Failed to create directory $SPINEML_2_BRAHMS_DIR. Exiting." >&2
         exit -1
     fi
 fi
 
 # Make sure we have both model and temp directories.
-mkdir -p "$SPINEML_2_BRAHMS_DIR/model"
+if [ "x$MODEL_DIR" = "xmodel" ]; then
+    MODEL_DIR="$SPINEML_2_BRAHMS_DIR/model"
+fi
+mkdir -p "$MODEL_DIR"
+MODEL_DIR=$(abspath "$MODEL_DIR")
+echo "MODEL_DIR: $MODEL_DIR"
 if [ "$?" -ne "0" ]; then
-    echo "Failed to create model directory"
+    echo "Failed to create model directory" >&2
     exit -1
 fi
-mkdir -p "$SPINEML_2_BRAHMS_DIR/temp"
+
+if [ "x$OUTPUT_DIR" = "xtemp" ]; then
+    OUTPUT_DIR="$SPINEML_2_BRAHMS_DIR/temp"
+fi
+mkdir -p "$OUTPUT_DIR"
+OUTPUT_DIR=$(abspath "$OUTPUT_DIR")
+echo "OUTPUT_DIR: $OUTPUT_DIR"
 if [ "$?" -ne "0" ]; then
-    echo "Failed to create temp directory"
+    echo "Failed to create temp/output directory" >&2
     exit -1
 fi
 
@@ -124,7 +221,7 @@ fi
 
 if [ -d /usr/lib/spineml-2-brahms ]; then
     # We have a pre-compiled spineml-2-brahms
-    echo "You have a pre-compiled spineml-2-brahms namespace installed. Copying this into your spineml-2-brahms dir"
+    echo "You have a pre-compiled spineml-2-brahms namespace installed. Copying this into your spineml-2-brahms dir ($SPINEML_2_BRAHMS_DIR/Namespace)"
     set -e
     mkdir -p "$SPINEML_2_BRAHMS_DIR/Namespace"
     cp -Ra /usr/lib/spineml-2-brahms/* "$SPINEML_2_BRAHMS_DIR/Namespace/"
@@ -176,93 +273,92 @@ fi
 
 # Check if we have packaged/pre-installed xsl scripts
 XSL_SCRIPT_PATH="$SPINEML_2_BRAHMS_DIR/xsl"
-if [ -f "/usr/share/spineml-2-brahms/xsl/SpineML_2_BRAHMS_write_script_linux.xsl" ]; then
+if [ -f "/usr/share/spineml-2-brahms/xsl/SpineML_2_BRAHMS_write_script.xsl" ]; then
     echo "Using packaged version of the SpineML to BRAHMS xsl scripts"
     XSL_SCRIPT_PATH="/usr/share/spineml-2-brahms/xsl/"
 fi
 
 # First check we have an experiment.xml file to work from.
 # Could use cmd-line arg $INPUT here for the experiment file.
-if [ ! -f "$SPINEML_2_BRAHMS_DIR/model/experiment.xml" ]; then
-    echo "No experiment description to work from in $SPINEML_2_BRAHMS_DIR/model/experiment.xml"
-    echo "Exiting."
+if [ ! -f "$MODEL_DIR/experiment.xml" ]; then
+    echo "No experiment description to work from in $MODEL_DIR/experiment.xml" >&2
+    echo "Exiting." >&2
     exit -1
 fi
 
 # Check we have xsltproc
 XSLTPROC_BIN=`which xsltproc`
 if [ "x$XSLTPROC_BIN" = "x" ]; then
-    echo "Couldn't find the xsltproc binary, exiting."
+    echo "Couldn't find the xsltproc binary, exiting." >&2
     exit -1
 fi
 
 # Clean up any old reports (MOVE?)
-rm "$SPINEML_2_BRAHMS_DIR/temp/rep*xml*" >/dev/null 2>&1
-rm "$SPINEML_2_BRAHMS_DIR/temp/sys*" >/dev/null 2>&1
-rm "$SPINEML_2_BRAHMS_DIR/temp/output_script" >/dev/null 2>&1
+rm "$OUTPUT_DIR/rep*xml*" >/dev/null 2>&1
+rm "$OUTPUT_DIR/sys*" >/dev/null 2>&1
+rm "$OUTPUT_DIR/output_script" >/dev/null 2>&1
 
-# create script (platform specific)
-if [ $OS = 'Linux32' ]; then
-    xsltproc -o "$SPINEML_2_BRAHMS_DIR/temp/output.script" \
-        "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script_linux.xsl" \
-        "$SPINEML_2_BRAHMS_DIR/model/experiment.xml"
-fi
-if [ $OS = 'Linux64' ]; then
-    xsltproc -o "$SPINEML_2_BRAHMS_DIR/temp/output.script" \
-        "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script_linux.xsl" \
-        "$SPINEML_2_BRAHMS_DIR/model/experiment.xml"
-fi
-if [ $OS = 'OSX' ]; then
-    xsltproc -o "$SPINEML_2_BRAHMS_DIR/temp/output.script" \
-        "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script_osx.xsl" \
-        "$SPINEML_2_BRAHMS_DIR/model/experiment.xml"
-fi
+# create the output script using an xsl translation and the experiment.xml file
+echo xsltproc -o "$OUTPUT_DIR/output.script" --stringparam hostos "$OS" \
+         "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script.xsl" \
+         "$MODEL_DIR/experiment.xml"
+xsltproc -o "$OUTPUT_DIR/output.script" --stringparam hostos "$OS" \
+         "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script.xsl" \
+         "$MODEL_DIR/experiment.xml"
 if [ "$?" -ne "0" ]; then
-    echo "Failed to run xsltproc to produce the output script from your model. Exiting."
+    echo "Failed to run xsltproc to produce the output script from your model. Exiting." >&2
     exit -1;
 fi
 
 # script permissions
-if [ -e "$SPINEML_2_BRAHMS_DIR/temp/output.script" ]; then
-    chmod +x "$SPINEML_2_BRAHMS_DIR/temp/output.script"
+if [ -e "$OUTPUT_DIR/output.script" ]; then
+    chmod +x "$OUTPUT_DIR/output.script"
 else
-    echo "ERROR: conversion script not created - is xsltproc installed?"
+    echo "ERROR: conversion script not created - is xsltproc installed?" >&2
     exit -1
 fi
 
 # Configure environment variables for brahms
 if [ -z "$BRAHMS_NS" ]; then
-    echo "Using defaults for BRAHMS_NS, REBUILD and SYSTEMML_INSTALL_PATH."
+    echo "Using defaults for BRAHMS_NS and SYSTEMML_INSTALL_PATH."
 
     if [ $OS = 'Linux32' ] || [ $OS = 'Linux64' ]; then
         if [ -f /usr/bin/brahms ]; then
             # packaged brahms
             echo "Setting BRAHMS_NS, REBUILD and SYSTEMML_INSTALL_PATH to suit packaged brahms"
-            export SYSTEMML_INSTALL_PATH=""
+            export SYSTEMML_INSTALL_PATH="" # this should be empty
+            BRAHMS_NS="/var/lib/brahms/Namespace"
         else
-            # non-packaged brahms
-            export SYSTEMML_INSTALL_PATH="/usr/local/SystemML"
+            # non-packaged brahms, assume SystemML folder in home directory.
+            export SYSTEMML_INSTALL_PATH="$HOME/SystemML"
+            BRAHMS_NS="$HOME/SystemML/Namespace"
         fi
-        BRAHMS_NS="$SPINEML_2_BRAHMS_DIR/Namespace"
     fi
 
     if [ $OS = 'OSX' ]; then
-        export SYSTEMML_INSTALL_PATH="/Applications/SystemML"
-        # FIXME!
-        BRAHMS_NS="/Users/alex/Downloads/SpineML_2_BRAHMS/temp/Namespace"
+	if [ -d $HOME/SystemML ]; then
+	    # Use Brahms in home.
+	    export SYSTEMML_INSTALL_PATH="$HOME/SystemML"
+	    BRAHMS_NS="$HOME/SystemML/Namespace"
+	# Poss: elif [ -d /Applications/SystemML ]; then
+	    # Use installed Brahms
+	else
+	    # Assume User has installed SpineCreator and has the bundled Brahms
+            export SYSTEMML_INSTALL_PATH="/Applications/spinecreator.app/Contents/MacOS/SystemML"
+	    # This is the SpineCreator-bundled path to Namespace:
+            # /Applications/spinecreator.app/Contents/MacOS/SystemML/Namespace/
+            BRAHMS_NS="/Applications/spinecreator.app/Contents/MacOS/SystemML/Namespace"
+	fi
     fi
-
-    # Rebuild defaults to false for all platforms
-    REBUILD="false"
 fi
 
 # run the script
-pushd "$SPINEML_2_BRAHMS_DIR/temp"
+pushd "$OUTPUT_DIR"
 echo "In directory: " `pwd`
-echo "Execute: ./output.script experiment.xml $REBUILD $SPINEML_2_BRAHMS_DIR  $REBUILD_SYSTEMML $XSL_SCRIPT_PATH"
-./output.script experiment.xml "$REBUILD" "$SPINEML_2_BRAHMS_DIR" "$REBUILD_SYSTEMML" "$XSL_SCRIPT_PATH"
+echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $MODEL_DIR experiment.xml $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH $NODES $NODEARCH"
+./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$MODEL_DIR" experiment.xml "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"  "$VERBOSE_BRAHMS" "$NODES" "$NODEARCH"
 if [ "$?" -ne "0" ]; then
-    echo "Failed to run output.script on the experiment.xml. Falling at the last hurdle."
+    echo "Failed to run output.script on the experiment.xml. Falling at the last hurdle." >&2
     exit -1;
 fi
 popd

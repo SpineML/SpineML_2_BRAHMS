@@ -12,7 +12,7 @@ Ok, here we attempt to get a network layer description into giving us a systemML
 
 -->
 
-<xsl:param name="spineml_2_brahms_dir" select="'../../'"/>
+<xsl:param name="spineml_model_dir" select="'../../model'"/>
 
 <xsl:template name="count_array_items">
 <xsl:param name="items"/>
@@ -61,7 +61,7 @@ Ok, here we attempt to get a network layer description into giving us a systemML
 
 <!-- SEE FILE SpineML_GenericInput_NL.xml -->
 <xsl:call-template name="networkLayerGenericInputs">
-	<xsl:with-param name="spineml_2_brahms_dir" select="$spineml_2_brahms_dir"/>
+	<xsl:with-param name="spineml_model_dir" select="$spineml_model_dir"/>
 </xsl:call-template>
 
 

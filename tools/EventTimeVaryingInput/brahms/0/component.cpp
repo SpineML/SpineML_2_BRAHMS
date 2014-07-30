@@ -154,7 +154,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			
 			// fill in blanks
 			if (timePointsArray.size() != 1) {
-				if (timePointsArray.size() < size) {
+			  if (timePointsArray.size() < (unsigned int)size) {
 					// add some blank timeseries
 					vector < timePoint > newVTP;
 					timePointsArray.resize(size, newVTP);
@@ -168,7 +168,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			values.clear();
 			values.resize(timePointsArray.size(),0);
 			
-			if (!(values.size() == 1 || values.size() == size)) {
+			if (!(values.size() == 1 || values.size() == (unsigned int)size)) {
 				// bad data
 				berr << "Error: incorrect number of values for Event Time Varying Input";
 			}
@@ -219,7 +219,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 						
 			// set initial spike time
 			if (values.size() == 1) {
-				for (UINT32 i = 0; i < size; ++i) {
+			  for (UINT32 i = 0; i < (UINT32)size; ++i) {
 					if (type == Poisson) {
 						nextSpike[i] =  1000.0*log(1.0-UNI)/-values[0];
 					} else if (type == Regular) {
@@ -281,7 +281,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 						// reset spiking rate
 						if (values.size()==1) {
 							// reset all
-							for (int k = 0; k < nextSpike.size(); ++k) {
+							for (unsigned int k = 0; k < nextSpike.size(); ++k) {
 								nextSpike[k] = INFINITY;
 							}
 						} else {
@@ -295,7 +295,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			vector < int > spikes;
 					
 			if (values.size() == 1) {
-				for (UINT32 i = 0; i < size; ++i) {
+			  for (UINT32 i = 0; i < (UINT32)size; ++i) {
 				// restart spikes after quiescence
 					if (nextSpike[i] == INFINITY) {
 						if (values[0] > 0) {
@@ -327,7 +327,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					}
 				}
 			} else {
-				for (UINT32 i = 0; i < size; ++i) {
+			  for (UINT32 i = 0; i < (UINT32)size; ++i) {
 				// restart spikes after quiescence
 					if (nextSpike[i] == INFINITY) {
 						if (values[i] > 0) {
