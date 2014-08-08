@@ -14,6 +14,9 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 <!-- START TEMPLATE -->
 <xsl:template name="networkLayerWeightUpdates">
 
+<!-- Obtain model directory parameter from calling xsl -->
+<xsl:param name="spineml_model_dir" select="'../../model'"/>
+
 <!-- GET A LINK TO THE EXPERIMENT FILE FOR LATER USE -->
 <xsl:variable name="expt_root" select="/"/>
 
@@ -62,7 +65,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	</Time>
 	<State>
 		<xsl:attribute name="c">z</xsl:attribute>
-		<xsl:attribute name="a">sizeIn;sizeOut;<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">_bin_file_name;_bin_num_conn;_bin_has_delay;</xsl:if><xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Connection)>0">src;dst;<xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Delay)=0">delayForConn;</xsl:if>
+		<xsl:attribute name="a">model_directory;sizeIn;sizeOut;<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">_bin_file_name;_bin_num_conn;_bin_has_delay;</xsl:if><xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Connection)>0">src;dst;<xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Delay)=0">delayForConn;</xsl:if>
         </xsl:if>
         <xsl:if test="count(.//SMLNL:Delay/SMLNL:UniformDistribution)=1">
 		<!---->pDelay;<!---->
@@ -109,6 +112,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 		<xsl:attribute name="Version">5</xsl:attribute>
 		<xsl:attribute name="AuthTool">SpineML to BRAHMS XSLT translator</xsl:attribute>
 		<xsl:attribute name="AuthToolVersion">0</xsl:attribute>
+		<m><xsl:value-of select="$spineml_model_dir"/></m>
 		<m c="f"><xsl:value-of select="$sizeIn"/></m>
 		<m c="f"><xsl:value-of select="$sizeOut"/></m>
 		<!-- Inclusion of the binary connections file name here. -->

@@ -13,6 +13,9 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 <!-- START TEMPLATE -->
 <xsl:template name="networkLayerNeurons">
 
+<!-- Obtain model directory parameter from calling xsl -->
+<xsl:param name="spineml_model_dir" select="'../../model'"/>
+
 <!-- GET A LINK TO THE EXPERIMENT FILE FOR LATER USE -->
 <xsl:variable name="expt_root" select="/"/>
 
@@ -42,7 +45,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	</Time>
 	<State>
 		<xsl:attribute name="c">z</xsl:attribute>
-		<xsl:attribute name="a">size;<!---->
+		<xsl:attribute name="a">model_directory;size;<!---->
 		<!-- PROPERTIES -->
 		<xsl:for-each select="SMLLOWNL:Neuron/SMLNL:Property | $expt_root//SMLEXPT:Experiment//SMLEXPT:Configuration[@target=$curr_pop/SMLLOWNL:Neuron/@name]/SMLNL:Property">
 			<xsl:value-of select="@name"/>
@@ -83,6 +86,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 		<xsl:attribute name="Version">5</xsl:attribute>
 		<xsl:attribute name="AuthTool">SpineML to BRAHMS XSLT translator</xsl:attribute>
 		<xsl:attribute name="AuthToolVersion">0</xsl:attribute>
+		<m><xsl:value-of select="$spineml_model_dir"/></m>
 		<m c="f"><xsl:value-of select="SMLLOWNL:Neuron/@size"/></m>
 		<!-- Now read the properties from the Neuron and output the relevant DataML for each one. -->
 		<xsl:for-each select="SMLLOWNL:Neuron//SMLNL:Property | $expt_root//SMLEXPT:Experiment//SMLEXPT:Configuration[@target=$curr_pop/SMLLOWNL:Neuron/@name]/SMLNL:Property">

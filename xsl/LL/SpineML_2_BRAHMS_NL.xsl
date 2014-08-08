@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?><xsl:stylesheet version="1.0"
-xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns:SMLLOWNL="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer"
 xmlns:SMLNL="http://www.shef.ac.uk/SpineMLNetworkLayer"
-xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer" 
-xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer" 
+xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer"
+xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer"
 xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLOWNL SMLNL SMLCL SMLEXPT fn">
 <!-- Note in the above the xmlns: shortcuts -->
 
@@ -47,13 +47,19 @@ description).
 <!-- ############# COMPONENTS (SystemML Processes) ################ -->
 
 <!-- SEE FILE SpineML_Neuron_NL.xsl -->
-<xsl:call-template name="networkLayerNeurons"/>
+<xsl:call-template name="networkLayerNeurons">
+	<xsl:with-param name="spineml_model_dir" select="$spineml_model_dir"/>
+</xsl:call-template>
 
 <!-- SEE FILE SpineML_WeightUpdate_NL.xsl -->
-<xsl:call-template name="networkLayerWeightUpdates"/>
+<xsl:call-template name="networkLayerWeightUpdates">
+	<xsl:with-param name="spineml_model_dir" select="$spineml_model_dir"/>
+</xsl:call-template>
 
 <!-- SEE FILE SpineML_PostSynapse_NL.xsl -->
-<xsl:call-template name="networkLayerPostSynapses"/>
+<xsl:call-template name="networkLayerPostSynapses">
+	<xsl:with-param name="spineml_model_dir" select="$spineml_model_dir"/>
+</xsl:call-template>
 
 
 <!-- ######################### LINKS ############################## -->

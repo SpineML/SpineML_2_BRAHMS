@@ -106,6 +106,9 @@ float t;
 // base name
 string baseNameForLogs_BRAHMS;
 
+// model directory string
+string modelDirectory_BRAHMS;
+
 // define regimes
 <xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 <xsl:apply-templates select="SMLCL:Regime" mode="defineRegime"/>
@@ -199,7 +202,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 	{
 		case EVENT_STATE_SET:
 		{
-		
+
 			//	extract DataML
 			EventStateSet* data = (EventStateSet*) event->data;
 			XMLNode xmlNode(data->state);
@@ -210,13 +213,16 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			numElementsIn_BRAHMS = 1;
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; size_BRAHMS.size(); ++i_BRAHMS) {
 				numElementsIn_BRAHMS *= size_BRAHMS[i_BRAHMS];
-			}		
+			}
 
 			size_BRAHMS = nodeState.getField("sizeOut").getArrayDOUBLE();
 			numElements_BRAHMS = 1;
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; size_BRAHMS.size(); ++i_BRAHMS) {
 				numElements_BRAHMS *= size_BRAHMS[i_BRAHMS];
-			}	
+			}
+
+			// Ensure field is present (trigger BRAHMS error if not)
+			modelDirectory_BRAHMS = nodeState.getField("model_directory").getSTRING();
 
 			zigset(11);
 
@@ -229,10 +235,10 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				for (unsigned int j_BRAHMS = 0; j_BRAHMS &lt; connectivityS2C[i_BRAHMS].size(); ++j_BRAHMS) {
 					connectivityC2D.push_back(j_BRAHMS);
 					connectivityS2C[i_BRAHMS][j_BRAHMS] = connectivityC2D.size()-1;
-					
-				} 
+
+				}
 			}
-			
+
 			// set up the number of connections
 			numConn_BRAHMS = connectivityC2D.size();
 			</xsl:if>
@@ -240,66 +246,61 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			connectivityC2D.resize(numElementsIn_BRAHMS);
 			connectivityS2C.resize(numElementsIn_BRAHMS);
 			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; connectivityS2C.size(); ++i_BRAHMS) {
-				connectivityS2C[i_BRAHMS].push_back(i_BRAHMS); 
+				connectivityS2C[i_BRAHMS].push_back(i_BRAHMS);
 			}
 			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; connectivityC2D.size(); ++i_BRAHMS) {
-				connectivityC2D[i_BRAHMS] = i_BRAHMS; 
+				connectivityC2D[i_BRAHMS] = i_BRAHMS;
 			}
-			
+
 			// set up the number of connections
-			numConn_BRAHMS = connectivityC2D.size();			
+			numConn_BRAHMS = connectivityC2D.size();
 			</xsl:if>
-			
+
             <xsl:if test="count(./SMLNL:FixedProbabilityConnection) = 1">
 			// get the probability
 			float probabilityValue_BRAHMS = nodeState.getField("probabilityValue").getDOUBLE();
 			// seed the rng:
-            zigset(1<xsl:value-of select=".//SMLNL:FixedProbabilityConnection/@seed"/>);
-            seed = 123;
-			// run through connections, creating connectivity pattern:			
+			zigset(1<xsl:value-of select=".//SMLNL:FixedProbabilityConnection/@seed"/>);
+			seed = 123;
+			// run through connections, creating connectivity pattern:
 			connectivityC2D.reserve(numElements_BRAHMS);
 			connectivityS2C.resize(numElementsIn_BRAHMS);
 			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; connectivityS2C.size(); ++i_BRAHMS) {
 				connectivityS2C[i_BRAHMS].reserve((int) round(numElements_BRAHMS*probabilityValue_BRAHMS));
-			}			
+			}
 			for (UINT32 srcIndex_BRAHMS = 0; srcIndex_BRAHMS &lt; numElementsIn_BRAHMS; ++srcIndex_BRAHMS) {
 				for (UINT32 dstIndex_BRAHMS = 0; dstIndex_BRAHMS &lt; numElements_BRAHMS; ++dstIndex_BRAHMS) {
 					if (UNI &lt; probabilityValue_BRAHMS) {
 					connectivityC2D.push_back(dstIndex_BRAHMS);
 					connectivityS2C[srcIndex_BRAHMS].push_back(connectivityC2D.size()-1);
 					}
-					
+
 				}
-				if (float(connectivityC2D.size()) > 0.9*float(connectivityC2D.capacity()))	
-					connectivityC2D.reserve(connectivityC2D.capacity()+numElements_BRAHMS);		
+				if (float(connectivityC2D.size()) > 0.9*float(connectivityC2D.capacity()))
+					connectivityC2D.reserve(connectivityC2D.capacity()+numElements_BRAHMS);
 			}
-			
+
 			// set up the number of connections
 			numConn_BRAHMS = connectivityC2D.size();
 			//bout &lt;&lt; float(numConn_BRAHMS) &lt;&lt; D_INFO;
 			</xsl:if>
-			
+
 			VDOUBLE delayForConnTemp;
-			
+
             <xsl:if test="./SMLNL:ConnectionList">
-            vector &lt;INT32&gt; srcInds; 
-			vector &lt;INT32&gt; dstInds; 
+            vector &lt;INT32&gt; srcInds;
+			vector &lt;INT32&gt; dstInds;
 			if (nodeState.hasField("_bin_file_name")) {
-            	string fileName = nodeState.getField("_bin_file_name").getSTRING();
-            	int _num_conn = (int) nodeState.getField("_bin_num_conn").getDOUBLE();
-            	bool _has_delay = (bool) nodeState.getField("_bin_has_delay").getDOUBLE();
-            	
-            	//bout &lt;&lt; _has_delay &lt;&lt; D_WARN; 
-				
+				string fileName = nodeState.getField("_bin_file_name").getSTRING();
+				int _num_conn = (int) nodeState.getField("_bin_num_conn").getDOUBLE();
+				bool _has_delay = (bool) nodeState.getField("_bin_has_delay").getDOUBLE();
+
 				// open the file for reading
 				FILE * binfile;
-                <xsl:variable name="dir_for_bin_files">
-                    <xsl:if test="$spineml_model_dir='not_used'">../model</xsl:if>
-                    <xsl:if test="not($spineml_model_dir='not_used')"><xsl:value-of select="$spineml_model_dir"/></xsl:if>
-                </xsl:variable>
-				fileName = "<xsl:value-of select="$dir_for_bin_files"/>/" + fileName;
+
+				fileName = modelDirectory_BRAHMS + "/" + fileName;
 				binfile = fopen(fileName.c_str(),"rb");
-				
+
 				if (!binfile)
 					berr &lt;&lt; "Could not open connectivity file: " &lt;&lt; fileName;
 
@@ -319,98 +320,98 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 						delayForConnTemp[i_BRAHMS] = tempDelay_FOR_BRAHMS;
 					}
 					if (ret_FOR_BRAHMS == -1) berr &lt;&lt; "Error loading binary connections";
-					//bout  &lt;&lt; srcInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; dstInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; delayForConnTemp[i_BRAHMS] &lt;&lt; D_WARN; 
-				} 				
+					//bout  &lt;&lt; srcInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; dstInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; delayForConnTemp[i_BRAHMS] &lt;&lt; D_WARN;
+				}
 			} else {
 				srcInds = nodeState.getField("src").getArrayINT32();
 				dstInds = nodeState.getField("dst").getArrayINT32();
 
-				if (srcInds.size() != dstInds.size()) 
+				if (srcInds.size() != dstInds.size())
 					berr &lt;&lt; "Connectivity src and dst lists have different sizes";
 
 			}
-			
+
 			numConn_BRAHMS = srcInds.size();
-            
+
 			// sanity check on index values
 			for (unsigned int i_BRAHMS = 0; i_BRAHMS &lt; srcInds.size(); ++i_BRAHMS) {
 				if (srcInds[i_BRAHMS] >= numElementsIn_BRAHMS || dstInds[i_BRAHMS] >= numElements_BRAHMS)
 					berr &lt;&lt; "index out of range";
-			} 
-			
+			}
+
 			// assign the connectivity pattern into memory
 			connectivityS2C.resize(numElementsIn_BRAHMS);
 			connectivityC2D.resize(srcInds.size());
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; srcInds.size(); ++i_BRAHMS) {
 				connectivityS2C[srcInds[i_BRAHMS]].push_back(i_BRAHMS);
-				connectivityC2D[i_BRAHMS] = dstInds[i_BRAHMS];			
+				connectivityC2D[i_BRAHMS] = dstInds[i_BRAHMS];
 			}
 			</xsl:if>
-			
+
 			// get delay
 			if (nodeState.hasField("delayForConn")) {
-			
+
 				delayForConnTemp = nodeState.getField("delayForConn").getArrayDOUBLE();
-				
+
 			}
 
 			delayBufferIndex = 0;
-			
+
 			if (delayForConnTemp.size() > 0) {
 
 				if (delayForConnTemp.size() != numConn_BRAHMS) berr &lt;&lt; "Connectivity delay list has incorrect size";
-				
+
 				// resize buffer
 				float max_delay_val = 0;
 				float most_delay_accuracy = (1000.0f * time->sampleRate.den / time->sampleRate.num);
 				for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConnTemp.size(); ++i_BRAHMS) {
 					delayForConnTemp[i_BRAHMS];
-					if (delayForConnTemp[i_BRAHMS] > max_delay_val) max_delay_val = delayForConnTemp[i_BRAHMS];					
+					if (delayForConnTemp[i_BRAHMS] > max_delay_val) max_delay_val = delayForConnTemp[i_BRAHMS];
 				}
-				
+
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
 				delayedAnalogVals.resize(round(max_delay_val/most_delay_accuracy)+1);
-				
+
 				// remap the delays to indices
 				delayForConn.resize(delayForConnTemp.size());
-				
+
 				//delayBufferIndexCounter = 0;
 				//delayBufferIndexCounterMax = round(most_delay_accuracy/(1000.0f * time->sampleRate.den / time->sampleRate.num));
-				
+
 				//bout&lt;&lt; most_delay_accuracy &lt;&lt; D_INFO;
 				//bout&lt;&lt; float(delayBuffer.size()) &lt;&lt; D_INFO;
 				for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConnTemp.size(); ++i_BRAHMS) {
 					delayForConn[i_BRAHMS] = round(delayForConnTemp[i_BRAHMS]/most_delay_accuracy);
 					//&lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
 				}
-				
-				
-			
+
+
+
 			}
-            
-            
+
+
 			// check for probabilistic delay
 			if (nodeState.hasField("pDelay")) {
-			
+
 				delayForConnTemp = nodeState.getField("pDelay").getArrayDOUBLE();
 				bout &lt;&lt; "have p delays" &lt;&lt; D_INFO;
-				
-			} 
-			
+
+			}
+
 			// check what is happening
 			if (delayForConnTemp.size() == 4) {
-			
+
 				bout &lt;&lt; "have p delays: right size" &lt;&lt; D_INFO;
-			
+
 				// resize the buffer
 				delayForConn.resize(numConn_BRAHMS);
-				
+
 				float max_delay_val = 0;
 				float most_delay_accuracy = (1000.0f * time->sampleRate.den / time->sampleRate.num);
-				
+
 				// generate the delays:
 				if (delayForConnTemp[0] == 1) { // Normal distribution
-					seed = delayForConnTemp[3]; 
+					seed = delayForConnTemp[3];
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
 						delayForConn[i_BRAHMS] = round((RNOR*delayForConnTemp[2]+delayForConnTemp[1])/most_delay_accuracy);
 						//bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
@@ -419,19 +420,19 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					}
 				}
 				if (delayForConnTemp[0] == 2) { // Uniform distribution
-					seed = delayForConnTemp[3]; 
+					seed = delayForConnTemp[3];
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
 						delayForConn[i_BRAHMS] = round((randomUniform*(delayForConnTemp[2]-delayForConnTemp[1])+delayForConnTemp[1])/most_delay_accuracy);
 						//bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
 						if (delayForConn[i_BRAHMS] &gt; max_delay_val) max_delay_val = delayForConn[i_BRAHMS];
 					}
 				}
-				
+
 				bout &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; " = moo" &lt;&lt; D_INFO;
-				
+
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
 				delayedAnalogVals.resize(round(max_delay_val/most_delay_accuracy)+1);
-			
+
 			}
 
 //debug
@@ -445,7 +446,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				<xsl:apply-templates select="SMLCL:StateVariable" mode="assignStateVariable"/>
 			</xsl:for-each>
 
-			
+
 
 			// Parameters
 <!---->
@@ -458,10 +459,10 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 				<xsl:apply-templates select="SMLCL:Alias" mode="resizeAlias"/>
 			</xsl:for-each>
-			
+
 			// Log base name
 			baseNameForLogs_BRAHMS = nodeState.getField("logfileNameForComponent").getSTRING();
-			
+
 			// Logs
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:AnalogSendPort | SMLCL:EventSendPort" mode="createSendPortLogs"/>
@@ -550,7 +551,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 <!---->
 
 			}
-			
+
 			// re-seed
 			seed = getTime();
 
@@ -561,40 +562,40 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 		case EVENT_RUN_SERVICE:
 		{
 			t = float(time->now)*dt;
-			
+
 			int num_BRAHMS;
 			int numEl_BRAHMS = numConn_BRAHMS;
-			
+
 			// move delayBufferIndex
 			if (delayBuffer.size()) {
 				++delayBufferIndex;
 				delayBufferIndex = delayBufferIndex%delayBuffer.size();
 			}
-			
+
             for (int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.size(); ++i_BRAHMS) {
-                
+
                 <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS] = <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS];
 
 			}
-			
+
 			// service inputs
 <!---->
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:AnalogReceivePort | SMLCL:AnalogReducePort" mode="serviceAnalogPortsRemap"/>
 			</xsl:for-each>
-			
+
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:ImpulseReceivePort | SMLCL:ImpulseSendPort" mode="serviceImpulsePortsRemap"/>
 			</xsl:for-each>
 
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:EventReceivePort | SMLCL:EventSendPort" mode="serviceEventPortsRemap"/>
-			</xsl:for-each>		
+			</xsl:for-each>
 
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:Dynamics" mode="doEventInputsRemap"/>
 			</xsl:for-each>
-			
+
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:Dynamics" mode="doImpulseInputsRemap"/>
 			</xsl:for-each>
@@ -613,15 +614,15 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// Apply regime changes
             for (int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.size(); ++i_BRAHMS) {
                                 <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS] = <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS];
-                                
+
                 // updating logs...
            		<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="makeSendPortLogs"/>
-           		
+
 			}
 
 			// updating logs...
            	<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort" mode="makeSendPortLogs"/>
-           	
+
            		// writing logs...
            	<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="saveSendPortLogs"/>
 
@@ -632,24 +633,24 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:EventReceivePort | SMLCL:EventSendPort" mode="outputEventPortsRemap"/>
-			</xsl:for-each>	
-			
+			</xsl:for-each>
+
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:ImpulseReceivePort | SMLCL:ImpulseSendPort" mode="outputImpulsePortsRemap"/>
-			</xsl:for-each>	
+			</xsl:for-each>
 
-		//bout &lt;&lt; " " &lt;&lt; OUTPSP[2] &lt;&lt; " " &lt;&lt; out[0] &lt;&lt; " " &lt;&lt; w[0] &lt;&lt; D_INFO;		
+		//bout &lt;&lt; " " &lt;&lt; OUTPSP[2] &lt;&lt; " " &lt;&lt; out[0] &lt;&lt; " " &lt;&lt; w[0] &lt;&lt; D_INFO;
 
-			
+
 			//	ok
 			return C_OK;
 		}
-		
+
 		case EVENT_RUN_STOP:
 		{
 			int numEl_BRAHMS = numConn_BRAHMS;
 			t = float(time->now)*dt;
-		
+
 			<!-- WRITE XML FOR LOGS -->
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="finaliseLogs"/>
 			//	ok
