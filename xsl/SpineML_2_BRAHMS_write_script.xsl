@@ -138,7 +138,7 @@ if [[ "$NODES" -gt 0 ]]; then # Sun Grid Engine mode
     cat &gt; "$OUTPUT_DIR/run_brahms_$NODE.sh" &lt;&lt;EOF
 #!/bin/sh
 #$  -l mem=8G -l h_rt=04:00:00 $NODEARCH
-# First, before executing brahms, this script must find out its IP address and write this into a file. 
+# First, before executing brahms, this script must find out its IP address and write this into a file.
 
 # Obtain first IPv4 address from an eth device.
 
@@ -331,7 +331,7 @@ if [[ "$NODES" -gt 1 ]]; then
     <!-- Note that we have a 120 second timeout for getting the node IP here - this
          is effectively the time that you have to wait for the SGE to start the job. -->
     SUN_GRID_ENGINE_TIMEOUT="120"
-    echo "Waiting up to $SUN_GRID_ENGINE_TIMEOUT seconds for node $NODE to record its IP address..." 
+    echo "Waiting up to $SUN_GRID_ENGINE_TIMEOUT seconds for node $NODE to record its IP address..."
     while [ ! -f "$OUTPUT_DIR/brahms_$NODE.ip" ] &amp;&amp; [ "$COUNTER" -lt "$SUN_GRID_ENGINE_TIMEOUT" ]; do
       sleep 1
       COUNTER=$((COUNTER+1))
