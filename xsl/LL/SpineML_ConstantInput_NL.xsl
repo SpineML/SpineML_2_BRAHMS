@@ -7,6 +7,10 @@ xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer"
 xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLOWNL SMLNL SMLCL SMLEXPT fn">
 <xsl:output method="xml" omit-xml-declaration="no" version="1.0" encoding="UTF-8" indent="yes"/>
 
+<!-- The template provided by this file creates a SystemML <Process>
+     which provides a constant input source. It also generates some
+     <Link>s. The output from this file finds its way into sys.xml -->
+
 <!-- START TEMPLATE -->
 <xsl:template name="networkLayerConstantInputs">
 

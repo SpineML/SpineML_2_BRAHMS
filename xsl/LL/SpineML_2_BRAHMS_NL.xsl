@@ -5,11 +5,16 @@ xmlns:SMLNL="http://www.shef.ac.uk/SpineMLNetworkLayer"
 xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer" 
 xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer" 
 xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLOWNL SMLNL SMLCL SMLEXPT fn">
+<!-- Note in the above the xmlns: shortcuts -->
+
 <xsl:output method="xml" omit-xml-declaration="no" version="1.0" encoding="UTF-8" indent="yes"/>
+
 <!--
+Ok, here we attempt to get a network layer description into giving us
+a systemML description...
 
-Ok, here we attempt to get a network layer description into giving us a systemML description...
-
+This file is used to generate sys.xml (Brahms SystemML model
+description).
 -->
 
 <xsl:param name="spineml_model_dir" select="'../../model'"/>
@@ -39,27 +44,27 @@ Ok, here we attempt to get a network layer description into giving us a systemML
 <System Version="1.0" AuthTool="SpineML to BRAHMS XSLT translator" AuthToolVersion="0">
 
 
-<!-- ###################### COMPONENTS ########################### -->
+<!-- ############# COMPONENTS (SystemML Processes) ################ -->
 
-<!-- SEE FILE SpineML_Neuron_NL.xml -->
+<!-- SEE FILE SpineML_Neuron_NL.xsl -->
 <xsl:call-template name="networkLayerNeurons"/>
 
-<!-- SEE FILE SpineML_WeightUpdate_NL.xml -->
+<!-- SEE FILE SpineML_WeightUpdate_NL.xsl -->
 <xsl:call-template name="networkLayerWeightUpdates"/>
 
-<!-- SEE FILE SpineML_PostSynapse_NL.xml -->
+<!-- SEE FILE SpineML_PostSynapse_NL.xsl -->
 <xsl:call-template name="networkLayerPostSynapses"/>
 
 
 <!-- ######################### LINKS ############################## -->
 
-<!-- SEE FILE SpineML_GenericInput_NL.xml -->
+<!-- SEE FILE SpineML_ProjectionLinks_NL.xsl -->
 <xsl:call-template name="networkLayerProjectionLinks"/>
 
 
-<!-- ###################### GENENIC INPUTS ######################## -->
+<!-- ###################### GENERIC INPUTS ######################## -->
 
-<!-- SEE FILE SpineML_GenericInput_NL.xml -->
+<!-- SEE FILE SpineML_GenericInput_NL.xsl -->
 <xsl:call-template name="networkLayerGenericInputs">
 	<xsl:with-param name="spineml_model_dir" select="$spineml_model_dir"/>
 </xsl:call-template>
@@ -67,24 +72,24 @@ Ok, here we attempt to get a network layer description into giving us a systemML
 
 <!-- ###################### SOURCE INPUTS ######################### -->
 
-<!-- SEE FILE SpineML_ConstantInput_NL.xml -->
+<!-- SEE FILE SpineML_ConstantInput_NL.xsl -->
 <xsl:call-template name="networkLayerConstantInputs"/>
 
-<!-- SEE FILE SpineML_ArrayConstantInput_NL.xml -->
+<!-- SEE FILE SpineML_ArrayConstantInput_NL.xsl -->
 <xsl:call-template name="networkLayerArrayConstantInputs"/>
 
-<!-- SEE FILE SpineML_TimeVaryingInput_NL.xml -->
+<!-- SEE FILE SpineML_TimeVaryingInput_NL.xsl -->
 <xsl:call-template name="networkLayerTimeVaryingInputs"/>
 
-<!-- SEE FILE SpineML_ArrayTimeVaryingInput_NL.xml -->
+<!-- SEE FILE SpineML_ArrayTimeVaryingInput_NL.xsl -->
 <xsl:call-template name="networkLayerArrayTimeVaryingInputs"/>
 
-<!-- SEE FILE SpineML_ExternalInput_NL.xml -->
+<!-- SEE FILE SpineML_ExternalInput_NL.xsl -->
 <xsl:call-template name="networkLayerExternalInputs"/>
 
 <!-- ###################### EXTERNAL OUTPUTS ####################### -->
 
-<!-- SEE FILE SpineML_ExternalOutput_NL.xml -->
+<!-- SEE FILE SpineML_ExternalOutput_NL.xsl -->
 <xsl:call-template name="networkLayerExternalOutputs"/>
 
 <!-- WRITE THE CLOSING TAG -->
