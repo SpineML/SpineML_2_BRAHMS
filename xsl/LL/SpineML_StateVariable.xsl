@@ -31,24 +31,24 @@ string <xsl:value-of select="@name"/>_BINARY_FILE_NAME;
 				if (<xsl:value-of select="@name"/>[0] == 1) {
 					val1_BRAHMS = <xsl:value-of select="@name"/>[1];
 					val2_BRAHMS = <xsl:value-of select="@name"/>[2];
-					seed = <xsl:value-of select="@name"/>[3];
-					if (seed == 0)
-						seed = getTime();
+					this-&gt;rngData_BRAHMS.seed = <xsl:value-of select="@name"/>[3];
+					if (this-&gt;rngData_BRAHMS.seed == 0)
+						this-&gt;rngData_BRAHMS.seed = getTime();
 					<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, 0);
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; numEl_BRAHMS; ++i_BRAHMS) {
-						<xsl:value-of select="@name"/>[i_BRAHMS] = (RNOR * val2_BRAHMS) + val1_BRAHMS;
+						<xsl:value-of select="@name"/>[i_BRAHMS] = (RNOR(&amp;this-&gt;rngData_BRAHMS) * val2_BRAHMS) + val1_BRAHMS;
 					}
 				}
 				// if uniform distribution
 				if (<xsl:value-of select="@name"/>[0] == 2) {
 					val1_BRAHMS = <xsl:value-of select="@name"/>[1];
 					val2_BRAHMS = <xsl:value-of select="@name"/>[2];
-					seed = <xsl:value-of select="@name"/>[3];
-					if (seed == 0)
-						seed = getTime();
+					this-&gt;rngData_BRAHMS.seed = <xsl:value-of select="@name"/>[3];
+					if (this-&gt;rngData_BRAHMS.seed == 0)
+						this-&gt;rngData_BRAHMS.seed = getTime();
 					<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, 0);
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; numEl_BRAHMS; ++i_BRAHMS) {
-						<xsl:value-of select="@name"/>[i_BRAHMS] = (UNI * (val2_BRAHMS-val1_BRAHMS)) + val1_BRAHMS;
+						<xsl:value-of select="@name"/>[i_BRAHMS] = (UNI(&amp;this-&gt;rngData_BRAHMS) * (val2_BRAHMS-val1_BRAHMS)) + val1_BRAHMS;
 					}
 				}
 				finishedThis = true;
@@ -76,24 +76,24 @@ string <xsl:value-of select="@name"/>_BINARY_FILE_NAME;
 				if (<xsl:value-of select="@name"/>[0] == 1) {
 					val1_BRAHMS = <xsl:value-of select="@name"/>[1];
 					val2_BRAHMS = <xsl:value-of select="@name"/>[2];
-					seed = <xsl:value-of select="@name"/>[3];
-					if (seed == 0)
-						seed = getTime();
+					this-&gt;rngData_BRAHMS.seed = <xsl:value-of select="@name"/>[3];
+					if (this-&gt;rngData_BRAHMS.seed == 0)
+						this-&gt;rngData_BRAHMS.seed = getTime();
 					<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, 0);
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; numEl_BRAHMS; ++i_BRAHMS) {
-						<xsl:value-of select="@name"/>[i_BRAHMS] = (RNOR * val2_BRAHMS) + val1_BRAHMS;
+						<xsl:value-of select="@name"/>[i_BRAHMS] = (RNOR(&amp;this-&gt;rngData_BRAHMS) * val2_BRAHMS) + val1_BRAHMS;
 					}
 				}
 				// if uniform distribution
 				if (<xsl:value-of select="@name"/>[0] == 2) {
 					val1_BRAHMS = <xsl:value-of select="@name"/>[1];
 					val2_BRAHMS = <xsl:value-of select="@name"/>[2];
-					seed = <xsl:value-of select="@name"/>[3];
-					if (seed == 0)
-						seed = getTime();
+					this-&gt;rngData_BRAHMS.seed = <xsl:value-of select="@name"/>[3];
+					if (this-&gt;rngData_BRAHMS.seed == 0)
+						this-&gt;rngData_BRAHMS.seed = getTime();
 					<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, 0);
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; numEl_BRAHMS; ++i_BRAHMS) {
-						<xsl:value-of select="@name"/>[i_BRAHMS] = (UNI * (val2_BRAHMS-val1_BRAHMS)) + val1_BRAHMS;
+						<xsl:value-of select="@name"/>[i_BRAHMS] = (UNI(&amp;this-&gt;rngData_BRAHMS) * (val2_BRAHMS-val1_BRAHMS)) + val1_BRAHMS;
 					}
 				}
 			}

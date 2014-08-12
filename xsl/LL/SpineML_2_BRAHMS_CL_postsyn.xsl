@@ -91,6 +91,9 @@ public:
 
 private:
 
+// Some data for the random number generator.
+RngData rngData_BRAHMS;
+
 float t;
 
 // base name
@@ -193,7 +196,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// Ensure field is present (trigger BRAHMS error if not)
 			modelDirectory_BRAHMS = nodeState.getField("model_directory").getSTRING();
 
-			zigset(11);
+			rngDataInit(&amp;this-&gt;rngData_BRAHMS);
+			zigset(&amp;this-&gt;rngData_BRAHMS, 11);
 
 
 			int numEl_BRAHMS = numElements_BRAHMS;
@@ -306,8 +310,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			}
 
-            // re-seed
-            seed = getTime();
+			// re-seed
+			this-&gt;rngData_BRAHMS.seed = getTime();
 
 			//	ok
 			return C_OK;

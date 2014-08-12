@@ -54,7 +54,11 @@ namespace rng = std_2009_util_rng_0;
 using namespace std;
 
 #include "rng.h"
-
+// Some very SpineML_2_BRAHMS specific defines, common to all components.
+#define randomUniform     _randomUniform(&amp;this-&gt;rngData_BRAHMS)
+#define randomNormal      _randomNormal(&amp;this-&gt;rngData_BRAHMS)
+#define randomExponential _randomExponential(&amp;this-&gt;rngData_BRAHMS)
+#define randomPoisson     _randomPoisson(&amp;this-&gt;rngData_BRAHMS)
 #include "impulse.h"
 
 /* helper function for doing the indexing... do we need this?
@@ -100,6 +104,9 @@ public:
 	Symbol event(Event* event);
 
 private:
+
+// Some data for the random number generator.
+RngData rngData_BRAHMS;
 
 float t;
 
@@ -224,7 +231,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// Ensure field is present (trigger BRAHMS error if not)
 			modelDirectory_BRAHMS = nodeState.getField("model_directory").getSTRING();
 
-			zigset(11);
+			rngDataInit(&amp;this-&gt;rngData_BRAHMS);
+			zigset(&amp;this-&gt;rngData_BRAHMS, 11);
 
 			// Create the connectivity map
                         <xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
@@ -260,8 +268,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// get the probability
 			float probabilityValue_BRAHMS = nodeState.getField("probabilityValue").getDOUBLE();
 			// seed the rng:
-			zigset(1<xsl:value-of select=".//SMLNL:FixedProbabilityConnection/@seed"/>);
-			seed = 123;
+			zigset(&amp;this-&gt;rngData_BRAHMS, 1<xsl:value-of select=".//SMLNL:FixedProbabilityConnection/@seed"/>);
+			this-&gt;rngData_BRAHMS.seed = 123;
 			// run through connections, creating connectivity pattern:
 			connectivityC2D.reserve(numElements_BRAHMS);
 			connectivityS2C.resize(numElementsIn_BRAHMS);
@@ -270,7 +278,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			}
 			for (UINT32 srcIndex_BRAHMS = 0; srcIndex_BRAHMS &lt; numElementsIn_BRAHMS; ++srcIndex_BRAHMS) {
 				for (UINT32 dstIndex_BRAHMS = 0; dstIndex_BRAHMS &lt; numElements_BRAHMS; ++dstIndex_BRAHMS) {
-					if (UNI &lt; probabilityValue_BRAHMS) {
+					if (UNI(&amp;this-&gt;rngData_BRAHMS) &lt; probabilityValue_BRAHMS) {
 					connectivityC2D.push_back(dstIndex_BRAHMS);
 					connectivityS2C[srcIndex_BRAHMS].push_back(connectivityC2D.size()-1);
 					}
@@ -411,18 +419,18 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				// generate the delays:
 				if (delayForConnTemp[0] == 1) { // Normal distribution
-					seed = delayForConnTemp[3];
+					this-&gt;rngData_BRAHMS.seed = delayForConnTemp[3];
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
-						delayForConn[i_BRAHMS] = round((RNOR*delayForConnTemp[2]+delayForConnTemp[1])/most_delay_accuracy);
+						delayForConn[i_BRAHMS] = round((RNOR(&amp;this-&gt;rngData_BRAHMS)*delayForConnTemp[2]+delayForConnTemp[1])/most_delay_accuracy);
 						//bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
 						if (delayForConn[i_BRAHMS] &lt; 0) delayForConn[i_BRAHMS] = 0;
 						if (delayForConn[i_BRAHMS] &gt; max_delay_val) max_delay_val = delayForConn[i_BRAHMS];
 					}
 				}
 				if (delayForConnTemp[0] == 2) { // Uniform distribution
-					seed = delayForConnTemp[3];
+					this-&gt;rngData_BRAHMS.seed = delayForConnTemp[3];
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
-						delayForConn[i_BRAHMS] = round((randomUniform*(delayForConnTemp[2]-delayForConnTemp[1])+delayForConnTemp[1])/most_delay_accuracy);
+						delayForConn[i_BRAHMS] = round((_randomUniform(&amp;this-&gt;rngData_BRAHMS)*(delayForConnTemp[2]-delayForConnTemp[1])+delayForConnTemp[1])/most_delay_accuracy);
 						//bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
 						if (delayForConn[i_BRAHMS] &gt; max_delay_val) max_delay_val = delayForConn[i_BRAHMS];
 					}
@@ -553,7 +561,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			}
 
 			// re-seed
-			seed = getTime();
+			this-&gt;rngData_BRAHMS.seed = getTime();
 
 			//	ok
 			return C_OK;

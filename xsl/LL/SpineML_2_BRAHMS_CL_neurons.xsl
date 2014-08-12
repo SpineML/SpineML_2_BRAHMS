@@ -44,7 +44,11 @@ namespace rng = std_2009_util_rng_0;
 using namespace std;
 
 #include "rng.h"
-
+// Some very SpineML_2_BRAHMS specific defines, common to all components.
+#define randomUniform     _randomUniform(&amp;this-&gt;rngData_BRAHMS)
+#define randomNormal      _randomNormal(&amp;this-&gt;rngData_BRAHMS)
+#define randomExponential _randomExponential(&amp;this-&gt;rngData_BRAHMS)
+#define randomPoisson     _randomPoisson(&amp;this-&gt;rngData_BRAHMS)
 #include "impulse.h"
 
 /* helper function for doing the indexing... do we need this?
@@ -98,6 +102,9 @@ public:
 	Symbol event(Event* event);
 
 private:
+
+// Some data for the random number generator.
+RngData rngData_BRAHMS;
 
 float t;
 
@@ -202,7 +209,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			XMLNode xmlNode(data->state);
 			DataMLNode nodeState(&amp;xmlNode);
 
-			zigset(11);
+			rngDataInit(&amp;this-&gt;rngData_BRAHMS);
+			zigset(&amp;this-&gt;rngData_BRAHMS, 11);
 
 			// obtain the parameters
 			size_BRAHMS = nodeState.getField("size").getArrayDOUBLE();
@@ -326,7 +334,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			}
 
 			// re-seed
-			seed = getTime();
+			this-&gt;rngData_BRAHMS.seed = getTime();
 
 			//	ok
 			return C_OK;
