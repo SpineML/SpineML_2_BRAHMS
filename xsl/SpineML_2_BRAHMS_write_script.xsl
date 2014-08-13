@@ -14,8 +14,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
      called hostos which is used to set the compiler flags, include paths and linker flags,
      as applicable. -->
 <xsl:variable name="compiler_flags">
-    <xsl:if test="$hostos='Linux32' or $hostos='Linux64'">-fPIC -Werror -pthread -O3 -ffast-math -shared -D__GLN__</xsl:if>
-    <xsl:if test="$hostos='OSX'">-fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -O3 -ffast-math  -dynamiclib -arch i386 -D__OSX__</xsl:if>
+    <xsl:if test="$hostos='Linux32' or $hostos='Linux64'">-fPIC -Werror -pthread -O3 -shared -D__GLN__</xsl:if>
+    <xsl:if test="$hostos='OSX'">-fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -O3 -dynamiclib -arch i386 -D__OSX__</xsl:if>
 </xsl:variable>
 
 <xsl:variable name="linker_flags">
@@ -118,6 +118,25 @@ SPINEML_2_BRAHMS_NS="$SPINEML_2_BRAHMS_DIR/Namespace"
 echo "SPINEML_2_BRAHMS_NS is $SPINEML_2_BRAHMS_NS"
 echo "BRAHMS_NS is $BRAHMS_NS"
 
+<!--
+ Debugging. Set DEBUG to "true" to add the -g flag to your compile commands so that
+ the components will be gdb-debuggable.
+
+ With debuggable components, you can run them using a brahms script
+ which calls brahms-execute via valgrind, which is very useful. To do
+ that, find your brahms script (`which brahms` will tell you this) and
+ make a copy of it, perhaps called brahms-vg. Now modify the way
+ brahms-vg calls brahms-execute (prepend valgrind). Now change
+ BRAHMS_CMD below so it calls brahms-vg, instead of brahms.
+-->
+DEBUG="false"
+
+DBG_FLAG=""
+if [ $DEBUG = "true" ]; then
+# Add -g to compiler flags
+DBG_FLAG="-g"
+fi
+
 <!-- We have enough information at this point in the script to build our BRAHMS_CMD: -->
 BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$OUTPUT_DIR/sys-exe.xml\""
 
@@ -138,7 +157,7 @@ if [[ "$NODES" -gt 0 ]]; then # Sun Grid Engine mode
     cat &gt; "$OUTPUT_DIR/run_brahms_$NODE.sh" &lt;&lt;EOF
 #!/bin/sh
 #$  -l mem=8G -l h_rt=04:00:00 $NODEARCH
-# First, before executing brahms, this script must find out its IP address and write this into a file. 
+# First, before executing brahms, this script must find out its IP address and write this into a file.
 
 # Obtain first IPv4 address from an eth device.
 
@@ -157,15 +176,6 @@ EOF
 
   qsub "$OUTPUT_DIR/run_brahms_$NODE.sh"
 done
-fi
-
-DEBUG="false"
-
-DBG_FLAG=""
-if [ $DEBUG = "true" ]; then
-# Add -g to compiler flags
-DBG_FLAG="-g"
-REBUILD_COMPONENTS="true"
 fi
 
 # Set up the include path for rng.h and impulse.h
@@ -331,7 +341,7 @@ if [[ "$NODES" -gt 1 ]]; then
     <!-- Note that we have a 120 second timeout for getting the node IP here - this
          is effectively the time that you have to wait for the SGE to start the job. -->
     SUN_GRID_ENGINE_TIMEOUT="120"
-    echo "Waiting up to $SUN_GRID_ENGINE_TIMEOUT seconds for node $NODE to record its IP address..." 
+    echo "Waiting up to $SUN_GRID_ENGINE_TIMEOUT seconds for node $NODE to record its IP address..."
     while [ ! -f "$OUTPUT_DIR/brahms_$NODE.ip" ] &amp;&amp; [ "$COUNTER" -lt "$SUN_GRID_ENGINE_TIMEOUT" ]; do
       sleep 1
       COUNTER=$((COUNTER+1))

@@ -20,8 +20,6 @@
 //	include the component interface overlay (component bindings 1199)
 #include "brahms-1199.h"
 
-#include "rng.h"
-
 //	alias data and util namespaces to something briefer
 namespace numeric = std_2009_data_numeric_0;
 namespace spikes = std_2009_data_spikes_0;

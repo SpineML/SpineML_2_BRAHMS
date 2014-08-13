@@ -7,6 +7,10 @@ xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer"
 xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLOWNL SMLNL SMLCL SMLEXPT fn">
 <xsl:output method="xml" omit-xml-declaration="no" version="1.0" encoding="UTF-8" indent="yes"/>
 
+<!-- This xsl file provides a template which generates the SystemML
+     <Link> entries, which describe how the different components (the
+     <Processes>) are conencted together. -->
+
 <!-- START TEMPLATE -->
 <xsl:template name="networkLayerProjectionLinks">
 
