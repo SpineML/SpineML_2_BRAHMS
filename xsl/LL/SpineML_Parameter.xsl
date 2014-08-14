@@ -46,11 +46,10 @@ vector &lt; double &gt; <xsl:value-of select="@name"/>;
 					if (<xsl:value-of select="@name"/>.size() == 1) {
 						<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, <xsl:value-of select="@name"/>[0]);
 					} else if (<xsl:value-of select="@name"/>.size() != numEl_BRAHMS) {
-						berr &lt;&lt; "Parameter <xsl:value-of select="@name"/> has incorrect dimensions";
+						berr &lt;&lt; "Parameter <xsl:value-of select="@name"/> has incorrect dimensions (Its size is " &lt;&lt; <xsl:value-of select="@name"/>.size() &lt;&lt; ", not " &lt;&lt; numEl_BRAHMS &lt;&lt; ")";
 					}
 					finishedThis = true;
 				}
-
 			}
 
 			if (nodeState.hasField("<xsl:value-of select="@name"/>RANDX") &amp;&amp; !finishedThis) {
@@ -86,11 +85,11 @@ vector &lt; double &gt; <xsl:value-of select="@name"/>;
 
 			if (nodeState.hasField("<xsl:value-of select="@name"/>") &amp;&amp; !finishedThis)
 			{
-			<xsl:value-of select="@name"/> = nodeState.getField("<xsl:value-of select="@name"/>").getArrayDOUBLE();
+				<xsl:value-of select="@name"/> = nodeState.getField("<xsl:value-of select="@name"/>").getArrayDOUBLE();
 				if (<xsl:value-of select="@name"/>.size() == 1) {
 					<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, <xsl:value-of select="@name"/>[0]);
 				} else if (<xsl:value-of select="@name"/>.size() != numEl_BRAHMS) {
-					berr &lt;&lt; "Parameter <xsl:value-of select="@name"/> has incorrect dimensions";
+					berr &lt;&lt; "Parameter <xsl:value-of select="@name"/> has incorrect dimensions (Its size is " &lt;&lt; <xsl:value-of select="@name"/>.size() &lt;&lt; ", not " &lt;&lt; numEl_BRAHMS &lt;&lt; ")";
 				}
 			}
 

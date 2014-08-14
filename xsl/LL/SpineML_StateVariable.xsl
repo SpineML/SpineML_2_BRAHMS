@@ -61,7 +61,7 @@ string <xsl:value-of select="@name"/>_BINARY_FILE_NAME;
 					if (<xsl:value-of select="@name"/>.size() == 1) {
 						<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, <xsl:value-of select="@name"/>[0]);
 					} else if (<xsl:value-of select="@name"/>.size() != numEl_BRAHMS) {<!-- Fix to allow subset of indices to be assigned. -->
-						berr &lt;&lt; "State Variable <xsl:value-of select="@name"/> has incorrect dimensions";
+						berr &lt;&lt; "State Variable <xsl:value-of select="@name"/> has incorrect dimensions (Its size is " &lt;&lt; <xsl:value-of select="@name"/>.size() &lt;&lt; ", not " &lt;&lt; numEl_BRAHMS &lt;&lt; ")";
 					}
 					finishedThis = true;
 				}
@@ -103,7 +103,7 @@ string <xsl:value-of select="@name"/>_BINARY_FILE_NAME;
 				if (<xsl:value-of select="@name"/>.size() == 1) {
 					<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, <xsl:value-of select="@name"/>[0]);
 				} else if (<xsl:value-of select="@name"/>.size() != numEl_BRAHMS) {
-					berr &lt;&lt; "State Variable <xsl:value-of select="@name"/> has incorrect dimensions";
+					berr &lt;&lt; "State Variable <xsl:value-of select="@name"/> has incorrect dimensions (Its size is " &lt;&lt; <xsl:value-of select="@name"/>.size() &lt;&lt; ", not " &lt;&lt; numEl_BRAHMS &lt;&lt; ")";
 				}
 			}
 
