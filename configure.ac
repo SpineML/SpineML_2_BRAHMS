@@ -191,7 +191,7 @@ AC_MSG_CHECKING(whether to add Brahms-preferred compiler flags)
 AC_MSG_RESULT($brahms_cflags)
 dnl Note: this could break some compilers which don't support all of these flags
 if (test "$brahms_cflags" = yes && test "$GCC" = yes); then
-   BRAHMS_CFLAGS="-ffast-math"
+   BRAHMS_CFLAGS="" # was -ffast-math, but that shouldn't be used with -O2/3/s
    AC_SUBST([BRAHMS_CFLAGS])
 fi
 
