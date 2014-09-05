@@ -66,10 +66,8 @@ private:
 Symbol COMPONENT_CLASS_CPP::event(Event* event)
 {
     switch (event->type) {
-        bout << "switch event->type" << D_INFO;
     case EVENT_STATE_SET:
     {
-        bout << "EVENT_STATE_SET..." << D_INFO;
         // During this event, we read the component's DataML to
         // determine its runtime settings.
 
@@ -98,7 +96,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
             string fileName = nodeState.getField ("_bin_file_name").getSTRING();
             fileName = binpath + fileName;
-            bout << "Opening file " << fileName << D_INFO;
+            bout << "readOutputFile: Opening file " << fileName << D_INFO;
             this->binfile = fopen (fileName.c_str(), "rb");
             if (!this->binfile) {
                 // That failed; try the default location for
@@ -111,7 +109,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             }
 
         } else {
-            berr << "No _bin_file_name parameter was specified; can't read from file!";
+            berr << "readOutputFile: No _bin_file_name parameter was specified; can't read from file!";
         }
 
         return C_OK;
@@ -138,14 +136,17 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
         DOUBLE* outData = (DOUBLE*) this->out.getContent();
         this->tmprtn = fread (outData, sizeof(DOUBLE), this->datapointsPerTimestep, this->binfile);
         if (this->tmprtn != this->datapointsPerTimestep) {
-            bout << "tmprtn != datapointsPerTimestep..." << D_WARN;
             if (feof(this->binfile)) {
-                bout << "Reached end of input file." << D_INFO;
+                bout << "readOutputFile: Reached end of input file." << D_INFO;
             } else if (ferror (this->binfile)) {
-                berr << "Error reading input file.";
+                berr << "readOutputFile: Error reading input file.";
+            } else {
+                bout << "readOutputFile: tmprtn != datapointsPerTimestep..." << D_WARN;
             }
+#ifdef DEBUG___
         } else {
-            bout << "Read number: " << *outData << D_INFO;
+            bout << "readOutputFile: Read a number: " << *outData << D_INFO;
+#endif
         }
         return C_OK;
     }
@@ -153,7 +154,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
     case EVENT_RUN_STOP:
     {
         if (this->binfile != (FILE*)0) {
-            bout << "Close file..." << D_INFO;
             this->tmprtn = fclose (this->binfile);
             if (this->tmprtn) {
                 berr << "Error closing file.";
