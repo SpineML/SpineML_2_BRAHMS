@@ -321,7 +321,7 @@ fi
 
 if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f "$OUTPUT_DIR/sys.xml" ] ; then
   echo "Building the SystemML system..."
-  xsltproc -o "$OUTPUT_DIR/sys.xml" --stringparam spineml_model_dir "$MODEL_DIR" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl" "$MODEL_DIR/$INPUT"
+  xsltproc -o "$OUTPUT_DIR/sys.xml" --stringparam spineml_model_dir "$MODEL_DIR" --stringparam spineml_output_dir "$OUTPUT_DIR" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl" "$MODEL_DIR/$INPUT"
 else
   echo "Re-using the SystemML system."
 fi
@@ -395,5 +395,3 @@ echo "ERROR: Unrecognised SpineML Network Layer file";
 </xsl:template>
 
 </xsl:stylesheet>
-
-
