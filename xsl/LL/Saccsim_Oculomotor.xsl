@@ -38,10 +38,11 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 <Process>
 	<Name>SaccSim</Name>
 	<Class>dev/NoTremor/saccsim</Class>
-	<State c="z" a="output_data_path;" Format="DataML" Version="5" AuthTool="SystemML Toolbox" AuthToolVersion="0">
+	<State c="z" a="output_data_path;simtk_integrator;" Format="DataML" Version="5" AuthTool="SystemML Toolbox" AuthToolVersion="0">
 		<m><xsl:value-of select="$spineml_output_dir"/></m>
+		<m>ExplicitEuler</m>
 	</State>
-	<Time><SampleRate><xsl:value-of select="$sampleRate"/></SampleRate></Time>
+	<Time><SampleRate><!--<xsl:value-of select="$sampleRate"/>-->2000</SampleRate></Time>
 	<State></State>
 </Process>
 
