@@ -30,6 +30,27 @@ using namespace std;
 using namespace rapidxml;
 
 /*!
+ * A cartesian location structure. This is a copy of the same struct
+ * found in SpineCreator/globalHeader.h.
+ */
+struct loc {
+    float x;
+    float y;
+    float z;
+};
+
+/*!
+ * A connection structure, to hold information about a connection from
+ * one neuron body to another. This is a copy of the same struct found
+ * in SpineCreator/globalHeader.h.
+ */
+struct conn {
+    int src;
+    int dst;
+    float metric;
+};
+
+/*!
  * Read out model.xml file into a char*, allocating enough memory for
  * the task. Return the number of bytes allocated, or -1 on error.
  */
@@ -55,13 +76,28 @@ void preprocess_synapse (xml_node<>* proj_node,
                          const string& dst_population);
 
 /*!
+ * Do the work of replacing a FixedProbability connection with a
+ * ConnectionList
+ */
+void replace_fixedprob_connection (xml_node<> *syn_node,
+                                   const string& src_name,
+                                   const string& src_num,
+                                   const string& dst_population);
+
+#if 0
+/*!
  * Do the work of replacing a KernelConnection with a ConnectionList
  */
 void replace_kernel_connection (xml_node<> *syn_node,
                                 const string& src_name,
                                 const string& src_num,
                                 const string& dst_population);
+#endif
 
+/*!
+ * Global function implementations
+ */
+//@{
 int alloc_and_read_xml_text (char* text)
 {
     char* textpos = text;
@@ -152,15 +188,36 @@ void preprocess_synapse (xml_node<> *syn_node,
                          const string& src_num,
                          const string& dst_population)
 {
-    // For each synapse... Is there a KernelConnection?
-    xml_node<>* kernel_connection = syn_node->first_node("KernelConnection");
-    if (!kernel_connection) {
+    // For each synapse... Is there a FixedProbability?
+    xml_node<>* fixedprob_connection = syn_node->first_node("FixedProbability");
+    if (!fixedprob_connection) {
         return;
     }
-    replace_kernel_connection (kernel_connection, src_name, src_num, dst_population);
+    replace_fixedprob_connection (fixedprob_connection, src_name, src_num, dst_population);
     // Plus any other modifications which need to be made...
 }
 
+/*
+Go from this:
+           <LL:Synapse>
+                <FixedProbabilityConnection probability="0.11" seed="123">
+                    <Delay Dimension="ms">
+                        <FixedValue value="0.2"/>
+                    </Delay>
+                </FixedProbabilityConnection>
+
+to this:
+
+
+*/
+void replace_fixedprob_connection (xml_node<> *syn_node,
+                                   const string& src_name,
+                                   const string& src_num,
+                                   const string& dst_population)
+{
+}
+
+#if 0 // KernelConnection deprecated.
 /*
 Take this:
     <KernelConnection>
@@ -181,7 +238,8 @@ And replace with something like this:
       </Delay>
     </ConnectionList>
 
-    Copy what kernel_connection::generate_connections does in SpineCreator.
+    Copy what kernel_connection::generate_connections does in SpineCreator - the real guts
+    is in kernel_connection::import_parameters_from_xml
 */
 void replace_kernel_connection (xml_node<> *syn_node,
                                 const string& src_name,
@@ -192,6 +250,9 @@ void replace_kernel_connection (xml_node<> *syn_node,
 
     // in the origin code, src is a pointer to a population. I guess
     // this actually generates some default physical layout.
+    // The population contains: QSharedPointer<NineMLLayoutData>layoutType;
+    // NineMLLayoutData defined in nineml_layout_classes.h.
+    // NineMLLayoutData::locations: QVector < loc > locations; (loc is a simple struct available in this code)
     src->layoutType->generateLayout(src->numNeurons,&src->layoutType->locations,errorLog);
     if (!errorLog.isEmpty()) {
         return;
@@ -201,8 +262,18 @@ void replace_kernel_connection (xml_node<> *syn_node,
         return;
     }
 
-    // Needs converting
-    int srcNum = src_num;
+    // A vector of connections. See SpineCreator/globalHeader.h
+    vector<conn> conns;
+
+    int srcNum = 0;
+    {
+        stringstream ss;
+        ss << src_num;
+        ss >> srcNum;
+    }
+    // where's dstNum?
+    // srcNum was: src->layoutType->locations.size()
+    // dstNum was: dst->layoutType->locations.size() in the original SC code.
 
     float total_ops = (float)srcNum;
     int scale_val = round(100000000.0/(srcNum*dstNum));
@@ -227,9 +298,10 @@ void replace_kernel_connection (xml_node<> *syn_node,
             }
 
             // if we are outside the kernel
-            if (fabs(x) > floor(kernel_size/2.0) * kernel_scale || \
-                    fabs(y) > floor(kernel_size/2.0) * kernel_scale)
+            double the_floor = floor(kernel_size/2.0) * kernel_scale;
+            if (fabs(x) > the_floor || fabs(y) > the_floor) {
                 continue;
+            }
 
             // otherwise find the right kernel box
             int boxX = floor(x / kernel_scale + 0.5) + floor(kernel_size/2.0);
@@ -237,12 +309,13 @@ void replace_kernel_connection (xml_node<> *syn_node,
 
             // add connection based on kernel
             if (float(rand())/float(RAND_MAX) < kernel[boxX][boxY]) {
-                mutex->lock();
+                // A mutex is not required for this single threaded code.
+                // mutex->lock();
                 conn newConn;
                 newConn.src = i;
                 newConn.dst = j;
                 conns->push_back(newConn);
-                mutex->unlock();
+                //mutex->unlock();
             }
         }
         if (round(float(i)/total_ops * 100.0) > oldprogress) {
@@ -250,9 +323,12 @@ void replace_kernel_connection (xml_node<> *syn_node,
             oldprogress = round(float(i)/total_ops * 100.0)+scale_val;
         }
     }
-    this->moveToThread(QApplication::instance()->thread());
-    emit connectionsDone();
+    //this->moveToThread(QApplication::instance()->thread());
+    //emit connectionsDone();
 }
+#endif
+
+//@} End global function implementations
 
 int main()
 {
