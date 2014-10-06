@@ -18,16 +18,36 @@
 
 #include "rapidxml.hpp"
 #include "rapidxml_print.hpp"
-
+#include "include/rng.h"
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <iostream>
-
+#include <vector>
+#include <stdexcept>
+#include <unistd.h>
 #include <string.h>
 
 using namespace std;
 using namespace rapidxml;
+
+/*!
+ * It may be that we need to run this for HL and LL models.
+ */
+#define LVL "LL:"
+
+/*!
+ * A global for the first population node pointer. I anticipate this
+ * going into a class at some point, hence just sticking it in as a
+ * global for now.
+ */
+xml_node<> * first_pop_node;
+
+/*!
+ * A global for the root node pointer. Same comments apply as for
+ * first_pop_node.
+ */
+xml_node<> * root_node;
 
 /*!
  * A cartesian location structure. This is a copy of the same struct
@@ -56,7 +76,13 @@ struct conn {
  */
 int alloc_and_read_xml_text (char* text);
 
-/*
+/*!
+ * Find the number of neurons in the destination population, starting
+ * from the root node or the first population node (globals/members).
+ */
+int find_num_neurons (const string& dst_population);
+
+/*!
  * Take a population node, and process this for any changes we need to
  * make. Sub-calls preprocess_projection.
  */
@@ -78,21 +104,24 @@ void preprocess_synapse (xml_node<>* proj_node,
 /*!
  * Do the work of replacing a FixedProbability connection with a
  * ConnectionList
+ *
+ * Go from this:
+ *          <LL:Synapse>
+ *               <FixedProbabilityConnection probability="0.11" seed="123">
+ *                   <Delay Dimension="ms">
+ *                       <FixedValue value="0.2"/>
+ *                   </Delay>
+ *               </FixedProbabilityConnection>
+ *
+ * to this:
+ *
+ * (an explicit list of connections, with distribution generated like the
+ * code in SpineML_2_BRAHMS_CL_weight.xsl)
  */
 void replace_fixedprob_connection (xml_node<> *syn_node,
                                    const string& src_name,
                                    const string& src_num,
                                    const string& dst_population);
-
-#if 0
-/*!
- * Do the work of replacing a KernelConnection with a ConnectionList
- */
-void replace_kernel_connection (xml_node<> *syn_node,
-                                const string& src_name,
-                                const string& src_num,
-                                const string& dst_population);
-#endif
 
 /*!
  * Global function implementations
@@ -119,7 +148,13 @@ int alloc_and_read_xml_text (char* text)
         // Allocate enough memory in char* text for this line
         llen = line.size();
         curmem += llen;
-        text = (char*) realloc (text, curmem);
+
+        // This attempt to dynamically realloc mucks things
+        // up. probably need to pass a char** if I want to do this.
+        //
+        // cout << "realloc " << curmem << " bytes for text." << endl;
+        // text = (char*) realloc (text, curmem);
+
         // Restore textpos pointer in the reallocated memory:
         textpos = text + curpos;
         // copy line to textpos:
@@ -129,7 +164,47 @@ int alloc_and_read_xml_text (char* text)
     }
     model.close();
 
+    // Note: text is already null terminated
     return curmem;
+}
+
+int find_num_neurons (const string& dst_population)
+{
+    cout << __FUNCTION__ << " called for dst_population: "<< dst_population << endl;
+    int numNeurons = -1;
+    xml_node<>* pop_node = first_pop_node->next_sibling(LVL"Population");
+    xml_node<>* neuron_node;
+    while (pop_node) {
+        // Dive into this population:
+        // <LL:Population>
+        //    <LL:Neuron name="Population 0" size="10" url="New_Component_1.xml">
+        neuron_node = pop_node->first_node(LVL"Neuron");
+        if (neuron_node) {
+            // Find name.
+            string name("");
+            xml_attribute<>* name_attr;
+            if ((name_attr = neuron_node->first_attribute ("name"))) {
+                name = neuron_node->value();
+                cout << "name: " << name << endl; // always empty!
+                usleep (100000);
+                if (name == dst_population) {
+                    // Match! Get the size:
+                    xml_attribute<>* size_attr;
+                    if ((size_attr = neuron_node->first_attribute ("size"))) {
+                        stringstream ss;
+                        ss << neuron_node->value();
+                        ss >> numNeurons;
+                        break;
+                    } // else failed to get size attr of Neuron node
+                } // else no match, move on.
+            } // else failed to get name attr
+        } // else no neuron node.
+        else {
+            cout << "No neuron node here..." << endl;
+        }
+        pop_node = first_pop_node->next_sibling(LVL"Population");
+    }
+    return numNeurons;
 }
 
 void preprocess_population (xml_node<> *pop_node)
@@ -137,28 +212,28 @@ void preprocess_population (xml_node<> *pop_node)
     // Within each population:
     // Find source name; this is given by LL:Neuron name attribute; also have size attr.
     // search out projections.
-    xml_node<> *neuron_node = root_node->first_node("LL:Neuron");
+    xml_node<> *neuron_node = pop_node->first_node(LVL"Neuron");
     if (!neuron_node) {
         // No src name. Does that mean we return or carry on?
         return;
     }
 
     string src_name("");
-    xml_attribute<>* src_node;
-    if ((src_node = neuron_node->first_attribute ("name"))) {
-        src_name = src_node->value();
+    xml_attribute<>* name_attr;
+    if ((name_attr = neuron_node->first_attribute ("name"))) {
+        src_name = name_attr->value();
     } // else failed to get src name
 
     string src_num("");
-    xml_attribute<>* src_num_node;
-    if ((src_num_node = neuron_node->first_attribute ("name"))) {
-        src_num = src_num_node->value();
-    } // else failed to get src name
+    xml_attribute<>* num_attr;
+    if ((num_attr = neuron_node->first_attribute ("size"))) {
+        src_num = num_attr->value();
+    } // else failed to get src num
 
     // Now find all Projections.
-    for (xml_node<> *proj_node = root_node->first_node("LL:Projection");
+    for (xml_node<> *proj_node = pop_node->first_node(LVL"Projection");
          proj_node;
-         proj_node = proj_node->next_sibling("LL:Projection")) {
+         proj_node = proj_node->next_sibling(LVL"Projection")) {
 
         preprocess_projection (proj_node, src_name, src_num);
     }
@@ -168,17 +243,18 @@ void preprocess_projection (xml_node<> *proj_node,
                             const string& src_name,
                             const string& src_num)
 {
+    cout << __FUNCTION__ << " called" << endl;
     // Get the destination.
     string dst_population("");
-    xml_attribute<>* dst_pop_node;
-    if ((dst_pop_node = neuron_node->first_attribute ("dst_population"))) {
-        dst_population = dst_pop_node->value();
+    xml_attribute<>* dst_pop_attr;
+    if ((dst_pop_attr = proj_node->first_attribute ("dst_population"))) {
+        dst_population = dst_pop_attr->value();
     } // else failed to get src name
 
     // And then for each synapse in the projection:
-    for (xml_node<> *syn_node = proj_node->first_node("LL:Synapse");
+    for (xml_node<> *syn_node = proj_node->first_node(LVL"Synapse");
          syn_node;
-         syn_node = syn_node->next_sibling("LL:Synapse")) {
+         syn_node = syn_node->next_sibling(LVL"Synapse")) {
         preprocess_synapse (syn_node, src_name, src_num, dst_population);
     }
 }
@@ -188,8 +264,9 @@ void preprocess_synapse (xml_node<> *syn_node,
                          const string& src_num,
                          const string& dst_population)
 {
+    cout << __FUNCTION__ << " called" << endl;
     // For each synapse... Is there a FixedProbability?
-    xml_node<>* fixedprob_connection = syn_node->first_node("FixedProbability");
+    xml_node<>* fixedprob_connection = syn_node->first_node("FixedProbabilityConnection");
     if (!fixedprob_connection) {
         return;
     }
@@ -197,145 +274,120 @@ void preprocess_synapse (xml_node<> *syn_node,
     // Plus any other modifications which need to be made...
 }
 
-/*
-Go from this:
-           <LL:Synapse>
-                <FixedProbabilityConnection probability="0.11" seed="123">
-                    <Delay Dimension="ms">
-                        <FixedValue value="0.2"/>
-                    </Delay>
-                </FixedProbabilityConnection>
-
-to this:
-
-
-*/
-void replace_fixedprob_connection (xml_node<> *syn_node,
+void replace_fixedprob_connection (xml_node<> *fixedprob_node,
                                    const string& src_name,
                                    const string& src_num,
                                    const string& dst_population)
 {
-}
+    cout << __FUNCTION__ << " called" << endl;
 
-#if 0 // KernelConnection deprecated.
-/*
-Take this:
-    <KernelConnection>
-       <Kernel scale="1" size="3">
-         <KernelRow col0="1" col1="0" col2="0"/>
-         <KernelRow col0="1" col1="0" col2="1"/>
-         <KernelRow col0="0" col1="1" col2="1"/>
-       </Kernel>
-       <Delay Dimension="ms"/>
-    </KernelConnection>
+    // create the lookups for the connectivity
+    vector <vector <int> > connectivityS2C;
+    vector <vector <int> > connectivityD2C;
+    vector <int> connectivityC2S;
+    vector <int> connectivityC2D;
 
-And replace with something like this:
+    // All the rng data used in rng.h
+    RngData rngData;
 
-    <ConnectionList>
-      <BinaryFile file_name="C56f0fcdc-bbf7-412b-867d-49f4698edc00.bin" num_connections="432" explicit_delay_flag="0"/>
-      <Delay Dimension="ms">
-        <FixedValue value="0"/>
-      </Delay>
-    </ConnectionList>
-
-    Copy what kernel_connection::generate_connections does in SpineCreator - the real guts
-    is in kernel_connection::import_parameters_from_xml
-*/
-void replace_kernel_connection (xml_node<> *syn_node,
-                                const string& src_name,
-                                const string& src_num,
-                                const string& dst_population)
-{
-    // Seems like we need this layout stuff... Need the physical layout of the neurons.
-
-    // in the origin code, src is a pointer to a population. I guess
-    // this actually generates some default physical layout.
-    // The population contains: QSharedPointer<NineMLLayoutData>layoutType;
-    // NineMLLayoutData defined in nineml_layout_classes.h.
-    // NineMLLayoutData::locations: QVector < loc > locations; (loc is a simple struct available in this code)
-    src->layoutType->generateLayout(src->numNeurons,&src->layoutType->locations,errorLog);
-    if (!errorLog.isEmpty()) {
-        return;
-    }
-    dst->layoutType->generateLayout(dst->numNeurons,&dst->layoutType->locations,errorLog);
-    if (!errorLog.isEmpty()) {
-        return;
+    // Get the FixedProbability probabilty and seed from this bit of the model.xml:
+    // <FixedProbabilityConnection probability="0.11" seed="123">
+    float probabilityValue = 0;
+    {
+        string fp_probability("");
+        xml_attribute<>* fp_probability_attr;
+        if ((fp_probability_attr = fixedprob_node->first_attribute ("probability"))) {
+            fp_probability = fp_probability_attr->value();
+        } else {
+            // failed to get probability; can't proceed.
+            throw runtime_error ("Failed to get FixedProbability's probability attr from model.xml");
+        }
+        stringstream ss;
+        ss << fp_probability;
+        ss >> probabilityValue;
     }
 
-    // A vector of connections. See SpineCreator/globalHeader.h
-    vector<conn> conns;
+    int seed = 0;
+    {
+        string fp_seed("");
+        xml_attribute<>* fp_seed_attr;
+        if ((fp_seed_attr = fixedprob_node->first_attribute ("seed"))) {
+            fp_seed = fp_seed_attr->value();
+        } else {
+            // failed to get seed; can't proceed.
+            throw runtime_error ("Failed to get FixedProbability's seed attr from model.xml");
+        }
+        stringstream ss;
+        ss << fp_seed;
+        ss >> seed;
+    }
 
-    int srcNum = 0;
+    unsigned int srcNum = 0;
     {
         stringstream ss;
         ss << src_num;
         ss >> srcNum;
     }
-    // where's dstNum?
-    // srcNum was: src->layoutType->locations.size()
-    // dstNum was: dst->layoutType->locations.size() in the original SC code.
 
-    float total_ops = (float)srcNum;
-    int scale_val = round(100000000.0/(srcNum*dstNum));
-    int oldprogress = 0;
+    cout << "probability: " << probabilityValue << ", seed: " << seed
+         << ", srcNum: " << srcNum << endl;
 
-    for (int i = 0; i < srcNum; ++i) {
-        for (int j = 0; j < dstNum; ++j) {
+    // Find the number of neurons in the destination population
+    int dstNum = find_num_neurons (dst_population);
 
-            // CALCULATE (kernels ignore z component for now!)
-            float xRaw = dst->layoutType->locations[j].x - src->layoutType->locations[i].x;
-            float yRaw = dst->layoutType->locations[j].y - src->layoutType->locations[i].y;
+    // seed the rng: 2 questions about origin code. Why the additional
+    // 1 in front of the seed in 2nd arg to zigset, and why was
+    // rngData.seed hardcoded to 123?
+    zigset (&rngData, /*1*/seed);
+    rngData.seed = seed; // or 123??
 
-            // rotate:
-            float x;
-            float y;
-            if (rotation != 0) {
-                x = cos(rotation)*xRaw - sin(rotation)*yRaw;
-                y = sin(rotation)*xRaw + cos(rotation)*yRaw;
-            } else {
-                x = xRaw;
-                y = yRaw;
+    // run through connections, creating connectivity pattern:
+    connectivityC2D.reserve (dstNum); // probably num from dst_population
+    connectivityS2C.resize (srcNum); // probably src_num.
+
+    for (unsigned int i = 0; i < connectivityS2C.size(); ++i) {
+        connectivityS2C[i].reserve((int) round(dstNum*probabilityValue));
+    }
+    for (unsigned int srcIndex = 0; srcIndex < srcNum; ++srcIndex) {
+        for (unsigned int dstIndex = 0; dstIndex < dstNum; ++dstIndex) {
+            if (UNI(&rngData) < probabilityValue) {
+                connectivityC2D.push_back(dstIndex);
+                connectivityS2C[srcIndex].push_back(connectivityC2D.size()-1);
             }
 
-            // if we are outside the kernel
-            double the_floor = floor(kernel_size/2.0) * kernel_scale;
-            if (fabs(x) > the_floor || fabs(y) > the_floor) {
-                continue;
-            }
-
-            // otherwise find the right kernel box
-            int boxX = floor(x / kernel_scale + 0.5) + floor(kernel_size/2.0);
-            int boxY = floor(y / kernel_scale + 0.5) + floor(kernel_size/2.0);
-
-            // add connection based on kernel
-            if (float(rand())/float(RAND_MAX) < kernel[boxX][boxY]) {
-                // A mutex is not required for this single threaded code.
-                // mutex->lock();
-                conn newConn;
-                newConn.src = i;
-                newConn.dst = j;
-                conns->push_back(newConn);
-                //mutex->unlock();
-            }
         }
-        if (round(float(i)/total_ops * 100.0) > oldprogress) {
-            emit progress((int) round(float(i)/total_ops * 100.0));
-            oldprogress = round(float(i)/total_ops * 100.0)+scale_val;
+        if (float(connectivityC2D.size()) > 0.9*float(connectivityC2D.capacity())) {
+            connectivityC2D.reserve(connectivityC2D.capacity()+dstNum);
         }
     }
-    //this->moveToThread(QApplication::instance()->thread());
-    //emit connectionsDone();
-}
-#endif
 
+    // set up the number of connections
+    int numConn = connectivityC2D.size();
+
+    // Ok, having made up the connectivity maps as above, write them
+    // out into a connection binary file.
+    cout << "numConn is " << numConn << endl;
+}
 //@} End global function implementations
 
 int main()
 {
     char* text = static_cast<char*>(0);
-    if (alloc_and_read_xml_text (text)) {
+    text = (char*) malloc (1000000*sizeof(char)); // FIXME, need better scheme here.
+    // Currently, alloc_and_read_xml_text just does read_xml_text.
+    if (!alloc_and_read_xml_text (text)) {
+        cerr << "Failed to read" << endl;
         return -1;
     }
+
+    if (text) {
+        // OK.
+        // cout << "text = " << text << endl;
+    } else {
+        cerr << "No text!" << endl;
+        return -1;
+    }
+
     xml_document<> doc;    // character type defaults to char
 
     // we are choosing to parse the XML declaration
@@ -343,7 +395,9 @@ int main()
     // behavior of having both values and data nodes, and having data nodes take
     // precedence over values when printing
     // >>> note that this will skip parsing of CDATA nodes <<<
+    cout << "about to doc.parse.." << endl;
     doc.parse<parse_declaration_node | parse_no_data_nodes>(text);
+    cout << "doc.parse worked" << endl;
 
     if (doc.first_node()->first_attribute("encoding")) {
         string encoding = doc.first_node()->first_attribute("encoding")->value();
@@ -351,7 +405,7 @@ int main()
     }
 
     // Get the root node.
-    xml_node<>* root_node = doc.first_node("LL:SpineML");
+    root_node = doc.first_node(LVL"SpineML");
     if (!root_node) {
         // Possibly look for HL:SpineML, if we have a high level model (not
         // used by anyone at present).
@@ -361,10 +415,11 @@ int main()
     }
 
     // Search each population for stuff.
-    for (xml_node<> *pop_node = root_node->first_node("LL:Population");
-         pop_node;
-         pop_node = pop_node->next_sibling("LL:Population")) {
-        preprocess_population (pop_node);
+    for (first_pop_node = root_node->first_node(LVL"Population");
+         first_pop_node;
+         first_pop_node = first_pop_node->next_sibling(LVL"Population")) {
+        cout << "preprocess_population" << endl;
+        preprocess_population (first_pop_node);
     }
 
     // Clean up and return.
