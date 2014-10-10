@@ -245,7 +245,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             }
             case ANALOG:
                 client.recvData((char *) &(buffer[0]), buffer.size()*sizeof(double));
-                out.setContent(&(buffer[0]));
                 break;
             case IMPULSE:
             {
@@ -259,7 +258,10 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             }
             }
 
+            
         }
+        
+        out.setContent(&(buffer[0]));
 
         //	ok
         return C_OK;
