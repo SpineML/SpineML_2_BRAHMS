@@ -137,8 +137,18 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				/*if (_has_delay)
 					delayForConnTemp.resize(_num_conn);*/
 				for (int i_BRAHMS = 0; i_BRAHMS < _num_conn; ++i_BRAHMS) {
-                                    /*size_t v =*/ fread(&srcInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
-                                    /*v =*/ fread(&dstInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
+                                    size_t v = fread(&srcInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
+				    if (v == 0) {
+				      if (ferror(binfile)) {
+					berr << "Error reading sources";
+				      }
+				    }
+                                    v = fread(&dstInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
+				    if (v == 0) {
+				      if (ferror(binfile)) {
+					berr << "Error reading destinations"; 
+				      }
+				    }
 					/*if (_has_delay)
 						fread(&delayForConnTemp[i_BRAHMS], sizeof(unsigned int), 1, binfile);*/
 				}

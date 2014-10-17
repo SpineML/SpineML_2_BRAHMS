@@ -44,7 +44,11 @@ namespace rng = std_2009_util_rng_0;
 using namespace std;
 
 #include "rng.h"
-
+// Some very SpineML_2_BRAHMS specific defines, common to all components.
+#define randomUniform     _randomUniform(&amp;this-&gt;rngData_BRAHMS)
+#define randomNormal      _randomNormal(&amp;this-&gt;rngData_BRAHMS)
+#define randomExponential _randomExponential(&amp;this-&gt;rngData_BRAHMS)
+#define randomPoisson     _randomPoisson(&amp;this-&gt;rngData_BRAHMS)
 #include "impulse.h"
 
 /* helper function for doing the indexing... do we need this?
@@ -99,10 +103,16 @@ public:
 
 private:
 
+// Some data for the random number generator.
+RngData rngData_BRAHMS;
+
 float t;
 
 // base name
 string baseNameForLogs_BRAHMS;
+
+// model directory string
+string modelDirectory_BRAHMS;
 
 // define regimes
 <xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
@@ -199,14 +209,18 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			XMLNode xmlNode(data->state);
 			DataMLNode nodeState(&amp;xmlNode);
 
-			zigset(11);
+			rngDataInit(&amp;this-&gt;rngData_BRAHMS);
+			zigset(&amp;this-&gt;rngData_BRAHMS, 11);
 
 			// obtain the parameters
 			size_BRAHMS = nodeState.getField("size").getArrayDOUBLE();
 			numElements_BRAHMS = 1;
 			for (int i_BRAHMS_LOOP = 0; i_BRAHMS_LOOP &lt; size_BRAHMS.size(); ++i_BRAHMS_LOOP) {
 				numElements_BRAHMS *= size_BRAHMS[i_BRAHMS_LOOP];
-			}		
+			}
+
+			// Ensure field is present (trigger BRAHMS error if not)
+			modelDirectory_BRAHMS = nodeState.getField("model_directory").getSTRING();
 
 			int numEl_BRAHMS = numElements_BRAHMS;
 
@@ -320,7 +334,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			}
 
 			// re-seed
-			seed = getTime();
+			this-&gt;rngData_BRAHMS.seed = getTime();
 
 			//	ok
 			return C_OK;
@@ -328,21 +342,21 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 		case EVENT_RUN_SERVICE:
 		{
-		
+
 			t = float(time->now)*dt;
 
 			int num_BRAHMS;
 			int numEl_BRAHMS = numElements_BRAHMS;
-			
+
 			<xsl:if test="count($linked_file//SMLCL:Regime)>1">
             for (int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="concat(translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.size(); ++i_BRAHMS) {
-            
+
             	<xsl:value-of select="concat(translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS] = <xsl:value-of select="concat(translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS];
 
 			}
 			</xsl:if>
-			
-			
+
+
 			// service inputs
 <!---->
 
@@ -356,18 +370,18 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:EventReceivePort | SMLCL:EventSendPort" mode="serviceEventPorts"/>
-			</xsl:for-each>		
+			</xsl:for-each>
 
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:Dynamics" mode="doEventInputs"/>
 			</xsl:for-each>
-			
+
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:Dynamics" mode="doImpulseInputs"/>
 			</xsl:for-each>
-			
+
 			<!---->
-			
+
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:Dynamics" mode="doIter"/>
 			</xsl:for-each>
@@ -382,44 +396,44 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
             <xsl:if test="count($linked_file//SMLCL:Regime)>1">
            		<xsl:value-of select="concat(translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS] = <xsl:value-of select="concat(translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS];
            	</xsl:if>
-           		
+
            		// updating logs...
            		<xsl:apply-templates select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="makeSendPortLogs"/>
-           		
+
 			}
-			
+
 			// updating logs...
            	<xsl:apply-templates select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort" mode="makeSendPortLogs"/>
-			
+
 			// writing logs...
            	<xsl:apply-templates select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="saveSendPortLogs"/>
-			
+
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:AnalogReceivePort | SMLCL:AnalogSendPort | SMLCL:AnalogReducePort" mode="outputAnalogPorts"/>
 			</xsl:for-each>
 
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:EventReceivePort | SMLCL:EventSendPort" mode="outputEventPorts"/>
-			</xsl:for-each>	
+			</xsl:for-each>
 
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:ImpulseReceivePort | SMLCL:ImpulseSendPort" mode="outputImpulsePorts"/>
-			</xsl:for-each>	
+			</xsl:for-each>
 
-				
+
 			//	ok
 			return C_OK;
 		}
-		
+
 		case EVENT_RUN_STOP:
-		{	
-		
+		{
+
 			int numEl_BRAHMS = numElements_BRAHMS;
 			t = float(time->now)*dt;
-		
+
 			<!-- WRITE XML FOR LOGS -->
 			<xsl:apply-templates select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="finaliseLogs"/>
-				
+
 			//	ok
 			return C_OK;
 		}

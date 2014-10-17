@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<System Version="1.0" AuthTool="SystemML Toolbox" AuthToolVersion="1">
+
+	<Process>
+		<Name>ReadFile</Name>
+		<Class>dev/SpineML/tools/readOutputFile</Class>
+		<Time><SampleRate>300</SampleRate></Time>
+		<State c="z" a="datapointsPerTimestep;binpath;_bin_file_name;" Format="DataML" Version="5" AuthTool="SystemML Toolbox" AuthToolVersion="0">
+			<m c="l">1</m>
+			<m>/home/seb/greenbrain/SpineML_2_BRAHMS/temp/</m>
+			<m>MN_left_a_log.bin</m>
+		</State>
+	</Process>
+</System>
