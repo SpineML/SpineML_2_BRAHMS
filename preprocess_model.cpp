@@ -16,9 +16,8 @@
  * Author: Seb James, 2014.
  */
 
-#include "rapidxml.hpp"
 #include "rapidxml_print.hpp"
-#include "include/rng.h"
+#include "rapidxml.hpp"
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -27,6 +26,7 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <string.h>
+#include "connection_list.h"
 
 using namespace std;
 using namespace rapidxml;
@@ -114,6 +114,14 @@ void preprocess_synapse (xml_node<>* proj_node,
  *               </FixedProbabilityConnection>
  *
  * to this:
+ *          <LL:Synapse>
+ *               <ConnectionList>
+ *                   <BinaryFile file_name="connection0.bin" num_connections="87360"
+ *                               explicit_delay_flag="0" packed_data="true"/>
+ *                   <Delay Dimension="ms">
+ *                       <FixedValue value="1"/>
+ *                   </Delay>
+ *               </ConnectionList>
  *
  * (an explicit list of connections, with distribution generated like the
  * code in SpineML_2_BRAHMS_CL_weight.xsl)
@@ -168,11 +176,13 @@ int alloc_and_read_xml_text (char* text)
     return curmem;
 }
 
+// For debug, I added a name to the Populations in my test model.xml
+#define POP_NAME_TESTING 1
+
 int find_num_neurons (const string& dst_population)
 {
-    cout << __FUNCTION__ << " called for dst_population: "<< dst_population << endl;
     int numNeurons = -1;
-    xml_node<>* pop_node = first_pop_node->next_sibling(LVL"Population");
+    xml_node<>* pop_node = first_pop_node;
     xml_node<>* neuron_node;
     while (pop_node) {
         // Dive into this population:
@@ -184,25 +194,20 @@ int find_num_neurons (const string& dst_population)
             string name("");
             xml_attribute<>* name_attr;
             if ((name_attr = neuron_node->first_attribute ("name"))) {
-                name = neuron_node->value();
-                cout << "name: " << name << endl; // always empty!
-                usleep (100000);
+                name = name_attr->value();
                 if (name == dst_population) {
                     // Match! Get the size:
                     xml_attribute<>* size_attr;
                     if ((size_attr = neuron_node->first_attribute ("size"))) {
                         stringstream ss;
-                        ss << neuron_node->value();
+                        ss << size_attr->value();
                         ss >> numNeurons;
                         break;
                     } // else failed to get size attr of Neuron node
                 } // else no match, move on.
             } // else failed to get name attr
         } // else no neuron node.
-        else {
-            cout << "No neuron node here..." << endl;
-        }
-        pop_node = first_pop_node->next_sibling(LVL"Population");
+        pop_node = pop_node->next_sibling(LVL"Population");
     }
     return numNeurons;
 }
@@ -281,15 +286,6 @@ void replace_fixedprob_connection (xml_node<> *fixedprob_node,
 {
     cout << __FUNCTION__ << " called" << endl;
 
-    // create the lookups for the connectivity
-    vector <vector <int> > connectivityS2C;
-    vector <vector <int> > connectivityD2C;
-    vector <int> connectivityC2S;
-    vector <int> connectivityC2D;
-
-    // All the rng data used in rng.h
-    RngData rngData;
-
     // Get the FixedProbability probabilty and seed from this bit of the model.xml:
     // <FixedProbabilityConnection probability="0.11" seed="123">
     float probabilityValue = 0;
@@ -322,6 +318,71 @@ void replace_fixedprob_connection (xml_node<> *fixedprob_node,
         ss >> seed;
     }
 
+    // The connection list object which we'll populate.
+    s2b::ConnectionList cl;
+    {
+        xml_node<>* delay_node = fixedprob_node->first_node ("Delay");
+        if (delay_node) {
+            xml_attribute<>* dim_attr = delay_node->first_attribute ("Dimension");
+            if (dim_attr) {
+                cl.delayDimension = dim_attr->value();
+            }
+            // Do we have a FixedValue distribution?
+            xml_node<>* delay_value_node = delay_node->first_node ("FixedValue");
+            xml_node<>* delay_normal_node = delay_node->first_node ("NormalDistribution");
+            xml_node<>* delay_uniform_node = delay_node->first_node ("UniformDistribution");
+            if (delay_value_node) {
+                cl.delayDistributionType = s2b::FixedValue;
+                xml_attribute<>* value_attr = delay_value_node->first_attribute ("value");
+                if (value_attr) {
+                    stringstream ss;
+                    ss << value_attr->value();
+                    ss >> cl.delayFixedValue;
+                }
+            } else if (delay_normal_node) {
+                cl.delayDistributionType = s2b::Normal;
+                xml_attribute<>* mean_attr = delay_value_node->first_attribute ("mean");
+                if (mean_attr) {
+                    stringstream ss;
+                    ss << mean_attr->value();
+                    ss >> cl.delayMean;
+                }
+                xml_attribute<>* variance_attr = delay_value_node->first_attribute ("variance");
+                if (variance_attr) {
+                    stringstream ss;
+                    ss << variance_attr->value();
+                    ss >> cl.delayVariance;
+                }
+                xml_attribute<>* seed_attr = delay_value_node->first_attribute ("seed");
+                if (seed_attr) {
+                    stringstream ss;
+                    ss << seed_attr->value();
+                    ss >> cl.delayDistributionSeed;
+                }
+            } else if (delay_uniform_node) {
+                cl.delayDistributionType = s2b::Uniform;
+                xml_attribute<>* minimum_attr = delay_value_node->first_attribute ("minimum");
+                if (minimum_attr) {
+                    stringstream ss;
+                    ss << minimum_attr->value();
+                    ss >> cl.delayRangeMin;
+                }
+                xml_attribute<>* maximum_attr = delay_value_node->first_attribute ("maximum");
+                if (maximum_attr) {
+                    stringstream ss;
+                    ss << maximum_attr->value();
+                    ss >> cl.delayRangeMin;
+                }
+                xml_attribute<>* seed_attr = delay_value_node->first_attribute ("seed");
+                if (seed_attr) {
+                    stringstream ss;
+                    ss << seed_attr->value();
+                    ss >> cl.delayDistributionSeed;
+                }
+            }
+        }
+    }
+
     unsigned int srcNum = 0;
     {
         stringstream ss;
@@ -333,40 +394,18 @@ void replace_fixedprob_connection (xml_node<> *fixedprob_node,
          << ", srcNum: " << srcNum << endl;
 
     // Find the number of neurons in the destination population
-    int dstNum = find_num_neurons (dst_population);
-
-    // seed the rng: 2 questions about origin code. Why the additional
-    // 1 in front of the seed in 2nd arg to zigset, and why was
-    // rngData.seed hardcoded to 123?
-    zigset (&rngData, /*1*/seed);
-    rngData.seed = seed; // or 123??
-
-    // run through connections, creating connectivity pattern:
-    connectivityC2D.reserve (dstNum); // probably num from dst_population
-    connectivityS2C.resize (srcNum); // probably src_num.
-
-    for (unsigned int i = 0; i < connectivityS2C.size(); ++i) {
-        connectivityS2C[i].reserve((int) round(dstNum*probabilityValue));
+    int dstNum_ = find_num_neurons (dst_population);
+    unsigned int dstNum(0);
+    if (dstNum_ != -1) {
+        dstNum = static_cast<unsigned int>(dstNum_);
+    } else {
+        // ERROR
     }
-    for (unsigned int srcIndex = 0; srcIndex < srcNum; ++srcIndex) {
-        for (unsigned int dstIndex = 0; dstIndex < dstNum; ++dstIndex) {
-            if (UNI(&rngData) < probabilityValue) {
-                connectivityC2D.push_back(dstIndex);
-                connectivityS2C[srcIndex].push_back(connectivityC2D.size()-1);
-            }
+    cout << "dstNum: " << dstNum << endl;
 
-        }
-        if (float(connectivityC2D.size()) > 0.9*float(connectivityC2D.capacity())) {
-            connectivityC2D.reserve(connectivityC2D.capacity()+dstNum);
-        }
-    }
-
-    // set up the number of connections
-    int numConn = connectivityC2D.size();
-
-    // Ok, having made up the connectivity maps as above, write them
-    // out into a connection binary file.
-    cout << "numConn is " << numConn << endl;
+    cl.generateFixedProbability (seed, probabilityValue, srcNum, dstNum);
+    cl.generateDelays();
+    cl.write (fixedprob_node, "./model/", "pp_connectionN.bin");
 }
 //@} End global function implementations
 
@@ -420,6 +459,17 @@ int main()
          first_pop_node = first_pop_node->next_sibling(LVL"Population")) {
         cout << "preprocess_population" << endl;
         preprocess_population (first_pop_node);
+    }
+
+    // Backup model.xml
+    system ("cp ./model/model.xml ./model/model.bu.xml");
+
+    // Write out the now modified xml:
+    ofstream f;
+    f.open ("./model/model.xml", ios::out|ios::trunc);
+    if (f.is_open()) {
+        f << doc;
+        f.close();
     }
 
     // Clean up and return.
