@@ -430,12 +430,20 @@ bool spineMLNetworkClient::sendData(char * ptr, int datasizeBytes)
  */
 bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
 {
-    bool outputDebug = (this->recvDebug & RECVDEBUG_MASK == this->recvDebug);
+    bool outputDebug = false;
+    if (this->recvDebug == 0x1 || this->recvDebug == 0x2
+        || this->recvDebug == 0x10 || this->recvDebug == 0x80
+        || this->recvDebug%1000) {
+        outputDebug = true;
+    }
     int loopNum = this->recvDebug;
     this->recvDebug++;
 
     if (outputDebug) {
         std::cout << "recvdata called to receive " << datasizeBytes
+                  << " input bytes. Loop num is " << loopNum << "\n";
+    } else {
+        std::cout << "outputDebug==false. recvdata called to receive " << datasizeBytes
                   << " input bytes. Loop num is " << loopNum << "\n";
     }
     // get data
