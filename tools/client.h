@@ -442,9 +442,6 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
     if (outputDebug) {
         std::cout << "recvdata called to receive " << datasizeBytes
                   << " input bytes. Loop num is " << loopNum << "\n";
-//    } else {
-//        std::cout << "outputDebug==false. recvdata called to receive " << datasizeBytes
-//                 << " input bytes. Loop num is " << loopNum << "\n";
     }
     // get data
     int recv_bytes = 0;
