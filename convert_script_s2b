@@ -7,6 +7,10 @@
 # convert_script_s2b is used to process a SpineML model into #
 # Brahms-compatible executable components.                   #
 #                                                            #
+# It makes use of spineml_preflight to "preprocess" the      #
+# model first, so you'll need to have installed              #
+# SpineML_Preflight.                                         #
+#                                                            #
 ##############################################################
 
 
@@ -46,10 +50,16 @@ Options are:
   -r           DO rebuild the Brahms components, even if they already exist.
 
   -m modeldir  Set the model directory - the location of the experiment xml files.
-               Defaults to $SPINEML_2_BRAHMS_DIR/model.
+               Defaults to $SPINEML_2_BRAHMS_DIR/model. This is copied into
+               the output directory and "preflighted" by spineml_preflight before
+               the simulation starts.
 
   -o outdir    Set the output directory for temporary files and data output.
                Defaults to $SPINEML_2_BRAHMS_DIR/temp.
+
+  -e expt      Choose the experiment to run. Each model may have several
+               experiments, numbers 0, 1, 2, etc. Here, you can pass the number
+               of the experiment to run. E.g. -e 0. Defaults to 0.
 
   -n nodes     Use Sun Grid Engine: Provide the number of nodes on which to
                launch brahms instances. NB: Currently, only IPv4 TCP/IP is used
@@ -119,7 +129,7 @@ REBUILD_SYSTEMML="true"
 REBUILD_COMPONENTS="false"
 
 # Input directory containing the model.
-MODEL_DIR="model"
+MODEL_DIR="_unknown_model"
 # The output directory for temporary files and output logs.
 OUTPUT_DIR="temp"
 
@@ -129,8 +139,10 @@ NODEARCH=""
 
 VERBOSE_BRAHMS="no"
 
+EXPT_NUM=""
+
 # Parse cmd line options
-while getopts w:srm:o:n:a:vV\? opt
+while getopts w:srm:o:e:n:a:vV\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -142,6 +154,8 @@ do
         m)  MODEL_DIR="$OPTARG"
             ;;
         o)  OUTPUT_DIR="$OPTARG"
+            ;;
+        e)  EXPT_NUM="$OPTARG"
             ;;
         n)  NODES="$OPTARG"
             ;;
@@ -179,18 +193,30 @@ if [ ! -d "$SPINEML_2_BRAHMS_DIR" ]; then
     fi
 fi
 
-# Make sure we have both model and temp directories.
-if [ "x$MODEL_DIR" = "xmodel" ]; then
-    MODEL_DIR="$SPINEML_2_BRAHMS_DIR/model"
-fi
-mkdir -p "$MODEL_DIR"
-MODEL_DIR=$(abspath "$MODEL_DIR")
-echo "MODEL_DIR: $MODEL_DIR"
-if [ "$?" -ne "0" ]; then
-    echo "Failed to create model directory" >&2
+# Check we have spineml_preflight
+which spineml_preflight >/dev/null
+spfrtn=$?
+if [ "$spfrtn" -ne 0 ]; then
+    echo "Please ensure you installed SpineML_Preflight for the spineml_preflight binary."
     exit -1
 fi
 
+# Make up the experiment file name
+EXPERIMENT="experiment"$EXPT_NUM".xml"
+echo "Experiment is: $EXPERIMENT"
+
+#
+# A word on directories.
+#
+# The MODEL_DIR passed in is the location of the origin model, which
+# we will make a copy of. We copy it into our output directory, and
+# then "preflight" it, using spineml_preflight to "fix" certain
+# connection types, such as stochastic connection maps, and stochastic
+# delays (spineml_preflight replaces these with explicit lists,
+# generated according to the specification in the model).
+#
+
+# Make sure we have both model and temp directories.
 if [ "x$OUTPUT_DIR" = "xtemp" ]; then
     OUTPUT_DIR="$SPINEML_2_BRAHMS_DIR/temp"
 fi
@@ -199,6 +225,37 @@ OUTPUT_DIR=$(abspath "$OUTPUT_DIR")
 echo "OUTPUT_DIR: $OUTPUT_DIR"
 if [ "$?" -ne "0" ]; then
     echo "Failed to create temp/output directory" >&2
+    exit -1
+fi
+
+# Set a default value for MODEL_DIR if necessary:
+if [ "x$MODEL_DIR" = "x_unknown_model" ]; then
+    MODEL_DIR="$SPINEML_2_BRAHMS_DIR/model"
+fi
+
+echo "MODEL_DIR: $MODEL_DIR"
+
+# Our output model dir lives in our output dir:
+OUTPUT_MODEL_DIR="$OUTPUT_DIR"/model
+
+mkdir -p "$OUTPUT_MODEL_DIR"
+if [ "$?" -ne "0" ]; then
+    echo "Failed to create output model directory" >&2
+    exit -1
+fi
+
+# We make a COPY of the model dir
+cp -Ra $MODEL_DIR/* $OUTPUT_MODEL_DIR/
+if [ "$?" -ne "0" ]; then
+    echo "Failed to make a copy of the input model directory" >&2
+    exit -1
+fi
+
+
+# Preflight the model
+spineml_preflight -e $OUTPUT_MODEL_DIR"/"$EXPERIMENT
+if [ "$?" -ne "0" ]; then
+    echo "Failed to preflight the model." >&2
     exit -1
 fi
 
@@ -214,6 +271,7 @@ elif [ $(uname) = 'Windows_NT' ] || [ $(uname) = 'MINGW32_NT-6.1' ]; then
 else
     OS='OSX'
 fi
+echo "OS: $OS"
 
 # Now to test to see if we have a pre-compiled/package managed
 # toolspace? If NOT then we check if we need to compile using the
@@ -280,8 +338,8 @@ fi
 
 # First check we have an experiment.xml file to work from.
 # Could use cmd-line arg $INPUT here for the experiment file.
-if [ ! -f "$MODEL_DIR/experiment.xml" ]; then
-    echo "No experiment description to work from in $MODEL_DIR/experiment.xml" >&2
+if [ ! -f "$OUTPUT_MODEL_DIR/$EXPERIMENT" ]; then
+    echo "No experiment description to work from in $OUTPUT_MODEL_DIR/$EXPERIMENT" >&2
     echo "Exiting." >&2
     exit -1
 fi
@@ -301,10 +359,10 @@ rm "$OUTPUT_DIR/output_script" >/dev/null 2>&1
 # create the output script using an xsl translation and the experiment.xml file
 echo xsltproc -o "$OUTPUT_DIR/output.script" --stringparam hostos "$OS" \
          "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script.xsl" \
-         "$MODEL_DIR/experiment.xml"
+         "$OUTPUT_MODEL_DIR/$EXPERIMENT"
 xsltproc -o "$OUTPUT_DIR/output.script" --stringparam hostos "$OS" \
          "$XSL_SCRIPT_PATH/SpineML_2_BRAHMS_write_script.xsl" \
-         "$MODEL_DIR/experiment.xml"
+         "$OUTPUT_MODEL_DIR/$EXPERIMENT"
 if [ "$?" -ne "0" ]; then
     echo "Failed to run xsltproc to produce the output script from your model. Exiting." >&2
     exit -1;
@@ -355,10 +413,10 @@ fi
 # run the script
 pushd "$OUTPUT_DIR"
 echo "In directory: " `pwd`
-echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $MODEL_DIR experiment.xml $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH $NODES $NODEARCH"
-./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$MODEL_DIR" experiment.xml "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"  "$VERBOSE_BRAHMS" "$NODES" "$NODEARCH"
+echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $OUTPUT_MODEL_DIR $EXPERIMENT $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH $NODES $NODEARCH"
+./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$OUTPUT_MODEL_DIR" "$EXPERIMENT" "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"  "$VERBOSE_BRAHMS" "$NODES" "$NODEARCH"
 if [ "$?" -ne "0" ]; then
-    echo "Failed to run output.script on the experiment.xml. Falling at the last hurdle." >&2
+    echo "Failed to run output.script on $EXPERIMENT. Falling at the last hurdle." >&2
     exit -1;
 fi
 popd
