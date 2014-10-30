@@ -244,13 +244,14 @@ if [ "$?" -ne "0" ]; then
     exit -1
 fi
 
-# We make a COPY of the model dir
+# We make a COPY of the model dir, copying it into
+# OUTPUT_MODEL_DIR. We'll then "preflight" this copy of the model and
+# use this as the working input model.
 cp -Ra $MODEL_DIR/* $OUTPUT_MODEL_DIR/
 if [ "$?" -ne "0" ]; then
     echo "Failed to make a copy of the input model directory" >&2
     exit -1
 fi
-
 
 # Preflight the model
 spineml_preflight -e $OUTPUT_MODEL_DIR"/"$EXPERIMENT
