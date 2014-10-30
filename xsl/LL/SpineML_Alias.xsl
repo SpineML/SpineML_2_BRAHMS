@@ -12,12 +12,11 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 </xsl:template>
 
 <xsl:template match="SMLCL:Alias" mode="resizeAlias">
-					//resize Aliases
-					<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, 0);
+			<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, 0);
 </xsl:template>
 
 <xsl:template match="SMLCL:Alias" mode="defineAlias">
-vector &lt; double &gt; <xsl:value-of select="@name"/>; 
+vector &lt; double &gt; <xsl:value-of select="@name"/>;
 </xsl:template>
 
 </xsl:stylesheet>

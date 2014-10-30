@@ -3,7 +3,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
 <xsl:template match="SMLCL:Parameter" mode="defineParameter">
-vector &lt; double &gt; <xsl:value-of select="@name"/>;
+	vector &lt; double &gt; <xsl:value-of select="@name"/>;
 </xsl:template>
 
 <xsl:template match="SMLCL:Parameter" mode="assignParameter">
@@ -141,7 +141,6 @@ vector &lt; double &gt; <xsl:value-of select="@name"/>;
 					if (__tempInputValues__[i_BRAHMS] > numEl_BRAHMS-1) {berr &lt;&lt; "Parameter <xsl:value-of select="@name"/> has ValueList index " &lt;&lt; float(i_BRAHMS)&lt;&lt; " (value of " &lt;&lt; float(__tempInputValues__[i_BRAHMS]) &lt;&lt; ") out of range";}
 					<xsl:value-of select="@name"/>[__tempInputValues__[i_BRAHMS]] = __tempInputValues__[i_BRAHMS+1];
 				}
-
 			}
 
 			if (nodeState.hasField("<xsl:value-of select="@name"/>OVER2") &amp;&amp; !finishedThis)
@@ -154,7 +153,6 @@ vector &lt; double &gt; <xsl:value-of select="@name"/>;
 					if (__tempInputValues__[i_BRAHMS] > numEl_BRAHMS-1) {berr &lt;&lt; "Experiment Parameter <xsl:value-of select="@name"/> has ValueList index " &lt;&lt; float(i_BRAHMS)&lt;&lt; " (value of " &lt;&lt; float(__tempInputValues__[i_BRAHMS]) &lt;&lt; ") out of range";}
 					<xsl:value-of select="@name"/>[__tempInputValues__[i_BRAHMS]] = __tempInputValues__[i_BRAHMS+1];
 				}
-
 			}
 			// output the values:
 			/*bout &lt;&lt; "<xsl:value-of select="@name"/>" &lt;&lt; D_WARN;
@@ -162,8 +160,6 @@ vector &lt; double &gt; <xsl:value-of select="@name"/>;
 				bout &lt;&lt; float(<xsl:value-of select="@name"/>[i_BRAHMS]) &lt;&lt; D_WARN;
 			}*/
 			}
-
 </xsl:template>
-
 
 </xsl:stylesheet>
