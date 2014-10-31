@@ -3,9 +3,28 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
 <xsl:template match="SMLCL:StateVariable" mode="defineStateVariable">
-vector &lt;  double &gt; <xsl:value-of select="@name"/>;
-<!-- A string to store binary file name for use when outputting model state. -->
-string <xsl:value-of select="@name"/>_BINARY_FILE_NAME;
+	vector &lt;  double &gt; <xsl:value-of select="@name"/>;
+	string <xsl:value-of select="@name"/>_BINARY_FILE_NAME;<!-- A string to store binary file name for use when outputting model state. -->
+</xsl:template>
+
+<xsl:template match="SMLCL:StateVariable" mode="writeoutStateVariable">
+			// Write variable name: <xsl:value-of select="@name"/> into a file.
+			{<!-- Job 1 - open a suitably named file. -->
+				FILE* <xsl:value-of select="@name"/>_svfile;
+				<!-- The property's parent element has a name, we need that name. -->
+				string <xsl:value-of select="@name"/>_fileName = baseNameForLogs_BRAHMS + "_statevar_<xsl:value-of select="@name"/>.bin";
+				<xsl:value-of select="@name"/>_svfile = fopen (<xsl:value-of select="@name"/>_fileName.c_str(), "wb");
+				if (!<xsl:value-of select="@name"/>_svfile) {
+					berr &lt;&lt; "Could not open state variable file: " &lt;&lt; <xsl:value-of select="@name"/>_fileName;
+				}
+				<!-- Job 2 - write data into the file -->
+				int writertn_BRAHMS = fwrite (&amp;this-&gt;<xsl:value-of select="@name"/>[0], sizeof(double), this-&gt;<xsl:value-of select="@name"/>.size(), <xsl:value-of select="@name"/>_svfile);
+				if (writertn_BRAHMS != this-&gt;<xsl:value-of select="@name"/>.size()) {
+					berr &lt;&lt; "Failed to write data into " &lt;&lt; <xsl:value-of select="@name"/>_fileName &lt;&lt; ". Wrote " &lt;&lt; writertn_BRAHMS &lt;&lt; " doubles, rather than " &lt;&lt; this-&gt;<xsl:value-of select="@name"/>.size();
+				}
+				<!-- Job 3 - close file. -->
+				fclose (<xsl:value-of select="@name"/>_svfile);
+			}
 </xsl:template>
 
 <xsl:template match="SMLCL:StateVariable" mode="assignStateVariable"><xsl:text>

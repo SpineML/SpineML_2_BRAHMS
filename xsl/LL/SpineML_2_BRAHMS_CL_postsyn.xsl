@@ -405,6 +405,15 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			<!-- WRITE XML FOR LOGS -->
 			<xsl:apply-templates select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="finaliseLogs"/>
+			<!-- In addition to the logs, write all parameters/state vars for the current step into files. -->
+			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
+				<xsl:apply-templates select="SMLCL:Parameter" mode="writeoutParameter"/>
+			</xsl:for-each>
+			<!-- Write out state variables -->
+			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
+				<xsl:apply-templates select="SMLCL:StateVariable" mode="writeoutStateVariable"/>
+			</xsl:for-each>
+
 			//	ok
 			return C_OK;
 		}
