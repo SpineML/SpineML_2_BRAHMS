@@ -227,6 +227,8 @@ diff -q &quot;$MODEL_DIR/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/>&quot; &
 <!-- Check if the component exists and has changed -->
 if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
 echo "Component for population <xsl:value-of select="$number"/> exists, skipping ($DIRNAME/component.cpp)"
+<!-- but copy the component into our code folder -->
+cp &quot;$DIRNAME/component.cpp&quot; &quot;$CODE_DIR/component$CODE_NUM.cpp&quot;
 else
 echo "Creating component.cpp for population <xsl:value-of select="$number"/> ($DIRNAME/component.cpp)"
 <!-- output_dir passed to concat() and document() functions in SpineML_2_BRAHMS_CL_neurons.xsl so must be % encoded. -->
@@ -277,10 +279,12 @@ echo "&lt;Nums&gt;&lt;Number1&gt;<xsl:value-of select="$number1"/>&lt;/Number1&g
 DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/WU/<xsl:value-of select="local-name(SMLNL:ConnectionList)"/><xsl:value-of select="local-name(SMLNL:FixedProbabilityConnection)"/><xsl:value-of select="local-name(SMLNL:AllToAllConnection)"/><xsl:value-of select="local-name(SMLNL:OneToOneConnection)"/><xsl:value-of select="translate(document(SMLLOWNL:WeightUpdate/@url)//SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0&quot;
 CODE_NUM=$((CODE_NUM+1))
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="$wu_url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="$wu_url"/>&quot; &amp;&gt; /dev/null
-if [ $? == 0 ] &amp;&amp; [ -f component.cpp ]; then
-LA="moo"
+<!--if [ $? == 0 ] &amp;&amp; [ -f "$DIRNAME/component.cpp" ]; then-->
+if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
 <!-- The following echo will create a lot of output, but it's useful for debugging: -->
 #echo "Weight Update component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping ($DIRNAME/component.cpp)"
+<!-- copy the component into our code folder -->
+cp &quot;$DIRNAME/component.cpp&quot; &quot;$CODE_DIR/component$CODE_NUM.cpp&quot;
 else
 echo "Building weight update component.cpp for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> ($DIRNAME/component.cpp)"
 <!-- output_dir passed to concat() and document() functions (as dir_for_numbers) in
@@ -308,10 +312,12 @@ fi
 DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/PS/<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass"><xsl:value-of select="translate(@name,' -', 'oH')"/></xsl:for-each>/brahms/0&quot;
 CODE_NUM=$((CODE_NUM+1))
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="$ps_url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="$ps_url"/>&quot; &amp;&gt; /dev/null
-if [ $? == 0 ] &amp;&amp; [ -f component.cpp ]; then
-LA="moo"
+<!--if [ $? == 0 ] &amp;&amp; [ -f "$DIRNAME/component.cpp" ]; then-->
+if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
 <!-- Lots of output, but useful for debugging: -->
-#echo "Post-synapse component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping ($DIRNAME/component.cpp)"
+echo "Post-synapse component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping ($DIRNAME/component.cpp)"
+<!-- copy the component into our code folder -->
+cp &quot;$DIRNAME/component.cpp&quot; &quot;$CODE_DIR/component$CODE_NUM.cpp&quot;
 else
 echo "Building postsynapse component.cpp for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> ($DIRNAME/component.cpp)"
 <!-- output dir passed to document() in SpineML_2_BRAHMS_CL_postsyn.xsl; %-encoding required. -->
