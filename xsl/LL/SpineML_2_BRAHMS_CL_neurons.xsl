@@ -128,6 +128,10 @@ vector &lt; int &gt; <xsl:value-of select="concat(translate($linked_file/SMLCL:S
 VDOUBLE size_BRAHMS;
 int numElements_BRAHMS;
 
+// flag to see if we need to do model-wide things
+bool is_first_pop_BRAHMS;
+FILE * file_for_timestamp_BRAHMS;
+
 // Analog Ports
 <xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
 <xsl:apply-templates select="SMLCL:AnalogReceivePort | SMLCL:AnalogSendPort | SMLCL:AnalogReducePort" mode="defineAnalogPorts"/>
@@ -221,6 +225,16 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			// Ensure field is present (trigger BRAHMS error if not)
 			modelDirectory_BRAHMS = nodeState.getField("model_directory").getSTRING();
+			
+			// check if we need to do model-wide things
+			is_first_pop_BRAHMS = false;
+			file_for_timestamp_BRAHMS = NULL;
+			if (nodeState.hasField("first_pop")) {
+				is_first_pop_BRAHMS = true;
+				string fileNameForTimestamp_BRAHMS = modelDirectory_BRAHMS;
+				fileNameForTimestamp_BRAHMS.append("/time.txt");
+				file_for_timestamp_BRAHMS = fopen(fileNameForTimestamp_BRAHMS.c_str(),"w");
+			}
 
 			int numEl_BRAHMS = numElements_BRAHMS;
 
@@ -344,6 +358,15 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 		{
 
 			t = float(time->now)*dt;
+			
+			// do model wide things if we are the first pop
+			if (is_first_pop_BRAHMS) {
+				if (file_for_timestamp_BRAHMS) {
+					// rewind the file and print the time
+					fseek(file_for_timestamp_BRAHMS,0,SEEK_SET);
+					fprintf(file_for_timestamp_BRAHMS, "%f", t);
+				}
+			}
 
 			int num_BRAHMS;
 			int numEl_BRAHMS = numElements_BRAHMS;

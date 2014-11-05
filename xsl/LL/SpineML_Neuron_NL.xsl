@@ -32,6 +32,23 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 <!-- OLD CODE BELOW - COMMENTING MAY BE SPORADIC -->
 
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
+
+<!-- OK, we may want some processes that only happen ONCE in the model - 
+notably we want to write out a timestamp that can be picked up by external software
+For this reason we identify the first population (there must be at least one to even
+have a model) and send it a flag to let it know that it should perform this task.
+For that we need a variable which we can pick up later on -->
+<xsl:variable name="is_first_pop">
+<xsl:choose>
+	<xsl:when test="position() = 1">
+		<!---->true<!---->
+	</xsl:when>
+	<xsl:otherwise>
+		<!---->false<!---->
+	</xsl:otherwise>
+</xsl:choose>
+</xsl:variable>
+
 <xsl:variable name="curr_pop" select="."/>
 <!-- IGNORE SpikeSource -->
 <xsl:if test="not(SMLLOWNL:Neuron/@url='SpikeSource')">
@@ -45,7 +62,12 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	</Time>
 	<State>
 		<xsl:attribute name="c">z</xsl:attribute>
-		<xsl:attribute name="a">model_directory;size;<!---->
+		<xsl:attribute name="a">
+		<!-- If we are the first pop we may want to do unique things: -->
+		<xsl:if test="$is_first_pop = 'true'">
+			<!---->first_pop;<!---->
+		</xsl:if>
+		<!---->model_directory;size;<!---->
 		<!-- PROPERTIES -->
 		<xsl:for-each select="SMLLOWNL:Neuron/SMLNL:Property | $expt_root//SMLEXPT:Experiment//SMLEXPT:Configuration[@target=$curr_pop/SMLLOWNL:Neuron/@name]/SMLNL:Property">
 			<xsl:value-of select="@name"/>
@@ -86,6 +108,10 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 		<xsl:attribute name="Version">5</xsl:attribute>
 		<xsl:attribute name="AuthTool">SpineML to BRAHMS XSLT translator</xsl:attribute>
 		<xsl:attribute name="AuthToolVersion">0</xsl:attribute>
+		<!-- If we are the first pop we may want to do unique things: -->
+		<xsl:if test="$is_first_pop = 'true'">
+			<m>true</m>
+		</xsl:if>
 		<m><xsl:value-of select="$spineml_model_dir"/></m>
 		<m c="f"><xsl:value-of select="SMLLOWNL:Neuron/@size"/></m>
 		<!-- Now read the properties from the Neuron and output the relevant DataML for each one. -->
