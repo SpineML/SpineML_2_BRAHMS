@@ -198,7 +198,10 @@ echo "Removing existing components in advance of rebuilding..."
 rm -R "$SPINEML_2_BRAHMS_NS/dev/SpineML/temp"/* &amp;&gt; /dev/null
 fi
 echo "Creating the Neuron populations..."
+
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
+# Also update time.txt for SpineCreator / other tools 
+echo "*Compiling neuron <xsl:value-of select="position()"/> / <xsl:value-of select="count(/SMLLOWNL:SpineML/SMLLOWNL:Population)"/>" &gt; $MODEL_DIR/time.txt
 <xsl:choose>
 <xsl:when test="./SMLLOWNL:Neuron/@url = 'SpikeSource'">
 echo "SpikeSource, skipping compile"
@@ -242,6 +245,9 @@ fi # The check if component exists
 </xsl:for-each>
 echo "Creating the projections..."
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
+# Also update time.txt for SpineCreator / other tools 
+echo "*Compiling projections <xsl:value-of select="position()"/> / <xsl:value-of select="count(/SMLLOWNL:SpineML/SMLLOWNL:Population//SMLLOWNL:Projection)"/>" &gt; $MODEL_DIR/time.txt
+
 <!-- Here we use the population number to determine which pop the projection belongs to -->
 <xsl:variable name="number1"><xsl:number count="/SMLLOWNL:SpineML/SMLLOWNL:Population" format="1"/></xsl:variable>
 	<xsl:variable name="src" select="@name"/>
@@ -258,6 +264,7 @@ echo "&lt;Nums&gt;&lt;Number1&gt;<xsl:value-of select="$number1"/>&lt;/Number1&g
 <xsl:variable name="linked_file2" select="document(SMLLOWNL:PostSynapse/@url)"/>
 <xsl:variable name="wu_url" select="SMLLOWNL:WeightUpdate/@url"/>
 <xsl:variable name="ps_url" select="SMLLOWNL:PostSynapse/@url"/>
+
 DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/WU/<xsl:value-of select="local-name(SMLNL:ConnectionList)"/><xsl:value-of select="local-name(SMLNL:FixedProbabilityConnection)"/><xsl:value-of select="local-name(SMLNL:AllToAllConnection)"/><xsl:value-of select="local-name(SMLNL:OneToOneConnection)"/><xsl:value-of select="translate(document(SMLLOWNL:WeightUpdate/@url)//SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0&quot;
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="$wu_url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="$wu_url"/>&quot; &amp;&gt; /dev/null
 if [ $? == 0 ] &amp;&amp; [ -f component.cpp ]; then

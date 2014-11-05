@@ -131,6 +131,7 @@ int numElements_BRAHMS;
 // flag to see if we need to do model-wide things
 bool is_first_pop_BRAHMS;
 FILE * file_for_timestamp_BRAHMS;
+string filepath_for_stop_BRAHMS;
 
 // Analog Ports
 <xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
@@ -234,6 +235,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				string fileNameForTimestamp_BRAHMS = modelDirectory_BRAHMS;
 				fileNameForTimestamp_BRAHMS.append("/time.txt");
 				file_for_timestamp_BRAHMS = fopen(fileNameForTimestamp_BRAHMS.c_str(),"w");
+				filepath_for_stop_BRAHMS = modelDirectory_BRAHMS;
+				filepath_for_stop_BRAHMS.append("/stop.txt");
 			}
 
 			int numEl_BRAHMS = numElements_BRAHMS;
@@ -365,6 +368,12 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					// rewind the file and print the time
 					fseek(file_for_timestamp_BRAHMS,0,SEEK_SET);
 					fprintf(file_for_timestamp_BRAHMS, "%f", t);
+				}
+				// see if we need to stop
+				FILE * do_we_stop = fopen(filepath_for_stop_BRAHMS.c_str(),"r");
+				// if we can open the file, then it exists and we should terminate
+				if (do_we_stop) {
+					return C_STOP_CONDITION;
 				}
 			}
 
