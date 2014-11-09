@@ -3,7 +3,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
 <xsl:param name="spineml_model_dir" select="'not_used'"/>
-<xsl:param name="spineml_output_dir" select="'not_used'"/>
+<xsl:param name="spineml_run_dir" select="'not_used'"/>
 
 <xsl:include href="SpineML_helpers.xsl"/>
 
@@ -17,8 +17,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:variable name="number1"><xsl:number count="//SMLLOWNL:Population" format="1"/></xsl:variable>
 <xsl:variable name="number2"><xsl:number count="//SMLLOWNL:Projection" format="1"/></xsl:variable>
 <xsl:variable name="dir_for_numbers"> <!-- from output dir -->
-	<xsl:if test="$spineml_output_dir='not_used'">../../temp</xsl:if>
-	<xsl:if test="not($spineml_output_dir='not_used')"><xsl:value-of select="$spineml_output_dir"/></xsl:if>
+	<xsl:if test="$spineml_run_dir='not_used'">../../temp</xsl:if>
+	<xsl:if test="not($spineml_run_dir='not_used')"><xsl:value-of select="$spineml_run_dir"/></xsl:if>
 </xsl:variable>
 <xsl:variable name="number3"><xsl:number count="//SMLLOWNL:Synapse" format="1"/></xsl:variable>
 <xsl:if test="$number1 = number(document(concat($dir_for_numbers,'/counter.file'))/Nums/Number1) and $number2 = number(document(concat($dir_for_numbers,'/counter.file'))/Nums/Number2) and $number3 = number(document(concat($dir_for_numbers,'/counter.file'))/Nums/Number3)">
