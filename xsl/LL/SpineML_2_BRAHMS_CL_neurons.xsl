@@ -239,8 +239,12 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 <xsl:apply-templates select="SMLCL:Alias" mode="resizeAlias"/>
 </xsl:for-each>
 
-			// Log base name
-			baseNameForLogs_BRAHMS = nodeState.getField("logfileNameForComponent").getSTRING();
+			<!-- Log base name - note log directory is adjacent to spine_run_dir -->
+			baseNameForLogs_BRAHMS = "../log/" + nodeState.getField("logfileNameForComponent").getSTRING();
+			<!-- State variable names -->
+			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable">
+				<xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT = "../state/" + nodeState.getField("<xsl:value-of select="@name"/>BIN_FILE_NAME").getSTRING();
+			</xsl:for-each>
 
 			// Logs
 <xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
@@ -433,10 +437,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			<!-- WRITE XML FOR LOGS -->
 			<xsl:apply-templates select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="finaliseLogs"/>
-			<!-- In addition to the logs, write all parameters/state vars for the current step into files. -->
-			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
-				<xsl:apply-templates select="SMLCL:Parameter" mode="writeoutParameter"/>
-			</xsl:for-each>
 			<!-- Write out state variables -->
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 				<xsl:apply-templates select="SMLCL:StateVariable" mode="writeoutStateVariable"/>

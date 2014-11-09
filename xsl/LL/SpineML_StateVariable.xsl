@@ -4,7 +4,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 
 <xsl:template match="SMLCL:StateVariable" mode="defineStateVariable">
 	vector &lt;  double &gt; <xsl:value-of select="@name"/>;
-	string <xsl:value-of select="@name"/>_BINARY_FILE_NAME;<!-- A string to store binary file name for use when outputting model state. -->
+	string <xsl:value-of select="@name"/>_BINARY_FILE_NAME;<!-- A string to store explicit data binary file name from which the states are read in. -->
+	string <xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT;<!-- A string to store explicit data binary file name to which the states are written (in spineml_state_dir). -->
 </xsl:template>
 
 <xsl:template match="SMLCL:StateVariable" mode="writeoutStateVariable">
@@ -12,7 +13,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 			{<!-- Job 1 - open a suitably named file. -->
 				FILE* <xsl:value-of select="@name"/>_svfile;
 				<!-- The property's parent element has a name, we need that name. -->
-				string <xsl:value-of select="@name"/>_fileName = baseNameForLogs_BRAHMS + "_statevar_<xsl:value-of select="@name"/>.bin";
+				string <xsl:value-of select="@name"/>_fileName = <xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT;
 				<xsl:value-of select="@name"/>_svfile = fopen (<xsl:value-of select="@name"/>_fileName.c_str(), "wb");
 				if (!<xsl:value-of select="@name"/>_svfile) {
 					berr &lt;&lt; "Could not open state variable file: " &lt;&lt; <xsl:value-of select="@name"/>_fileName;
