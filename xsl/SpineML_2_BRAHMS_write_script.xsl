@@ -109,13 +109,6 @@ mkdir -p "$SPINEML_RUN_DIR"
      SPINEML_RUN_DIR is passed to xsl's document() function -->
 SPINEML_RUN_DIR_PERCENT_ENCODED=$(rawurlencode "$SPINEML_RUN_DIR")
 
-<!-- The final state dir. Because this dir is always ../state wrt
-     SPINEML_RUN_DIR, we don't actually pass this to any XSL. However,
-     we DO need to create it.-->
-SPINEML_STATE_DIR="$OUTPUT_DIR_BASE/state"
-SPINEML_STATE_DIR_PERCENT_ENCODED=$(rawurlencode "$SPINEML_STATE_DIR")
-mkdir -p "$SPINEML_STATE_DIR"
-
 <!-- The dir for component logs. Because log is always ../log wrt
      SPINEML_RUN_DIR, we don't actually pass this to any XSL. -->
 SPINEML_LOG_DIR="$OUTPUT_DIR_BASE/log"

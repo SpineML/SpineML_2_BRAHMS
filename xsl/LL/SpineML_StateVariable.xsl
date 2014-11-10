@@ -11,9 +11,34 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:template match="SMLCL:StateVariable" mode="writeoutStateVariable">
 			// Write variable name: <xsl:value-of select="@name"/> into a file.
 			{<!-- Job 1 - open a suitably named file. -->
+				unsigned char copy_buffer_BRAHMS[1024] = "";
 				FILE* <xsl:value-of select="@name"/>_svfile;
-				<!-- The property's parent element has a name, we need that name. -->
 				string <xsl:value-of select="@name"/>_fileName = <xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT;
+#ifdef MAKE_BACKUP_OF_ORIGINAL_STATE
+				<!-- If there's was existing file, then copy it to a backup here? -->
+				<xsl:value-of select="@name"/>_svfile = fopen (<xsl:value-of select="@name"/>_fileName.c_str(), "rb");
+				if (<xsl:value-of select="@name"/>_svfile) {
+					<!-- Opened file as expected, so copy this into a backup. -->
+					string <xsl:value-of select="@name"/>_fileName_backup = <xsl:value-of select="@name"/>_fileName + ".bu";
+					FILE* <xsl:value-of select="@name"/>_svfile_backup;
+					<xsl:value-of select="@name"/>_svfile_backup = fopen (<xsl:value-of select="@name"/>_fileName_backup.c_str(), "wb");
+					if (!<xsl:value-of select="@name"/>_svfile) {
+						berr &lt;&lt; "Could not open state variable backup file: " &lt;&lt; <xsl:value-of select="@name"/>_fileName_backup;
+					}
+					<!-- copy here -->
+					size_t bytes_copied_BRAHMS = 0;
+					size_t bytes_really_copied = 0;
+					while ((bytes_copied_BRAHMS = fread (copy_buffer_BRAHMS, 1, 1024, <xsl:value-of select="@name"/>_svfile)) > 0) {
+						bytes_really_copied = fwrite (copy_buffer_BRAHMS, 1, bytes_copied_BRAHMS, <xsl:value-of select="@name"/>_svfile_backup);
+						if (bytes_really_copied != bytes_copied_BRAHMS) {
+							berr &lt;&lt; "Error making state variable backup file: " &lt;&lt; <xsl:value-of select="@name"/>_fileName_backup;
+						}
+					}
+					fclose (<xsl:value-of select="@name"/>_svfile_backup);
+					fclose (<xsl:value-of select="@name"/>_svfile);
+				}
+#endif
+				<!-- Now we've made a backup of the original model state, we can write out the new state. -->
 				<xsl:value-of select="@name"/>_svfile = fopen (<xsl:value-of select="@name"/>_fileName.c_str(), "wb");
 				if (!<xsl:value-of select="@name"/>_svfile) {
 					berr &lt;&lt; "Could not open state variable file: " &lt;&lt; <xsl:value-of select="@name"/>_fileName;
