@@ -18,10 +18,18 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				if (!<xsl:value-of select="@name"/>_svfile) {
 					berr &lt;&lt; "Could not open state variable file: " &lt;&lt; <xsl:value-of select="@name"/>_fileName;
 				}
-				<!-- Job 2 - write data into the file -->
-				int writertn_BRAHMS = fwrite (&amp;this-&gt;<xsl:value-of select="@name"/>[0], sizeof(double), this-&gt;<xsl:value-of select="@name"/>.size(), <xsl:value-of select="@name"/>_svfile);
-				if (writertn_BRAHMS != this-&gt;<xsl:value-of select="@name"/>.size()) {
-					berr &lt;&lt; "Failed to write data into " &lt;&lt; <xsl:value-of select="@name"/>_fileName &lt;&lt; ". Wrote " &lt;&lt; writertn_BRAHMS &lt;&lt; " doubles, rather than " &lt;&lt; this-&gt;<xsl:value-of select="@name"/>.size();
+				<!-- Job 2 - write index and data value into the file -->
+				int writertn_BRAHMS = 0, writeiter_BRAHMS = 0;
+				while (writeiter_BRAHMS &lt; this-&gt;<xsl:value-of select="@name"/>.size()) {
+					writertn_BRAHMS = fwrite (reinterpret_cast&lt;const char*&gt;(&amp;writeiter_BRAHMS), sizeof(int), 1, <xsl:value-of select="@name"/>_svfile);
+					if (writertn_BRAHMS != 1) {
+						berr &lt;&lt; "Failed to write index into " &lt;&lt; <xsl:value-of select="@name"/>_fileName &lt;&lt; ". Wrote " &lt;&lt; writertn_BRAHMS &lt;&lt; " ints, rather than 1";
+					}
+					writertn_BRAHMS = fwrite (reinterpret_cast&lt;const char*&gt;(&amp;this-&gt;<xsl:value-of select="@name"/>[writeiter_BRAHMS]), sizeof(double), 1, <xsl:value-of select="@name"/>_svfile);
+					if (writertn_BRAHMS != 1) {
+						berr &lt;&lt; "Failed to write data into " &lt;&lt; <xsl:value-of select="@name"/>_fileName &lt;&lt; ". Wrote " &lt;&lt; writertn_BRAHMS &lt;&lt; " doubles, rather than 1";
+					}
+					++writeiter_BRAHMS;
 				}
 				<!-- Job 3 - close file. -->
 				fclose (<xsl:value-of select="@name"/>_svfile);
