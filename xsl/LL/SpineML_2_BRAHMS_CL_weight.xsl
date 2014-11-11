@@ -326,7 +326,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// sanity check on index values
 			for (unsigned int i_BRAHMS = 0; i_BRAHMS &lt; srcInds.size(); ++i_BRAHMS) {
 				if (srcInds[i_BRAHMS] >= numElementsIn_BRAHMS || dstInds[i_BRAHMS] >= numElements_BRAHMS) {
-					berr &lt;&lt; "index out of range";
+					berr &lt;&lt; "src index (" &lt;&lt; srcInds[i_BRAHMS]
+					     &lt;&lt;") or dst index (" &lt;&lt; dstInds[i_BRAHMS]
+					     &lt;&lt;") out of range (" &lt;&lt; numElements_BRAHMS &lt;&lt;")";
 				}
 			}
 
