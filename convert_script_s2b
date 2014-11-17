@@ -61,6 +61,19 @@ Options are:
                experiments, numbers 0, 1, 2, etc. Here, you can pass the number
                of the experiment to run. E.g. -e 0. Defaults to 0.
 
+  -p "option"  Property change option. This modifies the experiment.xml file to
+               add a change to a parameter or the initial value of a state
+               variable. The population or projection name must be given, along
+               with the parameter/variable property name and the new value.
+               These three elements are separated with the colon character. The
+               new value can have its dimensions given after the value.
+
+               E.g.: -p "Striatum_D1:tau:45ms" - change param "tau" to 45 ms for
+               the population "Striatum_D1".
+
+               Multiple instances of this option may be given. The content of
+               each option is passed unmodified to spineml_preflight.
+
   -n nodes     Use Sun Grid Engine: Provide the number of nodes on which to
                launch brahms instances. NB: Currently, only IPv4 TCP/IP is used
                to transfer data between nodes, not MPI/Infiniband.
@@ -141,8 +154,12 @@ VERBOSE_BRAHMS="no"
 
 EXPT_NUM=""
 
+# Declare an array for the property change options
+declare -a PROPERTY_CHANGES
+PCI=0 # Property Change Iterator
+
 # Parse cmd line options
-while getopts w:srm:o:e:n:a:vV\? opt
+while getopts w:srm:o:e:p:n:a:vV\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -156,6 +173,9 @@ do
         o)  OUTPUT_DIR="$OPTARG"
             ;;
         e)  EXPT_NUM="$OPTARG"
+            ;;
+        p)  PROPERTY_CHANGES[$PCI]=" --property_change=$OPTARG"
+            PCI=$((PCI+1))
             ;;
         n)  NODES="$OPTARG"
             ;;
@@ -213,7 +233,9 @@ echo "Experiment is: $EXPERIMENT"
 # then "preflight" it, using spineml_preflight to "fix" certain
 # connection types, such as stochastic connection maps, and stochastic
 # delays (spineml_preflight replaces these with explicit lists,
-# generated according to the specification in the model).
+# generated according to the specification in the model). This copied
+# model then becomes the "final state" model - all final values of the
+# state variables are copied into this model directory.
 #
 
 # Make sure we have both model and temp directories.
@@ -232,17 +254,16 @@ fi
 if [ "x$MODEL_DIR" = "x_unknown_model" ]; then
     MODEL_DIR="$SPINEML_2_BRAHMS_DIR/model"
 fi
-
 echo "MODEL_DIR: $MODEL_DIR"
 
 # Our output model dir lives in our output dir:
 OUTPUT_MODEL_DIR="$OUTPUT_DIR"/model
-
 mkdir -p "$OUTPUT_MODEL_DIR"
 if [ "$?" -ne "0" ]; then
     echo "Failed to create output model directory" >&2
     exit -1
 fi
+echo "OUTPUT_MODEL_DIR: $OUTPUT_MODEL_DIR"
 
 # We make a COPY of the model dir, copying it into
 # OUTPUT_MODEL_DIR. We'll then "preflight" this copy of the model and
@@ -253,8 +274,9 @@ if [ "$?" -ne "0" ]; then
     exit -1
 fi
 
-# Preflight the model
-spineml_preflight -e $OUTPUT_MODEL_DIR"/"$EXPERIMENT
+# Preflight the model - note we're outputting the contents of the PROPERTY_CHANGES
+# array which contains --property_change="a:b:3" type options.
+spineml_preflight -e $OUTPUT_MODEL_DIR"/"$EXPERIMENT ${PROPERTY_CHANGES[*]}
 if [ "$?" -ne "0" ]; then
     echo "Failed to preflight the model." >&2
     exit -1
