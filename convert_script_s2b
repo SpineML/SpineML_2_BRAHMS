@@ -11,6 +11,7 @@
 # model first, so you'll need to have installed              #
 # SpineML_Preflight.                                         #
 #                                                            #
+# Note that this script uses bash features.                  #
 ##############################################################
 
 
@@ -157,6 +158,15 @@ VERBOSE_BRAHMS="no"
 
 EXPT_NUM=""
 
+# Test for arrays
+test_arr=FAIL
+Array=( FAIL PASS )
+test_arr=${Array[1]}
+if [ "$test_arr" = xFAIL ]; then
+    echo "This script requires the bash shell as it uses bash arrays."
+    exit -1
+fi
+
 # Declare an array for the property change options
 declare -a PROPERTY_CHANGES
 PCI=0 # Property Change Iterator
@@ -177,7 +187,7 @@ do
             ;;
         e)  EXPT_NUM="$OPTARG"
             ;;
-        p)  PROPERTY_CHANGES[$PCI]=" --property_change=$OPTARG"
+        p)  PROPERTY_CHANGES[$PCI]="--property_change=$OPTARG"
             PCI=$((PCI+1))
             ;;
         n)  NODES="$OPTARG"
@@ -278,8 +288,8 @@ if [ "$?" -ne "0" ]; then
 fi
 
 # Preflight the model - note we're outputting the contents of the PROPERTY_CHANGES
-# array which contains --property_change="a:b:3" type options.
-spineml_preflight -e $OUTPUT_MODEL_DIR"/"$EXPERIMENT ${PROPERTY_CHANGES[*]}
+# array which contains --property_change=a:b:3 type options.
+spineml_preflight -e $OUTPUT_MODEL_DIR"/"$EXPERIMENT "${PROPERTY_CHANGES[@]}"
 if [ "$?" -ne "0" ]; then
     echo "Failed to preflight the model." >&2
     exit -1
@@ -305,7 +315,8 @@ echo "OS: $OS"
 
 if [ -d /usr/lib/spineml-2-brahms ]; then
     # We have a pre-compiled spineml-2-brahms
-    echo "You have a pre-compiled spineml-2-brahms namespace installed. Copying this into your spineml-2-brahms dir ($SPINEML_2_BRAHMS_DIR/Namespace)"
+    echo "You have a pre-compiled spineml-2-brahms namespace installed."
+    echo "Copying this into your spineml-2-brahms dir ($SPINEML_2_BRAHMS_DIR/Namespace)"
     set -e
     mkdir -p "$SPINEML_2_BRAHMS_DIR/Namespace"
     cp -Ra /usr/lib/spineml-2-brahms/* "$SPINEML_2_BRAHMS_DIR/Namespace/"
