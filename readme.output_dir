@@ -1,0 +1,22 @@
+The default "output directory" is ./temp, but you can specify any output 
+directory you like.
+
+Within the output directory, there will be a small tree of directories 
+containing various output files from the simulation run.
+
+Here they are, assuming the output dir is ./temp:
+
+./temp/log/ - logged outputs of the simulator run - the "LogOutputs"
+              specified in the experiment XML file which was executed.
+              Referred to as "spineml_log_dir" in XSL.
+
+./temp/model/ - A pre-flight-modified version of the input model. Referred to
+                as "spineml_model_dir" in the XSL.
+
+./temp/run/ - The BRAHMS runtime files - sys.xml, sys-exe.xml and the BRAHMS
+              report file. This is "spineml_run_dir".
+
+./temp/run/code/ - copies of the component C++ code used for the simulation
+
+./temp/state/ - Values of the state variables from the model at the end of
+                the simulation. This is "spineml_state_dir".

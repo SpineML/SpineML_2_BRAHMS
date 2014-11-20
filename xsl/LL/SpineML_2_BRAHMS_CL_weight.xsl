@@ -3,7 +3,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
 <xsl:param name="spineml_model_dir" select="'not_used'"/>
-<xsl:param name="spineml_output_dir" select="'not_used'"/>
+<xsl:param name="spineml_run_dir" select="'not_used'"/>
 
 <xsl:include href="SpineML_helpers.xsl"/>
 
@@ -17,8 +17,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:variable name="number1"><xsl:number count="//SMLLOWNL:Population" format="1"/></xsl:variable>
 <xsl:variable name="number2"><xsl:number count="//SMLLOWNL:Projection" format="1"/></xsl:variable>
 <xsl:variable name="dir_for_numbers"> <!-- from output dir -->
-	<xsl:if test="$spineml_output_dir='not_used'">../../temp</xsl:if>
-	<xsl:if test="not($spineml_output_dir='not_used')"><xsl:value-of select="$spineml_output_dir"/></xsl:if>
+	<xsl:if test="$spineml_run_dir='not_used'">../../temp</xsl:if>
+	<xsl:if test="not($spineml_run_dir='not_used')"><xsl:value-of select="$spineml_run_dir"/></xsl:if>
 </xsl:variable>
 <xsl:variable name="number3"><xsl:number count="//SMLLOWNL:Synapse" format="1"/></xsl:variable>
 <xsl:if test="$number1 = number(document(concat($dir_for_numbers,'/counter.file'))/Nums/Number1) and $number2 = number(document(concat($dir_for_numbers,'/counter.file'))/Nums/Number2) and $number3 = number(document(concat($dir_for_numbers,'/counter.file'))/Nums/Number3)">
@@ -326,7 +326,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// sanity check on index values
 			for (unsigned int i_BRAHMS = 0; i_BRAHMS &lt; srcInds.size(); ++i_BRAHMS) {
 				if (srcInds[i_BRAHMS] >= numElementsIn_BRAHMS || dstInds[i_BRAHMS] >= numElements_BRAHMS) {
-					berr &lt;&lt; "index out of range";
+					berr &lt;&lt; "src index (" &lt;&lt; srcInds[i_BRAHMS]
+					     &lt;&lt;") or dst index (" &lt;&lt; dstInds[i_BRAHMS]
+					     &lt;&lt;") out of range (" &lt;&lt; numElements_BRAHMS &lt;&lt;")";
 				}
 			}
 
@@ -441,7 +443,12 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			</xsl:for-each>
 
 			// Log base name
-			baseNameForLogs_BRAHMS = nodeState.getField("logfileNameForComponent").getSTRING();
+			baseNameForLogs_BRAHMS = "../log/" + nodeState.getField("logfileNameForComponent").getSTRING();
+			<!-- State variable names -->
+			<xsl:for-each select="WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable">
+				<xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT = "../model/" + nodeState.getField("<xsl:value-of select="@name"/>BIN_FILE_NAME").getSTRING();
+			</xsl:for-each>
+
 
 			// Logs
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
@@ -621,10 +628,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			<!-- WRITE XML FOR LOGS -->
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="finaliseLogs"/>
 
-			<!-- In addition to the logs, write all parameters/state vars for the current step into files. -->
-			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
-				<xsl:apply-templates select="SMLCL:Parameter" mode="writeoutParameter"/>
-			</xsl:for-each>
 			<!-- Write out state variables -->
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 				<xsl:apply-templates select="SMLCL:StateVariable" mode="writeoutStateVariable"/>

@@ -11,6 +11,7 @@
 # model first, so you'll need to have installed              #
 # SpineML_Preflight.                                         #
 #                                                            #
+# Note that this script uses bash features.                  #
 ##############################################################
 
 
@@ -19,12 +20,12 @@ function usage () {
 
 usage: $0 [options]
 
-convert_script_s2b is used to process a model in SPINEML_2_BRAHMS_DIR/model/.
+convert_script_s2b is used to process a model in \$SPINEML_2_BRAHMS_DIR/model/.
 
 It creates executable components from the SpineML descriptions provided in
-SPINEML_2_BRAHMS_DIR/model/ (or your model dir) using XSL transformations. It
-outputs source code and executable code into a working directory, which defaults
-to $HOME/spineml-2-brahms
+\$SPINEML_2_BRAHMS_DIR/model/ (or your model dir) using XSL transformations. It
+outputs source code and executable code into a working directory, which
+defaults to \$HOME/spineml-2-brahms
 
 It can use pre-compiled components from /usr/lib/spineml-2-brahms and pre-
 installed XSL files from /usr/share/spineml-2-brahms if it has been correctly
@@ -34,32 +35,48 @@ directory, SpineML_2_BRAHMS.
 
 Options are:
 
-  -w dirpath   Set the working directory - SPINEML_2_BRAHMS_DIR. If left un set,
-               This will default either to SpineML_2_BRAHMS in the current
-               working directory, $HOME/SpineML_2_BRAHMS (if it already exists)
-               or to $HOME/spineml-2-brahms.
+  -w dirpath   Set the working directory - SPINEML_2_BRAHMS_DIR. If left un-set
+               this will default either to SpineML_2_BRAHMS in the current
+               working directory, \$HOME/SpineML_2_BRAHMS (if it already exists)
+               or to \$HOME/spineml-2-brahms.
 
   -s           DON'T rebuild sys.xml and sys-exe.xml (The BRAHMS SystemML 
                description of the SpineML model). This prevents the calls to
                xsltproc which create temp/sys(-exe).xml, as long as
-               temp/sys(-exe).xml exists. Added to speed up development when the
-               same experiment is being called repeatedly. If sys.xml doesn't
-               exist, the xsltproc calls DO go ahead, despite the presence of
-               this option.
+               temp/sys(-exe).xml exists. Added to speed up development when
+               the same experiment is being called repeatedly. If sys.xml
+               doesn't exist, the xsltproc calls DO go ahead, despite the
+               presence of this option.
 
   -r           DO rebuild the Brahms components, even if they already exist.
 
-  -m modeldir  Set the model directory - the location of the experiment xml files.
-               Defaults to $SPINEML_2_BRAHMS_DIR/model. This is copied into
-               the output directory and "preflighted" by spineml_preflight before
-               the simulation starts.
+  -m modeldir  Set the model directory - the location of the experiment xml
+               files. Defaults to: \$SPINEML_2_BRAHMS_DIR/model
+
+               (\$SPINEML_2_BRAHMS_DIR can be set with the -w option.)
+
+               This is copied into the output directory and "preflighted" by
+               spineml_preflight before the simulation starts.
 
   -o outdir    Set the output directory for temporary files and data output.
-               Defaults to $SPINEML_2_BRAHMS_DIR/temp.
+               Defaults to \$SPINEML_2_BRAHMS_DIR/temp.
 
   -e expt      Choose the experiment to run. Each model may have several
                experiments, numbers 0, 1, 2, etc. Here, you can pass the number
                of the experiment to run. E.g. -e 0. Defaults to 0.
+
+  -p "option"  Property change option. This modifies the experiment.xml file to
+               add a change to a parameter or the initial value of a state
+               variable. The population or projection name must be given, along
+               with the parameter/variable property name and the new value.
+               These three elements are separated with the colon character. The
+               new value can have its dimensions given after the value.
+
+               E.g.: -p "Striatum_D1:tau:45ms" - change param "tau" to 45 ms
+               for the population "Striatum_D1".
+
+               Multiple instances of this option may be given. The content of
+               each option is passed unmodified to spineml_preflight.
 
   -n nodes     Use Sun Grid Engine: Provide the number of nodes on which to
                launch brahms instances. NB: Currently, only IPv4 TCP/IP is used
@@ -71,8 +88,8 @@ Options are:
   -v           Make brahms output verbose debugging information (by passing the
                --d brahms option)
 
-  -V           Make brahms output very verbose debugging information (by passing
-               the --dd brahms option)
+  -V           Make brahms output very verbose debugging information (by
+               passing the --dd brahms option)
 
 EOF
    exit 0
@@ -106,19 +123,19 @@ PWD=`pwd`
 if [ $(basename $PWD) = "SpineML_2_BRAHMS" ]; then
     # Really in-place style
     SPINEML_2_BRAHMS_DIR=$PWD
-    echo "in-place style; SpineML 2 BRAHMS dir: $SPINEML_2_BRAHMS_DIR"
+    echo "in-place style; SPINEML_2_BRAHMS_DIR: $SPINEML_2_BRAHMS_DIR"
 
 elif [ -d "$PWD/SpineML_2_BRAHMS" ]; then
     # Working with SpineML_2_BRAHMS in current working directory - "in-place" style.
     SPINEML_2_BRAHMS_DIR="$PWD/SpineML_2_BRAHMS"
-    echo "Just outside in-place style; SpineML 2 BRAHMS dir: $SPINEML_2_BRAHMS_DIR"
+    echo "Just outside in-place style; SPINEML_2_BRAHMS_DIR: $SPINEML_2_BRAHMS_DIR"
 
 elif [ -d "$HOME/SpineML_2_BRAHMS" ]; then
     # Working with a $HOME/SpineML_2_BRAHMS installation - "in-home-dir" style.
     SPINEML_2_BRAHMS_DIR="$HOME/SpineML_2_BRAHMS"
-    echo "in-home-dir style SpineML 2 BRAHMS dir: $SPINEML_2_BRAHMS_DIR"
+    echo "in-home-dir style SPINEML_2_BRAHMS_DIR: $SPINEML_2_BRAHMS_DIR"
 else
-    echo "Working with SpineML 2 BRAHMS dir as $SPINEML_2_BRAHMS_DIR"
+    echo "Working with SPINEML_2_BRAHMS_DIR as $SPINEML_2_BRAHMS_DIR"
 fi
 
 # Rebuild temp/sys(-exe).xml? Defaults to "true". Ideally, this would
@@ -141,8 +158,21 @@ VERBOSE_BRAHMS="no"
 
 EXPT_NUM=""
 
+# Test for arrays
+test_arr=FAIL
+Array=( FAIL PASS )
+test_arr=${Array[1]}
+if [ "$test_arr" = xFAIL ]; then
+    echo "This script requires the bash shell as it uses bash arrays."
+    exit -1
+fi
+
+# Declare an array for the property change options
+declare -a PROPERTY_CHANGES
+PCI=0 # Property Change Iterator
+
 # Parse cmd line options
-while getopts w:srm:o:e:n:a:vV\? opt
+while getopts w:srm:o:e:p:n:a:vV\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -156,6 +186,9 @@ do
         o)  OUTPUT_DIR="$OPTARG"
             ;;
         e)  EXPT_NUM="$OPTARG"
+            ;;
+        p)  PROPERTY_CHANGES[$PCI]="--property_change=$OPTARG"
+            PCI=$((PCI+1))
             ;;
         n)  NODES="$OPTARG"
             ;;
@@ -213,7 +246,9 @@ echo "Experiment is: $EXPERIMENT"
 # then "preflight" it, using spineml_preflight to "fix" certain
 # connection types, such as stochastic connection maps, and stochastic
 # delays (spineml_preflight replaces these with explicit lists,
-# generated according to the specification in the model).
+# generated according to the specification in the model). This copied
+# model then becomes the "final state" model - all final values of the
+# state variables are copied into this model directory.
 #
 
 # Make sure we have both model and temp directories.
@@ -232,17 +267,16 @@ fi
 if [ "x$MODEL_DIR" = "x_unknown_model" ]; then
     MODEL_DIR="$SPINEML_2_BRAHMS_DIR/model"
 fi
-
 echo "MODEL_DIR: $MODEL_DIR"
 
 # Our output model dir lives in our output dir:
 OUTPUT_MODEL_DIR="$OUTPUT_DIR"/model
-
 mkdir -p "$OUTPUT_MODEL_DIR"
 if [ "$?" -ne "0" ]; then
     echo "Failed to create output model directory" >&2
     exit -1
 fi
+echo "OUTPUT_MODEL_DIR: $OUTPUT_MODEL_DIR"
 
 # We make a COPY of the model dir, copying it into
 # OUTPUT_MODEL_DIR. We'll then "preflight" this copy of the model and
@@ -253,8 +287,9 @@ if [ "$?" -ne "0" ]; then
     exit -1
 fi
 
-# Preflight the model
-spineml_preflight -e $OUTPUT_MODEL_DIR"/"$EXPERIMENT
+# Preflight the model - note we're outputting the contents of the PROPERTY_CHANGES
+# array which contains --property_change=a:b:3 type options.
+spineml_preflight -e $OUTPUT_MODEL_DIR"/"$EXPERIMENT "${PROPERTY_CHANGES[@]}"
 if [ "$?" -ne "0" ]; then
     echo "Failed to preflight the model." >&2
     exit -1
@@ -280,7 +315,8 @@ echo "OS: $OS"
 
 if [ -d /usr/lib/spineml-2-brahms ]; then
     # We have a pre-compiled spineml-2-brahms
-    echo "You have a pre-compiled spineml-2-brahms namespace installed. Copying this into your spineml-2-brahms dir ($SPINEML_2_BRAHMS_DIR/Namespace)"
+    echo "You have a pre-compiled spineml-2-brahms namespace installed."
+    echo "Copying this into your spineml-2-brahms dir ($SPINEML_2_BRAHMS_DIR/Namespace)"
     set -e
     mkdir -p "$SPINEML_2_BRAHMS_DIR/Namespace"
     cp -Ra /usr/lib/spineml-2-brahms/* "$SPINEML_2_BRAHMS_DIR/Namespace/"

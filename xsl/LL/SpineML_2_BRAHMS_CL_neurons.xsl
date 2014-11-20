@@ -2,7 +2,7 @@
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer" xmlns:SMLNL="http://www.shef.ac.uk/SpineMLNetworkLayer" xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:fn="http://www.w3.org/2005/xpath-functions">
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
-<xsl:param name="spineml_output_dir" select="'../../'"/>
+<xsl:param name="spineml_run_dir" select="'../../'"/>
 
 <xsl:include href="SpineML_helpers.xsl"/>
 
@@ -11,7 +11,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
 <!-- Here we use the population number to determine which Neuron type we are outputting -->
 <xsl:variable name="number"><xsl:number count="/SMLLOWNL:SpineML/SMLLOWNL:Population" format="1"/></xsl:variable>
-<xsl:if test="$number = number(document(concat($spineml_output_dir,'/counter.file'))/Number)">
+<xsl:if test="$number = number(document(concat($spineml_run_dir,'/counter.file'))/Number)">
 
 <xsl:variable name="linked_file" select="document(./SMLLOWNL:Neuron/@url)"/>
 <xsl:variable name="process_name"><xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/></xsl:variable>
@@ -239,8 +239,12 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 <xsl:apply-templates select="SMLCL:Alias" mode="resizeAlias"/>
 </xsl:for-each>
 
-			// Log base name
-			baseNameForLogs_BRAHMS = nodeState.getField("logfileNameForComponent").getSTRING();
+			<!-- Log base name - note log directory is adjacent to spine_run_dir -->
+			baseNameForLogs_BRAHMS = "../log/" + nodeState.getField("logfileNameForComponent").getSTRING();
+			<!-- State variable names -->
+			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable">
+				<xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT = "../model/" + nodeState.getField("<xsl:value-of select="@name"/>BIN_FILE_NAME").getSTRING();
+			</xsl:for-each>
 
 			// Logs
 <xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
@@ -433,10 +437,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			<!-- WRITE XML FOR LOGS -->
 			<xsl:apply-templates select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="finaliseLogs"/>
-			<!-- In addition to the logs, write all parameters/state vars for the current step into files. -->
-			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
-				<xsl:apply-templates select="SMLCL:Parameter" mode="writeoutParameter"/>
-			</xsl:for-each>
 			<!-- Write out state variables -->
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 				<xsl:apply-templates select="SMLCL:StateVariable" mode="writeoutStateVariable"/>

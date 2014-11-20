@@ -4,6 +4,5 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 
 <xsl:template match="SMLCL:StateAssignment">				//StateAssignment
 					<xsl:value-of select="@variable"/>[num_BRAHMS] = <xsl:call-template name="alias_replace"><xsl:with-param name="aliases" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Alias"/>
-<xsl:with-param name="params" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Parameter | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReceivePort | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort"/><xsl:with-param name="string" select="SMLCL:MathInline"/></xsl:call-template>;
-</xsl:template>
+<xsl:with-param name="params" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Parameter | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReceivePort | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort"/><xsl:with-param name="string" select="SMLCL:MathInline"/></xsl:call-template>; </xsl:template>
 </xsl:stylesheet>

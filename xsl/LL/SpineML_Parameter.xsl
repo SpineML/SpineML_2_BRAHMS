@@ -2,29 +2,6 @@
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer" xmlns:SMLNL="http://www.shef.ac.uk/SpineMLNetworkLayer" xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:fn="http://www.w3.org/2005/xpath-functions">
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
-<!-- Probably don't actually need to write parameters into a file;
-     they should be specified in the model and unchanged during the
-     run. -->
-<xsl:template match="SMLCL:Parameter" mode="writeoutParameter">
-			// Write parameter name: <xsl:value-of select="@name"/> into a file.
-			{<!-- Job 1 - open a suitably named file. -->
-				FILE* <xsl:value-of select="@name"/>_paramfile;
-				<!-- The property's parent element has a name, we need that name. -->
-				string <xsl:value-of select="@name"/>_fileName = baseNameForLogs_BRAHMS + "_param_<xsl:value-of select="../@name"/>_<xsl:value-of select="@name"/>.bin";
-				<xsl:value-of select="@name"/>_paramfile = fopen (<xsl:value-of select="@name"/>_fileName.c_str(), "wb");
-				if (!<xsl:value-of select="@name"/>_paramfile) {
-					berr &lt;&lt; "Could not open parameter state file: " &lt;&lt; <xsl:value-of select="@name"/>_fileName;
-				}
-				<!-- Job 2 - write data into the file -->
-				int writertn_BRAHMS = fwrite (&amp;this-&gt;<xsl:value-of select="@name"/>[0], sizeof(double), this-&gt;<xsl:value-of select="@name"/>.size(), <xsl:value-of select="@name"/>_paramfile);
-				if (writertn_BRAHMS != this-&gt;<xsl:value-of select="@name"/>.size()) {
-					berr &lt;&lt; "Failed to write data into " &lt;&lt; <xsl:value-of select="@name"/>_fileName &lt;&lt; ". Wrote " &lt;&lt; writertn_BRAHMS &lt;&lt; " doubles, rather than " &lt;&lt; this-&gt;<xsl:value-of select="@name"/>.size();
-				}
-				<!-- Job 3 - close file. -->
-				fclose (<xsl:value-of select="@name"/>_paramfile);
-			}
-</xsl:template>
-
 <xsl:template match="SMLCL:Parameter" mode="defineParameter">
 	vector &lt; double &gt; <xsl:value-of select="@name"/>;
 </xsl:template>
@@ -149,7 +126,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; __temp_num_property_elements; ++i_BRAHMS) {
 				        if ( __temp_property_list_indices[i_BRAHMS] &gt; __temp_num_property_elements
 					    || __temp_property_list_indices[i_BRAHMS] &lt; 0) {
-					    berr &lt;&lt; "Error loading binary properties: index out of range";
+					    berr &lt;&lt; "Error loading parameter binary property <xsl:value-of select="@name"/>: index "
+						 &lt;&lt; __temp_property_list_indices[i_BRAHMS] &lt;&lt; " out of range";
 					}
 					this-&gt;<xsl:value-of select="@name"/>[__temp_property_list_indices[i_BRAHMS]] = __temp_property_list_values[i_BRAHMS];
 				}
