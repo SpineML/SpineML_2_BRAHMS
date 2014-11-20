@@ -138,12 +138,12 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 
 				this-&gt;<xsl:value-of select="@name"/>.resize(__temp_num_property_elements);
 				vector&lt;INT32&gt; __temp_property_list_indices (__temp_num_property_elements, 0);
-				vector&lt;SINGLE&gt; __temp_property_list_values (__temp_num_property_elements, 0);
+				vector&lt;DOUBLE&gt; __temp_property_list_values (__temp_num_property_elements, 0);
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; __temp_num_property_elements; ++i_BRAHMS) {
 
 					size_t ret_FOR_BRAHMS = fread(&amp;__temp_property_list_indices[i_BRAHMS], sizeof(INT32), 1, binfile);
 					if (ret_FOR_BRAHMS == -1) {berr &lt;&lt; "Error loading binary properties: Failed to read an index";}
-					ret_FOR_BRAHMS = fread(&amp;__temp_property_list_values[i_BRAHMS], sizeof(SINGLE), 1, binfile);
+					ret_FOR_BRAHMS = fread(&amp;__temp_property_list_values[i_BRAHMS], sizeof(DOUBLE), 1, binfile);
 					if (ret_FOR_BRAHMS == -1) {berr &lt;&lt; "Error loading binary properties: Failed to read a value";}
 				}
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; __temp_num_property_elements; ++i_BRAHMS) {
