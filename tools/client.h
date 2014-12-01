@@ -27,10 +27,16 @@ enum dataTypes {
 
 class spineMLNetworkClient;
 
+/*!
+ * This is a mask used to pick out the "loops" which will cause output
+ * of debug data about receiving data over the wire.
+ */
+#define RECVDEBUG_MASK 0xffffffff
+
 class spineMLNetworkClient {
 
 public:
-    spineMLNetworkClient() {}
+    spineMLNetworkClient() : recvDebug(0) {}
     ~spineMLNetworkClient() {}
 
     string getLastError();
@@ -56,6 +62,16 @@ private:
     char returnVal;
     char sendVal;
     string error;
+
+    /*!
+     * recvDebug is used to determine if an info message about
+     * receiving data should be emitted (to stdout). When this is 0,
+     * 1, 10, 100, 1000, 2000 etc a message will be sent to
+     * stdout. This is an attempt to give the user some confidence
+     * that incoming data from a network connection is being received,
+     * without swamping the BRAHMS output log.
+     */
+    int recvDebug;
 };
 
 string spineMLNetworkClient::getLastError()
@@ -414,8 +430,14 @@ bool spineMLNetworkClient::sendData(char * ptr, int datasizeBytes)
  */
 bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
 {
-    // std::cout << "recvdata called to receive " << datasizeBytes << " input bytes\n";
+    bool outputDebug = ((int) (this->recvDebug & RECVDEBUG_MASK) == this->recvDebug);
+    int loopNum = this->recvDebug;
+    this->recvDebug++;
 
+    if (outputDebug) {
+        std::cout << "recvdata called to receive " << datasizeBytes
+                  << " input bytes. Loop num is " << loopNum << "\n";
+    }
     // get data
     int recv_bytes = 0;
     while (recv_bytes < datasizeBytes) {
@@ -427,7 +449,9 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
         return false;
     }
 
-    //std::cout << "received " << float(recv_bytes) << " of data!\n";
+    if (outputDebug) {
+        std::cout << "received " << float(recv_bytes) << " of data!\n";
+    }
 
     if (datasizeBytes < 0) {
     	error =  "Bad data sent to external input";
