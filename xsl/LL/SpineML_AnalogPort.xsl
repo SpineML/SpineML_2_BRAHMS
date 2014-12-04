@@ -93,6 +93,8 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				<xsl:value-of select="@name"/>LOGREPORT = fopen(logFileName_BRAHMS.c_str(),"w");
 				logFileName_BRAHMS = baseNameForLogs_BRAHMS;
 				logFileName_BRAHMS.append("_<xsl:value-of select="@name"/>_log.bin");
+  			unsigned found = logFileName_BRAHMS.find_last_of("/\\");
+  			logFileName_BRAHMS = logFileName_BRAHMS.substr(found+1);
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "&lt;LogReport&gt;\n");
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "	&lt;AnalogLog&gt;\n");
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "		&lt;LogFile&gt;%s&lt;/LogFile&gt;\n",logFileName_BRAHMS.c_str());
