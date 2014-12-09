@@ -41,11 +41,11 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:when test="SMLLOWNL:SpineML">#!/bin/bash
 REBUILD_COMPONENTS=$1
 REBUILD_SYSTEMML=$2
-MODEL_DIR=$3
+MODEL_DIR=$3 <!-- The model to work from. Probably equal to $OUTPUT_DIR_BASE/model -->
 INPUT=$4 <!-- always experiment.xml -->
 BRAHMS_NS=$5
 SPINEML_2_BRAHMS_DIR=$6
-OUTPUT_DIR=$7 <!-- The directory in which to generate output script and produce actual output. -->
+OUTPUT_DIR_BASE=$7 <!-- The base directory of the output directory tree. -->
 XSL_SCRIPT_PATH=$8
 VERBOSE_BRAHMS=${9}
 NODES=${10} <!-- Number of machine nodes to use. If >1, then this assumes we're using Sun Grid Engine. -->
@@ -99,9 +99,30 @@ rawurlencode() {
   echo "${encoded}"
 }
 
-<!-- Make percent encoded version of OUTPUT_DIR, with %20 for a space etc. Necessary as
-     OUTPUT_DIR is passed to xsl's document() function -->
-OUTPUT_DIR_PERCENT_ENCODED=$(rawurlencode "$OUTPUT_DIR")
+<!-- All brahms files go in a "run" subdirectory - sys.xml, sys-exe.xml, and so on.. -->
+<!-- Update - this is SPINEML_RUN_DIR -->
+SPINEML_RUN_DIR="$OUTPUT_DIR_BASE/run"
+<!-- Ensure output dir exists -->
+mkdir -p "$SPINEML_RUN_DIR"
+
+<!-- Make percent encoded version of SPINEML_RUN_DIR, with %20 for a space etc. Necessary as
+     SPINEML_RUN_DIR is passed to xsl's document() function -->
+SPINEML_RUN_DIR_PERCENT_ENCODED=$(rawurlencode "$SPINEML_RUN_DIR")
+
+<!-- The dir for component logs. Because log is always ../log wrt
+     SPINEML_RUN_DIR, we don't actually pass this to any XSL. -->
+SPINEML_LOG_DIR="$OUTPUT_DIR_BASE/log"
+SPINEML_LOG_DIR_PERCENT_ENCODED=$(rawurlencode "$SPINEML_LOG_DIR")
+mkdir -p "$SPINEML_LOG_DIR"
+
+<!-- A code dir. - for debugging -->
+SPINEML_CODE_DIR="$SPINEML_RUN_DIR/code"
+mkdir -p "$SPINEML_CODE_DIR"
+<!-- A counter for the code files - so we can save copies of all the component code files. -->
+CODE_NUM="0"
+
+<!-- The model dir is passed to xsl scripts, but it's used in such a way
+     that we DON'T want a percent encoded version -->
 
 <!--
 A note about Namespaces
@@ -138,23 +159,23 @@ DBG_FLAG="-g"
 fi
 
 <!-- We have enough information at this point in the script to build our BRAHMS_CMD: -->
-BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$OUTPUT_DIR/sys-exe.xml\""
+BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
 
 <!--
  If we're in "Sun Grid Engine mode", we can submit our brahms execution scripts
  to the Sun Grid Engine. For each node:
- 1. Write out the script (in our OUTPUT_DIR).
+ 1. Write out the script (in our SPINEML_RUN_DIR).
  2. qsub it.
 -->
 if [[ "$NODES" -gt 0 ]]; then # Sun Grid Engine mode
 
   <!-- Ensure sys-exe.xml is not present to begin with: -->
-  rm -f "$OUTPUT_DIR/sys-exe.xml"
+  rm -f "$SPINEML_RUN_DIR/sys-exe.xml"
 
   <!-- For each node: -->
   for (( NODE=1; NODE&lt;=$NODES; NODE++ )); do
-    echo "Writing run_brahms qsub shell script: $OUTPUT_DIR/run_brahms_$NODE.sh for node $NODE of $NODES"
-    cat &gt; "$OUTPUT_DIR/run_brahms_$NODE.sh" &lt;&lt;EOF
+    echo "Writing run_brahms qsub shell script: $SPINEML_RUN_DIR/run_brahms_$NODE.sh for node $NODE of $NODES"
+    cat &gt; "$SPINEML_RUN_DIR/run_brahms_$NODE.sh" &lt;&lt;EOF
 #!/bin/sh
 #$  -l mem=8G -l h_rt=04:00:00 $NODEARCH
 # First, before executing brahms, this script must find out its IP address and write this into a file.
@@ -162,19 +183,20 @@ if [[ "$NODES" -gt 0 ]]; then # Sun Grid Engine mode
 # Obtain first IPv4 address from an eth device.
 
 MYIP=\`ip addr show|grep eth[0-9]|grep inet | awk -F ' ' '{print \$2}' | awk -F '/' '{print \$1}' | head -n1\`
-echo "\$MYIP" &gt; "$OUTPUT_DIR/brahms_$NODE.ip"
+echo "\$MYIP" &gt; "$SPINEML_RUN_DIR/brahms_$NODE.ip"
 
 # Now wait until sys-exe.xml has appeared
-while [ ! -f "$OUTPUT_DIR/sys-exe.xml" ]; do
+while [ ! -f "$SPINEML_RUN_DIR/sys-exe.xml" ]; do
   sleep 1
 done
 
 # Finally, can run brahms
-BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$OUTPUT_DIR/sys-exe.xml\" --voice-$NODE"
+cd "$SPINEML_RUN_DIR"
+BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\" --voice-$NODE"
 eval \$BRAHMS_CMD
 EOF
 
-  qsub "$OUTPUT_DIR/run_brahms_$NODE.sh"
+  qsub "$SPINEML_RUN_DIR/run_brahms_$NODE.sh"
 done
 fi
 
@@ -207,34 +229,40 @@ echo "SpikeSource, skipping compile"
 <xsl:variable name="linked_file" select="document(./SMLLOWNL:Neuron/@url)"/>
 <!-- Here we use the population number to determine which Neuron type we are outputting -->
 <xsl:variable name="number"><xsl:number count="/SMLLOWNL:SpineML/SMLLOWNL:Population" format="1"/></xsl:variable>
-echo "&lt;Number&gt;<xsl:value-of select="$number"/>&lt;/Number&gt;" &amp;&gt; counter.file
+echo "&lt;Number&gt;<xsl:value-of select="$number"/>&lt;/Number&gt;" &amp;&gt; "$SPINEML_RUN_DIR/counter.file"
 
 DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0&quot;
+CODE_NUM=$((CODE_NUM+1))
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/>&quot; &amp;&gt; /dev/null
 <!-- Check if the component exists and has changed -->
 if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
 echo "Component for population <xsl:value-of select="$number"/> exists, skipping ($DIRNAME/component.cpp)"
+<!-- but copy the component into our code folder -->
+cp &quot;$DIRNAME/component.cpp&quot; &quot;$SPINEML_CODE_DIR/component$CODE_NUM.cpp&quot;
 else
 echo "Creating component.cpp for population <xsl:value-of select="$number"/> ($DIRNAME/component.cpp)"
 <!-- output_dir passed to concat() and document() functions in SpineML_2_BRAHMS_CL_neurons.xsl so must be % encoded. -->
-xsltproc -o "$OUTPUT_DIR/component.cpp" --stringparam spineml_output_dir "$OUTPUT_DIR_PERCENT_ENCODED" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_CL_neurons.xsl" &quot;$MODEL_DIR/<xsl:value-of select="$model_xml"/>&quot;
+xsltproc -o "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" --stringparam spineml_run_dir "$SPINEML_RUN_DIR_PERCENT_ENCODED" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_CL_neurons.xsl" &quot;$MODEL_DIR/<xsl:value-of select="$model_xml"/>&quot;
 
-if [ ! -f component.cpp ]; then
-echo "Error: no component.cpp was generated by xsltproc from LL/SpineML_2_BRAHMS_CL_neurons.xsl and the model"
+if [ ! -f "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" ]; then
+echo "Error: no component$CODE_NUM.cpp was generated by xsltproc from LL/SpineML_2_BRAHMS_CL_neurons.xsl and the model"
 exit -1
 fi
 mkdir -p &quot;$DIRNAME&quot;
-cp &quot;$MODEL_DIR/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/>&quot; ./component.cpp $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/&quot;
+<!-- Copy rng.h and impulse.h -->
+cp &quot;$MODEL_DIR/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/>&quot; $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/&quot;
+<!-- copy the component.cpp file -->
+cp &quot;$SPINEML_CODE_DIR/component$CODE_NUM.cpp&quot; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.cpp&quot;
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;&gt; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/release.xml&quot;
 
 echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build&quot;
 
-cd &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/&quot;
+pushd &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/&quot;
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;&gt; ../../node.xml
 chmod +x build
 echo "Compiling component binary"
 ./build
-cd - &amp;&gt; /dev/null
+popd &amp;&gt; /dev/null
 fi # The check if component exists
 
 </xsl:otherwise>
@@ -252,29 +280,33 @@ echo "Creating the projections..."
 		<xsl:for-each select=".//SMLLOWNL:Synapse">
 <!-- Here we use the target number to determine which WeightUpdate the projection targets -->
 <xsl:variable name="number3"><xsl:number count="//SMLLOWNL:Synapse" format="1"/></xsl:variable>
-echo "&lt;Nums&gt;&lt;Number1&gt;<xsl:value-of select="$number1"/>&lt;/Number1&gt;&lt;Number2&gt;<xsl:value-of select="$number2"/>&lt;/Number2&gt;&lt;Number3&gt;<xsl:value-of select="$number3"/>&lt;/Number3&gt;&lt;/Nums&gt;" &amp;&gt; counter.file
+echo "&lt;Nums&gt;&lt;Number1&gt;<xsl:value-of select="$number1"/>&lt;/Number1&gt;&lt;Number2&gt;<xsl:value-of select="$number2"/>&lt;/Number2&gt;&lt;Number3&gt;<xsl:value-of select="$number3"/>&lt;/Number3&gt;&lt;/Nums&gt;" &amp;&gt; "$SPINEML_RUN_DIR/counter.file"
 
 <xsl:variable name="linked_file" select="document(SMLLOWNL:WeightUpdate/@url)"/>
 <xsl:variable name="linked_file2" select="document(SMLLOWNL:PostSynapse/@url)"/>
 <xsl:variable name="wu_url" select="SMLLOWNL:WeightUpdate/@url"/>
 <xsl:variable name="ps_url" select="SMLLOWNL:PostSynapse/@url"/>
 DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/WU/<xsl:value-of select="local-name(SMLNL:ConnectionList)"/><xsl:value-of select="local-name(SMLNL:FixedProbabilityConnection)"/><xsl:value-of select="local-name(SMLNL:AllToAllConnection)"/><xsl:value-of select="local-name(SMLNL:OneToOneConnection)"/><xsl:value-of select="translate(document(SMLLOWNL:WeightUpdate/@url)//SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0&quot;
+CODE_NUM=$((CODE_NUM+1))
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="$wu_url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="$wu_url"/>&quot; &amp;&gt; /dev/null
-if [ $? == 0 ] &amp;&amp; [ -f component.cpp ]; then
-LA="moo"
+<!--if [ $? == 0 ] &amp;&amp; [ -f "$DIRNAME/component.cpp" ]; then-->
+if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
 <!-- The following echo will create a lot of output, but it's useful for debugging: -->
 #echo "Weight Update component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping ($DIRNAME/component.cpp)"
+<!-- copy the component into our code folder -->
+cp &quot;$DIRNAME/component.cpp&quot; &quot;$SPINEML_CODE_DIR/component$CODE_NUM.cpp&quot;
 else
 echo "Building weight update component.cpp for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> ($DIRNAME/component.cpp)"
 <!-- output_dir passed to concat() and document() functions (as dir_for_numbers) in
      SpineML_2_BRAHMS_CL_weight.xsl so must be % encoded. -->
-xsltproc -o "$OUTPUT_DIR/component.cpp" --stringparam spineml_model_dir "$MODEL_DIR" --stringparam spineml_output_dir "$OUTPUT_DIR_PERCENT_ENCODED" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_CL_weight.xsl" &quot;$MODEL_DIR/<xsl:value-of select="$model_xml"/>&quot;
-if [ ! -f component.cpp ]; then
+xsltproc -o "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" --stringparam spineml_model_dir "$MODEL_DIR" --stringparam spineml_run_dir "$SPINEML_RUN_DIR_PERCENT_ENCODED" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_CL_weight.xsl" &quot;$MODEL_DIR/<xsl:value-of select="$model_xml"/>&quot;
+if [ ! -f "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" ]; then
 echo "Error: no component.cpp was generated by xsltproc from LL/SpineML_2_BRAHMS_CL_weight.xsl and the model"
 exit -1
 fi
 mkdir -p "$DIRNAME"
-cp &quot;$MODEL_DIR/<xsl:value-of select="$wu_url"/>&quot; ./component.cpp $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h "$DIRNAME/"
+cp &quot;$MODEL_DIR/<xsl:value-of select="$wu_url"/>&quot; $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h "$DIRNAME/"
+cp "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" "$DIRNAME/component.cpp"
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;&gt; "$DIRNAME/release.xml"
 
 echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
@@ -288,21 +320,25 @@ cd - &amp;&gt; /dev/null
 fi
 
 DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/PS/<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass"><xsl:value-of select="translate(@name,' -', 'oH')"/></xsl:for-each>/brahms/0&quot;
+CODE_NUM=$((CODE_NUM+1))
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="$ps_url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="$ps_url"/>&quot; &amp;&gt; /dev/null
-if [ $? == 0 ] &amp;&amp; [ -f component.cpp ]; then
-LA="moo"
+<!--if [ $? == 0 ] &amp;&amp; [ -f "$DIRNAME/component.cpp" ]; then-->
+if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
 <!-- Lots of output, but useful for debugging: -->
-#echo "Post-synapse component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping ($DIRNAME/component.cpp)"
+echo "Post-synapse component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping ($DIRNAME/component.cpp)"
+<!-- copy the component into our code folder -->
+cp &quot;$DIRNAME/component.cpp&quot; &quot;$SPINEML_CODE_DIR/component$CODE_NUM.cpp&quot;
 else
 echo "Building postsynapse component.cpp for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> ($DIRNAME/component.cpp)"
 <!-- output dir passed to document() in SpineML_2_BRAHMS_CL_postsyn.xsl; %-encoding required. -->
-xsltproc -o "$OUTPUT_DIR/component.cpp" --stringparam spineml_output_dir "$OUTPUT_DIR_PERCENT_ENCODED" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_CL_postsyn.xsl" &quot;$MODEL_DIR/<xsl:value-of select="$model_xml"/>&quot;
-if [ ! -f component.cpp ]; then
+xsltproc -o "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" --stringparam spineml_run_dir "$SPINEML_RUN_DIR_PERCENT_ENCODED" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_CL_postsyn.xsl" &quot;$MODEL_DIR/<xsl:value-of select="$model_xml"/>&quot;
+if [ ! -f "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" ]; then
 echo "Error: no component.cpp was generated by xsltproc from LL/SpineML_2_BRAHMS_CL_postsyn.xsl and the model"
 exit -1
 fi
 mkdir -p "$DIRNAME"
-cp &quot;$MODEL_DIR/<xsl:value-of select="$ps_url"/>&quot; ./component.cpp $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h "$DIRNAME/"
+cp &quot;$MODEL_DIR/<xsl:value-of select="$ps_url"/>&quot; $SPINEML_2_BRAHMS_INCLUDE_PATH/rng.h $SPINEML_2_BRAHMS_INCLUDE_PATH/impulse.h "$DIRNAME/"
+cp "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" "$DIRNAME/component.cpp"
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;&gt; "$DIRNAME/release.xml"
 
 echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
@@ -319,14 +355,14 @@ fi
 	</xsl:for-each>
 </xsl:for-each>
 
-if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f "$OUTPUT_DIR/sys.xml" ] ; then
+if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f "$SPINEML_RUN_DIR/sys.xml" ] ; then
   echo "Building the SystemML system..."
-  xsltproc -o "$OUTPUT_DIR/sys.xml" --stringparam spineml_model_dir "$MODEL_DIR" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl" "$MODEL_DIR/$INPUT"
+  xsltproc -o "$SPINEML_RUN_DIR/sys.xml" --stringparam spineml_model_dir "$MODEL_DIR" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl" "$MODEL_DIR/$INPUT"
 else
   echo "Re-using the SystemML system."
 fi
 
-if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f $OUTPUT_DIR/sys-exe.xml ] ; then
+if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f $SPINEML_RUN_DIR/sys-exe.xml ] ; then
 
 echo "Building the SystemML execution..."
 
@@ -342,29 +378,29 @@ if [[ "$NODES" -gt 1 ]]; then
          is effectively the time that you have to wait for the SGE to start the job. -->
     SUN_GRID_ENGINE_TIMEOUT="120"
     echo "Waiting up to $SUN_GRID_ENGINE_TIMEOUT seconds for node $NODE to record its IP address..."
-    while [ ! -f "$OUTPUT_DIR/brahms_$NODE.ip" ] &amp;&amp; [ "$COUNTER" -lt "$SUN_GRID_ENGINE_TIMEOUT" ]; do
+    while [ ! -f "$SPINEML_RUN_DIR/brahms_$NODE.ip" ] &amp;&amp; [ "$COUNTER" -lt "$SUN_GRID_ENGINE_TIMEOUT" ]; do
       sleep 1
       COUNTER=$((COUNTER+1))
     done
-    if [ ! -f "$OUTPUT_DIR/brahms_$NODE.ip" ]; then
+    if [ ! -f "$SPINEML_RUN_DIR/brahms_$NODE.ip" ]; then
       <!-- Still no IP, that's an error. -->
       echo "Error: Failed to learn IP address for brahms node $NODE, exiting."
       exit -1
     fi <!-- else we have the IP, so can read it to send it into the xsltproc call. -->
   done
 
-  echo -n "&lt;Voices&gt;" &gt; "$OUTPUT_DIR/brahms_voices.xml"
+  echo -n "&lt;Voices&gt;" &gt; "$SPINEML_RUN_DIR/brahms_voices.xml"
   for (( NODE=1; NODE&lt;=$NODES; NODE++ )); do
-    read NODEIP &lt; "$OUTPUT_DIR/brahms_$NODE.ip"
-    echo -n "&lt;Voice&gt;&lt;Address protocol=\&quot;sockets\&quot;&gt;$NODEIP&lt;/Address&gt;&lt;/Voice&gt;" &gt;&gt; "$OUTPUT_DIR/brahms_voices.xml"
+    read NODEIP &lt; "$SPINEML_RUN_DIR/brahms_$NODE.ip"
+    echo -n "&lt;Voice&gt;&lt;Address protocol=\&quot;sockets\&quot;&gt;$NODEIP&lt;/Address&gt;&lt;/Voice&gt;" &gt;&gt; "$SPINEML_RUN_DIR/brahms_voices.xml"
   done
-  echo -n "&lt;/Voices&gt;" &gt;&gt; "$OUTPUT_DIR/brahms_voices.xml"
+  echo -n "&lt;/Voices&gt;" &gt;&gt; "$SPINEML_RUN_DIR/brahms_voices.xml"
 else
-  echo "&lt;Voices&gt;&lt;Voice/&gt;&lt;/Voices&gt;" &gt; "$OUTPUT_DIR/brahms_voices.xml"
+  echo "&lt;Voices&gt;&lt;Voice/&gt;&lt;/Voices&gt;" &gt; "$SPINEML_RUN_DIR/brahms_voices.xml"
 fi
 
-<!-- OUTPUT_DIR/voices_file passed to document() function in SpineML_2_BRAHMS_EXPT.xsl; must be %-encoded. -->
-xsltproc -o "$OUTPUT_DIR/sys-exe.xml" --stringparam voices_file "$OUTPUT_DIR_PERCENT_ENCODED/brahms_voices.xml" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_EXPT.xsl" "$MODEL_DIR/$INPUT"
+<!-- SPINEML_RUN_DIR/voices_file passed to document() function in SpineML_2_BRAHMS_EXPT.xsl; must be %-encoded. -->
+xsltproc -o "$SPINEML_RUN_DIR/sys-exe.xml" --stringparam voices_file "$SPINEML_RUN_DIR_PERCENT_ENCODED/brahms_voices.xml" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_EXPT.xsl" "$MODEL_DIR/$INPUT"
 
 else
   echo "Re-using the SystemML execution."
@@ -374,7 +410,9 @@ echo "Done!"
 
 <!-- If not in Sun Grid Engine mode, run! -->
 if [[ "$NODES" -eq 0 ]]; then
-  echo "Executing: $BRAHMS_CMD"
+  cd "$SPINEML_RUN_DIR"
+  echo -n "Executing: $BRAHMS_CMD from pwd: "
+  echo `pwd`
   eval $BRAHMS_CMD
 else
   echo "Simulation has been submitted to Sun Grid Engine."

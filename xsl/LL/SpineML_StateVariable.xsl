@@ -3,9 +3,62 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
 <xsl:template match="SMLCL:StateVariable" mode="defineStateVariable">
-vector &lt;  double &gt; <xsl:value-of select="@name"/>;
-<!-- A string to store binary file name for use when outputting model state. -->
-string <xsl:value-of select="@name"/>_BINARY_FILE_NAME;
+	vector &lt;  double &gt; <xsl:value-of select="@name"/>;
+	string <xsl:value-of select="@name"/>_BINARY_FILE_NAME;<!-- A string to store explicit data binary file name from which the states are read in. -->
+	string <xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT;<!-- A string to store explicit data binary file name to which the states are written (in spineml_state_dir). -->
+</xsl:template>
+
+<xsl:template match="SMLCL:StateVariable" mode="writeoutStateVariable">
+			// Write variable name: <xsl:value-of select="@name"/> into a file.
+			{<!-- Job 1 - open a suitably named file. -->
+				unsigned char copy_buffer_BRAHMS[1024] = "";
+				FILE* <xsl:value-of select="@name"/>_svfile;
+				string <xsl:value-of select="@name"/>_fileName = <xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT;
+#ifdef MAKE_BACKUP_OF_ORIGINAL_STATE
+				<!-- If there's was existing file, then copy it to a backup here? -->
+				<xsl:value-of select="@name"/>_svfile = fopen (<xsl:value-of select="@name"/>_fileName.c_str(), "rb");
+				if (<xsl:value-of select="@name"/>_svfile) {
+					<!-- Opened file as expected, so copy this into a backup. -->
+					string <xsl:value-of select="@name"/>_fileName_backup = <xsl:value-of select="@name"/>_fileName + ".bu";
+					FILE* <xsl:value-of select="@name"/>_svfile_backup;
+					<xsl:value-of select="@name"/>_svfile_backup = fopen (<xsl:value-of select="@name"/>_fileName_backup.c_str(), "wb");
+					if (!<xsl:value-of select="@name"/>_svfile) {
+						berr &lt;&lt; "Could not open state variable backup file: " &lt;&lt; <xsl:value-of select="@name"/>_fileName_backup;
+					}
+					<!-- copy here -->
+					size_t bytes_copied_BRAHMS = 0;
+					size_t bytes_really_copied = 0;
+					while ((bytes_copied_BRAHMS = fread (copy_buffer_BRAHMS, 1, 1024, <xsl:value-of select="@name"/>_svfile)) > 0) {
+						bytes_really_copied = fwrite (copy_buffer_BRAHMS, 1, bytes_copied_BRAHMS, <xsl:value-of select="@name"/>_svfile_backup);
+						if (bytes_really_copied != bytes_copied_BRAHMS) {
+							berr &lt;&lt; "Error making state variable backup file: " &lt;&lt; <xsl:value-of select="@name"/>_fileName_backup;
+						}
+					}
+					fclose (<xsl:value-of select="@name"/>_svfile_backup);
+					fclose (<xsl:value-of select="@name"/>_svfile);
+				}
+#endif
+				<!-- Now we've made a backup of the original model state, we can write out the new state. -->
+				<xsl:value-of select="@name"/>_svfile = fopen (<xsl:value-of select="@name"/>_fileName.c_str(), "wb");
+				if (!<xsl:value-of select="@name"/>_svfile) {
+					berr &lt;&lt; "Could not open state variable file: " &lt;&lt; <xsl:value-of select="@name"/>_fileName;
+				}
+				<!-- Job 2 - write index and data value into the file -->
+				int writertn_BRAHMS = 0, writeiter_BRAHMS = 0;
+				while (writeiter_BRAHMS &lt; this-&gt;<xsl:value-of select="@name"/>.size()) {
+					writertn_BRAHMS = fwrite (reinterpret_cast&lt;const char*&gt;(&amp;writeiter_BRAHMS), sizeof(int), 1, <xsl:value-of select="@name"/>_svfile);
+					if (writertn_BRAHMS != 1) {
+						berr &lt;&lt; "Failed to write index into " &lt;&lt; <xsl:value-of select="@name"/>_fileName &lt;&lt; ". Wrote " &lt;&lt; writertn_BRAHMS &lt;&lt; " ints, rather than 1";
+					}
+					writertn_BRAHMS = fwrite (reinterpret_cast&lt;const char*&gt;(&amp;this-&gt;<xsl:value-of select="@name"/>[writeiter_BRAHMS]), sizeof(double), 1, <xsl:value-of select="@name"/>_svfile);
+					if (writertn_BRAHMS != 1) {
+						berr &lt;&lt; "Failed to write data into " &lt;&lt; <xsl:value-of select="@name"/>_fileName &lt;&lt; ". Wrote " &lt;&lt; writertn_BRAHMS &lt;&lt; " doubles, rather than 1";
+					}
+					++writeiter_BRAHMS;
+				}
+				<!-- Job 3 - close file. -->
+				fclose (<xsl:value-of select="@name"/>_svfile);
+			}
 </xsl:template>
 
 <xsl:template match="SMLCL:StateVariable" mode="assignStateVariable"><xsl:text>
@@ -125,18 +178,19 @@ string <xsl:value-of select="@name"/>_BINARY_FILE_NAME;
 
 				<xsl:value-of select="@name"/>.resize(__temp_num_property_elements);
 				vector&lt;INT32&gt; __temp_property_list_indices (__temp_num_property_elements, 0);
-				vector&lt;SINGLE&gt; __temp_property_list_values (__temp_num_property_elements, 0);
+				vector&lt;DOUBLE&gt; __temp_property_list_values (__temp_num_property_elements, 0);
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; __temp_num_property_elements; ++i_BRAHMS) {
 
 					size_t ret_FOR_BRAHMS = fread(&amp;__temp_property_list_indices[i_BRAHMS], sizeof(INT32), 1, binfile);
 					if (ret_FOR_BRAHMS == -1) {berr &lt;&lt; "Error loading binary properties: Failed to read an index";}
-					ret_FOR_BRAHMS = fread(&amp;__temp_property_list_values[i_BRAHMS], sizeof(SINGLE), 1, binfile);
+					ret_FOR_BRAHMS = fread(&amp;__temp_property_list_values[i_BRAHMS], sizeof(DOUBLE), 1, binfile);
 					if (ret_FOR_BRAHMS == -1) {berr &lt;&lt; "Error loading binary properties: Failed to read a value";}
 				}
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; __temp_num_property_elements; ++i_BRAHMS) {
 				        if ( __temp_property_list_indices[i_BRAHMS] &gt; __temp_num_property_elements
 					    || __temp_property_list_indices[i_BRAHMS] &lt; 0) {
-					    berr &lt;&lt; "Error loading binary properties: index out of range";
+					    berr &lt;&lt; "Error loading binary state variable property <xsl:value-of select="@name"/>: index "
+						 &lt;&lt; __temp_property_list_indices[i_BRAHMS] &lt;&lt; " out of range";
 					}
 					<xsl:value-of select="@name"/>[__temp_property_list_indices[i_BRAHMS]] = __temp_property_list_values[i_BRAHMS];
 				}

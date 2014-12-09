@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?><xsl:stylesheet version="1.0"
-xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns:SMLLOWNL="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer"
 xmlns:SMLNL="http://www.shef.ac.uk/SpineMLNetworkLayer"
-xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer" 
-xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer" 
+xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer"
+xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer"
 xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLOWNL SMLNL SMLCL SMLEXPT fn">
 <xsl:output method="xml" omit-xml-declaration="no" version="1.0" encoding="UTF-8" indent="yes"/>
 
@@ -90,25 +90,27 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 		</m>
 		<!-- LOGS, WHERE NOT LOGGING 'ALL' -->
 		<xsl:variable name="target" select="@target"/>
+		<!-- Specified indicies case: -->
    		<xsl:for-each select="$expt_root//SMLEXPT:LogOutput[@indices and @target=$target]">
 			<m><xsl:attribute name="b">1 <!---->
-        		<xsl:call-template name="count_array_items">
-        			<xsl:with-param name="items" select="@indices"/>
-        		</xsl:call-template>
-        	</xsl:attribute>
-        	<xsl:attribute name="c">f</xsl:attribute>
+			<xsl:call-template name="count_array_items">
+				<xsl:with-param name="items" select="@indices"/>
+			</xsl:call-template>
+		</xsl:attribute>
+		<xsl:attribute name="c">f</xsl:attribute>
 			<xsl:value-of select="translate(@indices,',',' ')"/>
-        	</m>
-        </xsl:for-each>
-        <xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@indices) and @target=$target]">
+			</m>
+		</xsl:for-each>
+		<!-- All indicies case: -->
+		<xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@indices) and @target=$target]">
 			<m>
 			<xsl:attribute name="b">
-				<!---->1<!---->	
-        	</xsl:attribute>
-        	<xsl:attribute name="c">f</xsl:attribute>
-				<!---->1<!---->	
-        	</m>
-        </xsl:for-each>
+				<!---->1<!---->
+			</xsl:attribute>
+			<xsl:attribute name="c">f</xsl:attribute>
+				<!---->1<!---->
+			</m>
+		</xsl:for-each>
         <!-- NAME FOR USE IN LOGS -->
         <m><xsl:value-of select="translate(@target,' ', '_')"/></m>
 	</xsl:if>

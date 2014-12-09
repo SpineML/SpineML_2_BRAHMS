@@ -31,3 +31,4 @@ compile
 # Ignore emacs backup files:
 *~
 counter.file
+preprocess_model

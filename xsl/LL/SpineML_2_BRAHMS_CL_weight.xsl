@@ -3,10 +3,9 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
 <xsl:param name="spineml_model_dir" select="'not_used'"/>
-<xsl:param name="spineml_output_dir" select="'not_used'"/>
+<xsl:param name="spineml_run_dir" select="'not_used'"/>
 
 <xsl:include href="SpineML_helpers.xsl"/>
-
 
 <xsl:template match="/">
 <xsl:for-each select="//SMLLOWNL:Synapse">
@@ -18,8 +17,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:variable name="number1"><xsl:number count="//SMLLOWNL:Population" format="1"/></xsl:variable>
 <xsl:variable name="number2"><xsl:number count="//SMLLOWNL:Projection" format="1"/></xsl:variable>
 <xsl:variable name="dir_for_numbers"> <!-- from output dir -->
-    <xsl:if test="$spineml_output_dir='not_used'">../../temp</xsl:if>
-    <xsl:if test="not($spineml_output_dir='not_used')"><xsl:value-of select="$spineml_output_dir"/></xsl:if>
+	<xsl:if test="$spineml_run_dir='not_used'">../../temp</xsl:if>
+	<xsl:if test="not($spineml_run_dir='not_used')"><xsl:value-of select="$spineml_run_dir"/></xsl:if>
 </xsl:variable>
 <xsl:variable name="number3"><xsl:number count="//SMLLOWNL:Synapse" format="1"/></xsl:variable>
 <xsl:if test="$number1 = number(document(concat($dir_for_numbers,'/counter.file'))/Nums/Number1) and $number2 = number(document(concat($dir_for_numbers,'/counter.file'))/Nums/Number2) and $number3 = number(document(concat($dir_for_numbers,'/counter.file'))/Nums/Number3)">
@@ -61,18 +60,6 @@ using namespace std;
 #define randomPoisson     _randomPoisson(&amp;this-&gt;rngData_BRAHMS)
 #include "impulse.h"
 
-/* helper function for doing the indexing... do we need this?
-int getIndex(VDOUBLE position, VDOUBLE size) {
-
-	int index = 0;
-	int mult = 1;
-	for (int i = 0; i &lt; size.size(); ++i) {
-		index = index + pos[i] * mult;
-		mult = mult * size[i];
-	}
-
-}*/
-
 // structure allowing weights to be sent with spikes
 struct INT32SINGLE {
 	INT32 i;
@@ -84,18 +71,14 @@ float dt;
 class COMPONENT_CLASS_CPP;
 
 <xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
-<xsl:apply-templates select="SMLCL:Regime" mode="defineTimeDerivFuncsPtr1"/>
+	<xsl:apply-templates select="SMLCL:Regime" mode="defineTimeDerivFuncsPtr1"/>
 </xsl:for-each>
-
-
 
 ////////////////	COMPONENT CLASS (DERIVES FROM Process)
 
 class COMPONENT_CLASS_CPP : public Process
 {
-
 public:
-
 	//	use ctor/dtor only if required
 	COMPONENT_CLASS_CPP() {}
 	~COMPONENT_CLASS_CPP() {}
@@ -104,101 +87,99 @@ public:
 	Symbol event(Event* event);
 
 private:
+	// Some data for the random number generator.
+	RngData rngData_BRAHMS;
 
-// Some data for the random number generator.
-RngData rngData_BRAHMS;
+	float t;
 
-float t;
+	// base name
+	string baseNameForLogs_BRAHMS;
 
-// base name
-string baseNameForLogs_BRAHMS;
+	// model directory string
+	string modelDirectory_BRAHMS;
 
-// model directory string
-string modelDirectory_BRAHMS;
-
-// define regimes
-<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
-<xsl:apply-templates select="SMLCL:Regime" mode="defineRegime"/>
-</xsl:for-each>
-
-
-// Global variables
-vector &lt; int &gt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime;
-vector &lt; int &gt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext;
+	// define regimes
+	<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
+		<xsl:apply-templates select="SMLCL:Regime" mode="defineRegime"/>
+	</xsl:for-each>
 
 
-VDOUBLE size_BRAHMS;
-int numConn_BRAHMS;
-int numElements_BRAHMS;
-int numElementsIn_BRAHMS;
+	// Global variables
+	vector &lt; int &gt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime;
+	vector &lt; int &gt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext;
 
-VUINT32 delayForConn;
 
-vector &lt; VINT32 &gt; delayBuffer;
-vector &lt; VDOUBLE &gt; delayedAnalogVals;
+	VDOUBLE size_BRAHMS;
+	int numConn_BRAHMS;
+	int numElements_BRAHMS;
+	int numElementsIn_BRAHMS;
 
-int delayBufferIndex;
+	VUINT32 delayForConn;
 
-// create the lookups for the connectivity
-vector &lt; vector &lt; int &gt; &gt; connectivityS2C;
-vector &lt; vector &lt; int &gt; &gt; connectivityD2C;
-vector &lt; int &gt; connectivityC2S;
-vector &lt; int &gt; connectivityC2D;
+	vector &lt; VINT32 &gt; delayBuffer;
+	vector &lt; VDOUBLE &gt; delayedAnalogVals;
 
-// Analog Ports
-<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
-<xsl:apply-templates select="SMLCL:AnalogReceivePort | SMLCL:AnalogSendPort | SMLCL:AnalogReducePort" mode="defineAnalogPorts"/>
-</xsl:for-each>
+	int delayBufferIndex;
 
-// Event Ports
-<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
-<xsl:apply-templates select="SMLCL:EventReceivePort | SMLCL:EventSendPort" mode="defineEventPorts"/>
-</xsl:for-each>
+	// create the lookups for the connectivity
+	vector &lt; vector &lt; int &gt; &gt; connectivityS2C;
+	vector &lt; vector &lt; int &gt; &gt; connectivityD2C;
+	vector &lt; int &gt; connectivityC2S;
+	vector &lt; int &gt; connectivityC2D;
 
-// Impulse Ports
-<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
-<xsl:apply-templates select="SMLCL:ImpulseReceivePort | SMLCL:ImpulseSendPort" mode="defineImpulsePorts"/>
-</xsl:for-each>
+	// Analog Ports
+	<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
+	<xsl:apply-templates select="SMLCL:AnalogReceivePort | SMLCL:AnalogSendPort | SMLCL:AnalogReducePort" mode="defineAnalogPorts"/>
+	</xsl:for-each>
 
-// State Variables
-<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
-<xsl:apply-templates select="SMLCL:StateVariable" mode="defineStateVariable"/>
-</xsl:for-each>
+	// Event Ports
+	<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
+	<xsl:apply-templates select="SMLCL:EventReceivePort | SMLCL:EventSendPort" mode="defineEventPorts"/>
+	</xsl:for-each>
 
-// Parameters
-<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
-<xsl:apply-templates select="SMLCL:Parameter" mode="defineParameter"/>
-</xsl:for-each>
+	// Impulse Ports
+	<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
+		<xsl:apply-templates select="SMLCL:ImpulseReceivePort | SMLCL:ImpulseSendPort" mode="defineImpulsePorts"/>
+	</xsl:for-each>
 
-// Add aliases that are not inputs
-<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass//SMLCL:Alias">
-<xsl:variable name="aliasName" select="@name"/>
-<xsl:if test="count(//SMLCL:AnalogSendPort[@name=$aliasName])=0">
-<xsl:apply-templates select="." mode="defineAlias"/>
-</xsl:if>
-</xsl:for-each>
+	// State Variables
+	<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
+		<xsl:apply-templates select="SMLCL:StateVariable" mode="defineStateVariable"/>
+	</xsl:for-each>
 
-<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
-<xsl:apply-templates select="SMLCL:Regime" mode="defineTimeDerivFuncs"/>
-</xsl:for-each>
+	// Parameters
+	<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
+		<xsl:apply-templates select="SMLCL:Parameter" mode="defineParameter"/>
+	</xsl:for-each>
 
-float integrate(float x, float (COMPONENT_CLASS_CPP::*func)(float, int), int num) {
+	// Add aliases that are not inputs
+	<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass//SMLCL:Alias">
+		<xsl:variable name="aliasName" select="@name"/>
+		<xsl:if test="count(//SMLCL:AnalogSendPort[@name=$aliasName])=0">
+			<xsl:apply-templates select="." mode="defineAlias"/>
+		</xsl:if>
+	</xsl:for-each>
 
-	return x + (*this.*func)(x,num)*dt;
+	<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
+		<xsl:apply-templates select="SMLCL:Regime" mode="defineTimeDerivFuncs"/>
+	</xsl:for-each>
 
-}
-/*
-// Runge Kutta 4th order
-float integrate(float x, float (COMPONENT_CLASS_CPP::*func)(float, int), int num) {
+	float integrate(float x, float (COMPONENT_CLASS_CPP::*func)(float, int), int num)
+	{
+		return x + (*this.*func)(x,num)*dt;
+	}
 
-	float k1 = dt*(*this.*func)(x,num);
-	float k2 = dt*(*this.*func)(x+0.5*k1,num);
-	float k3 = dt*(*this.*func)(x+0.5*k2,num);
-	float k4 = dt*(*this.*func)(x+k3,num);
-	return x + (1.0/6.0)*(k1 + 2.0*k2 + 2.0*k3 + k4);
-
-}
-*/
+#ifdef RUNGE_KUTTA
+	// Runge Kutta 4th order
+	float integrate(float x, float (COMPONENT_CLASS_CPP::*func)(float, int), int num)
+	{
+		float k1 = dt*(*this.*func)(x,num);
+		float k2 = dt*(*this.*func)(x+0.5*k1,num);
+		float k3 = dt*(*this.*func)(x+0.5*k2,num);
+		float k4 = dt*(*this.*func)(x+k3,num);
+		return x + (1.0/6.0)*(k1 + 2.0*k2 + 2.0*k3 + k4);
+	}
+#endif
 };
 
 ////////////////	EVENT
@@ -209,7 +190,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 	{
 		case EVENT_STATE_SET:
 		{
-
 			//	extract DataML
 			EventStateSet* data = (EventStateSet*) event->data;
 			XMLNode xmlNode(data->state);
@@ -264,7 +244,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			numConn_BRAHMS = connectivityC2D.size();
 			</xsl:if>
 
-            <xsl:if test="count(./SMLNL:FixedProbabilityConnection) = 1">
+			<xsl:if test="count(./SMLNL:FixedProbabilityConnection) = 1">
 			// get the probability
 			float probabilityValue_BRAHMS = nodeState.getField("probabilityValue").getDOUBLE();
 			// seed the rng:
@@ -279,13 +259,14 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			for (UINT32 srcIndex_BRAHMS = 0; srcIndex_BRAHMS &lt; numElementsIn_BRAHMS; ++srcIndex_BRAHMS) {
 				for (UINT32 dstIndex_BRAHMS = 0; dstIndex_BRAHMS &lt; numElements_BRAHMS; ++dstIndex_BRAHMS) {
 					if (UNI(&amp;this-&gt;rngData_BRAHMS) &lt; probabilityValue_BRAHMS) {
-					connectivityC2D.push_back(dstIndex_BRAHMS);
-					connectivityS2C[srcIndex_BRAHMS].push_back(connectivityC2D.size()-1);
+						connectivityC2D.push_back(dstIndex_BRAHMS);
+						connectivityS2C[srcIndex_BRAHMS].push_back(connectivityC2D.size()-1);
 					}
 
 				}
-				if (float(connectivityC2D.size()) > 0.9*float(connectivityC2D.capacity()))
+				if (float(connectivityC2D.size()) > 0.9*float(connectivityC2D.capacity())) {
 					connectivityC2D.reserve(connectivityC2D.capacity()+numElements_BRAHMS);
+				}
 			}
 
 			// set up the number of connections
@@ -295,8 +276,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			VDOUBLE delayForConnTemp;
 
-            <xsl:if test="./SMLNL:ConnectionList">
-            vector &lt;INT32&gt; srcInds;
+			<xsl:if test="./SMLNL:ConnectionList">
+			vector &lt;INT32&gt; srcInds;
 			vector &lt;INT32&gt; dstInds;
 			if (nodeState.hasField("_bin_file_name")) {
 				string fileName = nodeState.getField("_bin_file_name").getSTRING();
@@ -309,8 +290,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				fileName = modelDirectory_BRAHMS + "/" + fileName;
 				binfile = fopen(fileName.c_str(),"rb");
 
-				if (!binfile)
+				if (!binfile) {
 					berr &lt;&lt; "Could not open connectivity file: " &lt;&lt; fileName;
+				}
 
 				srcInds.resize(_num_conn);
 				dstInds.resize(_num_conn);
@@ -319,9 +301,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				}
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; _num_conn; ++i_BRAHMS) {
 					size_t ret_FOR_BRAHMS = fread(&amp;srcInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
-					if (ret_FOR_BRAHMS == -1) berr &lt;&lt; "Error loading binary connections";
+					if (ret_FOR_BRAHMS == -1) { berr &lt;&lt; "Error loading binary connections"; }
 					ret_FOR_BRAHMS = fread(&amp;dstInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
-					if (ret_FOR_BRAHMS == -1) berr &lt;&lt; "Error loading binary connections";
+					if (ret_FOR_BRAHMS == -1) { berr &lt;&lt; "Error loading binary connections"; }
 					if (_has_delay) {
 						float tempDelay_FOR_BRAHMS;
 						ret_FOR_BRAHMS = fread(&amp;tempDelay_FOR_BRAHMS, sizeof(float), 1, binfile);
@@ -334,17 +316,20 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				srcInds = nodeState.getField("src").getArrayINT32();
 				dstInds = nodeState.getField("dst").getArrayINT32();
 
-				if (srcInds.size() != dstInds.size())
+				if (srcInds.size() != dstInds.size()) {
 					berr &lt;&lt; "Connectivity src and dst lists have different sizes";
-
+				}
 			}
 
 			numConn_BRAHMS = srcInds.size();
 
 			// sanity check on index values
 			for (unsigned int i_BRAHMS = 0; i_BRAHMS &lt; srcInds.size(); ++i_BRAHMS) {
-				if (srcInds[i_BRAHMS] >= numElementsIn_BRAHMS || dstInds[i_BRAHMS] >= numElements_BRAHMS)
-					berr &lt;&lt; "index out of range";
+				if (srcInds[i_BRAHMS] >= numElementsIn_BRAHMS || dstInds[i_BRAHMS] >= numElements_BRAHMS) {
+					berr &lt;&lt; "src index (" &lt;&lt; srcInds[i_BRAHMS]
+					     &lt;&lt;") or dst index (" &lt;&lt; dstInds[i_BRAHMS]
+					     &lt;&lt;") out of range (" &lt;&lt; numElements_BRAHMS &lt;&lt;")";
+				}
 			}
 
 			// assign the connectivity pattern into memory
@@ -358,9 +343,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			// get delay
 			if (nodeState.hasField("delayForConn")) {
-
 				delayForConnTemp = nodeState.getField("delayForConn").getArrayDOUBLE();
-
 			}
 
 			delayBufferIndex = 0;
@@ -392,18 +375,12 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					delayForConn[i_BRAHMS] = round(delayForConnTemp[i_BRAHMS]/most_delay_accuracy);
 					//&lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
 				}
-
-
-
 			}
-
 
 			// check for probabilistic delay
 			if (nodeState.hasField("pDelay")) {
-
 				delayForConnTemp = nodeState.getField("pDelay").getArrayDOUBLE();
 				bout &lt;&lt; "have p delays" &lt;&lt; D_INFO;
-
 			}
 
 			// check what is happening
@@ -432,7 +409,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
 						delayForConn[i_BRAHMS] = round((_randomUniform(&amp;this-&gt;rngData_BRAHMS)*(delayForConnTemp[2]-delayForConnTemp[1])+delayForConnTemp[1])/most_delay_accuracy);
 						//bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
-						if (delayForConn[i_BRAHMS] &gt; max_delay_val) max_delay_val = delayForConn[i_BRAHMS];
+						if (delayForConn[i_BRAHMS] &gt; max_delay_val) { max_delay_val = delayForConn[i_BRAHMS]; }
 					}
 				}
 
@@ -440,11 +417,10 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
 				delayedAnalogVals.resize(round(max_delay_val/most_delay_accuracy)+1);
-
 			}
 
-//debug
-//bout &lt;&lt; float(numConn_BRAHMS) &lt;&lt; D_INFO;
+			//debug
+			//bout &lt;&lt; float(numConn_BRAHMS) &lt;&lt; D_INFO;
 
 			int numEl_BRAHMS = numConn_BRAHMS;
 
@@ -453,8 +429,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 				<xsl:apply-templates select="SMLCL:StateVariable" mode="assignStateVariable"/>
 			</xsl:for-each>
-
-
 
 			// Parameters
 <!---->
@@ -469,35 +443,38 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			</xsl:for-each>
 
 			// Log base name
-			baseNameForLogs_BRAHMS = nodeState.getField("logfileNameForComponent").getSTRING();
+			baseNameForLogs_BRAHMS = "../log/" + nodeState.getField("logfileNameForComponent").getSTRING();
+			<!-- State variable names -->
+			<xsl:for-each select="WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable">
+				<xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT = "../model/" + nodeState.getField("<xsl:value-of select="@name"/>BIN_FILE_NAME").getSTRING();
+			</xsl:for-each>
+
 
 			// Logs
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:AnalogSendPort | SMLCL:EventSendPort" mode="createSendPortLogs"/>
 			</xsl:for-each>
 
-<xsl:text>
-            </xsl:text>
-            <!-- SELECT INITIAL_REGIME, OR DEFAULT TO REGIME 1 -->
-            <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.resize(numEl_BRAHMS,<!---->
-            <xsl:if test="$WeightUpdate_file//SMLCL:Dynamics/@initial_regime">
-            	<xsl:for-each select="$WeightUpdate_file//SMLCL:Regime">
-            		<xsl:if test="$WeightUpdate_file//SMLCL:Dynamics/@initial_regime=@name">
-            			<xsl:value-of select="position()"/>
-            		</xsl:if>
-            	</xsl:for-each>
-            </xsl:if>
-            <xsl:if test="count($WeightUpdate_file//SMLCL:Dynamics/@initial_regime)=0">1</xsl:if>);
-            <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext.resize(numEl_BRAHMS,0);
+			<xsl:text>
+			</xsl:text>
+			<!-- SELECT INITIAL_REGIME, OR DEFAULT TO REGIME 1 -->
+			<xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.resize(numEl_BRAHMS,<!---->
+			<xsl:if test="$WeightUpdate_file//SMLCL:Dynamics/@initial_regime">
+				<xsl:for-each select="$WeightUpdate_file//SMLCL:Regime">
+					<xsl:if test="$WeightUpdate_file//SMLCL:Dynamics/@initial_regime=@name">
+						<xsl:value-of select="position()"/>
+					</xsl:if>
+				</xsl:for-each>
+			</xsl:if>
+			<xsl:if test="count($WeightUpdate_file//SMLCL:Dynamics/@initial_regime)=0">1</xsl:if>);
+			<xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext.resize(numEl_BRAHMS,0);
 
 			dt = 1000.0f * time->sampleRate.den / time->sampleRate.num;
-
 <!---->
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 				<xsl:apply-templates select="SMLCL:Regime" mode="defineTimeDerivFuncsPtr"/>
 			</xsl:for-each>
 <!---->
-
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:ImpulseReceivePort" mode="resizeReceive"/>
 			</xsl:for-each>
@@ -511,9 +488,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				sizeDims_BRAHMS.push_back(size_BRAHMS[i_BRAHMS]);
 			}
 			//	on first call
-			if (event->flags &amp; F_FIRST_CALL)
-			{
-
+			if (event->flags &amp; F_FIRST_CALL) {
 				// create output ports
 <!---->
 				<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
@@ -528,13 +503,10 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					<xsl:apply-templates select="SMLCL:EventSendPort" mode="createEventSendPorts"/>
 				</xsl:for-each>
 <!---->
-
 			}
 
-			//	on last call
-			if (event->flags &amp; F_LAST_CALL)
-			{
-
+			// on last call
+			if (event->flags &amp; F_LAST_CALL) {
 				int numInputs_BRAHMS;
 				Symbol set_BRAHMS;
 
@@ -555,15 +527,12 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 					<xsl:apply-templates select="SMLCL:EventReceivePort" mode="createEventRecvPorts"/>
 				</xsl:for-each>
-
 <!---->
-
 			}
 
 			// re-seed
 			this-&gt;rngData_BRAHMS.seed = getTime();
 
-			//	ok
 			return C_OK;
 		}
 
@@ -580,9 +549,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				delayBufferIndex = delayBufferIndex%delayBuffer.size();
 			}
 
-            for (int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.size(); ++i_BRAHMS) {
+			for (int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.size(); ++i_BRAHMS) {
 
-                <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS] = <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS];
+			    <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS] = <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS];
 
 			}
 
@@ -620,19 +589,18 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 <!---->
 
 			// Apply regime changes
-            for (int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.size(); ++i_BRAHMS) {
-                                <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS] = <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS];
+			for (int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.size(); ++i_BRAHMS) {
+						        <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS] = <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS];
 
-                // updating logs...
+			// updating logs...
            		<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="makeSendPortLogs"/>
-
 			}
 
 			// updating logs...
-           	<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort" mode="makeSendPortLogs"/>
+			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort" mode="makeSendPortLogs"/>
 
            		// writing logs...
-           	<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="saveSendPortLogs"/>
+			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="saveSendPortLogs"/>
 
 <!---->
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
@@ -647,10 +615,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				<xsl:apply-templates select="SMLCL:ImpulseReceivePort | SMLCL:ImpulseSendPort" mode="outputImpulsePortsRemap"/>
 			</xsl:for-each>
 
-		//bout &lt;&lt; " " &lt;&lt; OUTPSP[2] &lt;&lt; " " &lt;&lt; out[0] &lt;&lt; " " &lt;&lt; w[0] &lt;&lt; D_INFO;
+			//bout &lt;&lt; " " &lt;&lt; OUTPSP[2] &lt;&lt; " " &lt;&lt; out[0] &lt;&lt; " " &lt;&lt; w[0] &lt;&lt; D_INFO;
 
-
-			//	ok
 			return C_OK;
 		}
 
@@ -661,14 +627,16 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			<!-- WRITE XML FOR LOGS -->
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="finaliseLogs"/>
-			//	ok
+
+			<!-- Write out state variables -->
+			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
+				<xsl:apply-templates select="SMLCL:StateVariable" mode="writeoutStateVariable"/>
+			</xsl:for-each>
 			return C_OK;
 		}
-
 	}
 
-	//	if we service the event, we return C_OK
-	//	if we don't, we should return S_NULL to indicate that we didn't
+	// return S_NULL to indicate event was not serviced.
 	return S_NULL;
 }
 
