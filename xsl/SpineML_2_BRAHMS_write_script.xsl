@@ -433,5 +433,3 @@ echo "ERROR: Unrecognised SpineML Network Layer file";
 </xsl:template>
 
 </xsl:stylesheet>
-
-
