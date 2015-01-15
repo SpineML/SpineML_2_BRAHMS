@@ -19,7 +19,7 @@
  *     rd.seed = 102;
  *
  *     while (i < 10) {
- *         rn = randomNormal ((&rd));
+ *         rn = _randomNormal ((&rd));
  *         printf ("%f\n", rn);
  *         i++;
  *     }
@@ -51,7 +51,7 @@ struct RngData {
     const static int a_RNG = 1103515245;
     const static int c_RNG = 12345;
     int seed, hz;
-    unsigned int iz,jz,jsr,kn[128],ke[256];
+    unsigned int iz,jz,/*jsr,*/kn[128],ke[256];
     float wn[128],fn[128], we[256],fe[256];
     float qBinVal,sBinVal,rBinVal,aBinVal;
 };
@@ -60,7 +60,7 @@ struct RngData {
 void rngDataInit (RngData* rd)
 {
     rd->seed = 0;
-    rd->jsr = 123456789;
+    /*rd->jsr = 123456789;*/
     rd->qBinVal = -1;
 }
 
@@ -84,7 +84,7 @@ float uniformGCC(RngData* rd)
                   (rd)->seed^=((rd)->seed>>17), \
                   (rd)->seed^=((rd)->seed<<5),  \
                   (rd)->jz+(rd)->seed)
-#define UNI(rd) uniformGCC(rd)
+#define UNI(rd) (.5f + (int)SHR3(rd) * .2328306e-9f)
 #define RNOR(rd) ((rd)->hz=SHR3(rd),                                    \
                   (rd)->iz=(rd)->hz&127,                                \
                   (abs((rd)->hz) < (rd)->kn[(rd)->iz]) ? (rd)->hz*(rd)->wn[(rd)->iz] : nfix(rd))
@@ -138,7 +138,7 @@ float efix (RngData* rd) /*provides REXP if #define cannot */
     }
 }
 
-// == This procedure sets the seed and creates the tables ==
+// == This procedure creates the tables. 2nd arg deprecated and unused. ==
 void zigset (RngData* rd, unsigned int jsrseed)
 {
     clock();
@@ -147,7 +147,7 @@ void zigset (RngData* rd, unsigned int jsrseed)
     double dn=3.442619855899,tn=dn,vn=9.91256303526217e-3, q;
     double de=7.697117470131487, te=de, ve=3.949659822581572e-3;
     int i;
-    rd->jsr=jsrseed;
+    /*rd->jsr=jsrseed; rd->jsr is not used*/
 
     /* Tables for RNOR: */
     q=vn/exp(-.5*dn*dn);
