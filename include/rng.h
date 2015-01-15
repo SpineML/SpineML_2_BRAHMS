@@ -50,7 +50,7 @@ struct RngData {
     // prefer to have in here.
     const static int a_RNG = 1103515245;
     const static int c_RNG = 12345;
-    int seed, hz;
+    unsigned int seed; int hz;
     unsigned int iz,jz,/*jsr,*/kn[128],ke[256];
     float wn[128],fn[128], we[256],fe[256];
     float qBinVal,sBinVal,rBinVal,aBinVal;
