@@ -87,7 +87,7 @@ float uniformGCC(RngData* rd)
 #define UNI(rd) (.5f + (int)SHR3(rd) * .2328306e-9f)
 #define RNOR(rd) ((rd)->hz=SHR3(rd),                                    \
                   (rd)->iz=(rd)->hz&127,                                \
-                  (abs((rd)->hz) < (rd)->kn[(rd)->iz]) ? (rd)->hz*(rd)->wn[(rd)->iz] : nfix(rd))
+                  ((unsigned int)abs((rd)->hz) < (rd)->kn[(rd)->iz]) ? (rd)->hz*(rd)->wn[(rd)->iz] : nfix(rd))
 #define REXP(rd) ((rd)->jz=SHR3(rd),                                    \
                   (rd)->iz=(rd)->jz&255,                                \
                   ((rd)->jz < (rd)->ke[(rd)->iz]) ? (rd)->jz*(rd)->we[(rd)->iz] : efix(rd))
