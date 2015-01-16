@@ -235,7 +235,8 @@ DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="tra
 CODE_NUM=$((CODE_NUM+1))
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/>&quot; &amp;&gt; /dev/null
 <!-- Check if the component exists and has changed -->
-if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
+#if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
+if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ]; then
 echo "Component for population <xsl:value-of select="$number"/> exists, skipping ($DIRNAME/component.cpp)"
 <!-- but copy the component into our code folder -->
 cp &quot;$DIRNAME/component.cpp&quot; &quot;$SPINEML_CODE_DIR/component$CODE_NUM.cpp&quot;
@@ -261,12 +262,26 @@ pushd &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="trans
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;&gt; ../../node.xml
 chmod +x build
 echo "Compiling component binary"
-./build
+./build &amp;
 popd &amp;&gt; /dev/null
 fi # The check if component exists
 
 </xsl:otherwise>
 </xsl:choose>
+
+# find out how many children we have spawned and wait if it is too many
+bash_pid=$$
+children=`ps -eo ppid | grep -w $bash_pid`
+num_children=`echo $children | wc -w`
+echo $num_children
+
+while [ $num_children -gt 6 ]; do
+sleep 1
+bash_pid=$$
+children=`ps -eo ppid | grep -w $bash_pid`
+num_children=`echo $children | wc -w`
+done
+
 </xsl:for-each>
 echo "Creating the projections..."
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
@@ -290,7 +305,8 @@ DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/WU/<xsl:value-of select="loc
 CODE_NUM=$((CODE_NUM+1))
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="$wu_url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="$wu_url"/>&quot; &amp;&gt; /dev/null
 <!--if [ $? == 0 ] &amp;&amp; [ -f "$DIRNAME/component.cpp" ]; then-->
-if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
+#if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
+if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ]; then
 <!-- The following echo will create a lot of output, but it's useful for debugging: -->
 #echo "Weight Update component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping ($DIRNAME/component.cpp)"
 <!-- copy the component into our code folder -->
@@ -315,7 +331,7 @@ cd "$DIRNAME"
 
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;&gt; ../../node.xml
 chmod +x build
-./build
+./build &amp;
 cd - &amp;&gt; /dev/null
 fi
 
@@ -345,7 +361,7 @@ echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o 
 
 cd "$DIRNAME"
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;&gt; ../../node.xml
-chmod +x build
+chmod +x build &amp;
 ./build
 cd - &amp;&gt; /dev/null
 fi
@@ -353,7 +369,25 @@ fi
 
 		</xsl:for-each>
 	</xsl:for-each>
+	
+# find out how many children we have spawned and wait if it is too many
+bash_pid=$$
+children=`ps -eo ppid | grep -w $bash_pid`
+num_children=`echo $children | wc -w`
+echo $num_children
+
+while [ $num_children -gt 6 ]; do
+sleep 1
+bash_pid=$$
+children=`ps -eo ppid | grep -w $bash_pid`
+num_children=`echo $children | wc -w`
+done
+
+
 </xsl:for-each>
+
+# wait for spawned forks to complete
+wait
 
 if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f "$SPINEML_RUN_DIR/sys.xml" ] ; then
   echo "Building the SystemML system..."
