@@ -430,7 +430,7 @@ bool spineMLNetworkClient::sendData(char * ptr, int datasizeBytes)
  */
 bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
 {
-    bool outputDebug = (this->recvDebug & RECVDEBUG_MASK == this->recvDebug);
+    bool outputDebug = ((int) (this->recvDebug & RECVDEBUG_MASK) == this->recvDebug);
     int loopNum = this->recvDebug;
     this->recvDebug++;
 
