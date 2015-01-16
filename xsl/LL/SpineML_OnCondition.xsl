@@ -4,7 +4,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 
 <xsl:template match="SMLCL:OnCondition" mode="evalTrans">
 					bool trans<xsl:value-of name="thisTrans" select="generate-id(.)"/> = false;
-					if (<xsl:call-template name="alias_replace">
+					if (<xsl:call-template name="alias_replace_2">
 							<xsl:with-param name="params" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Parameter | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReceivePort"/>		
 						<xsl:with-param name="aliases" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Alias"/>
 						<xsl:with-param name="string" select="SMLCL:Trigger/SMLCL:MathInline"/>

@@ -4,7 +4,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 
 <xsl:template match="SMLCL:Alias" mode="doPortAssignments">
 					//Alias assignment for ports
-					<xsl:value-of select="@name"/>[num_BRAHMS]=<xsl:call-template name="alias_replace">
+					<xsl:value-of select="@name"/>[num_BRAHMS]=<xsl:call-template name="alias_replace_2">
                                                         <xsl:with-param name="params" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Parameter | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReceivePort"/>
                                                         <xsl:with-param name="aliases" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Alias"/>
                                                         <xsl:with-param name="string" select="SMLCL:MathInline"/>
