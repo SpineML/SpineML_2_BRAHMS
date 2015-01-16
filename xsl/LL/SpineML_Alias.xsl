@@ -12,11 +12,15 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 </xsl:template>
 
 <xsl:template match="SMLCL:Alias" mode="resizeAlias">
-			<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, 0);
+			<xsl:if test="@name=//SMLCL:AnalogSendPort/@name">
+				<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, 0);
+			</xsl:if>
 </xsl:template>
 
 <xsl:template match="SMLCL:Alias" mode="defineAlias">
+<xsl:if test="@name=//SMLCL:AnalogSendPort/@name">
 vector &lt; double &gt; <xsl:value-of select="@name"/>;
+<xsl:if>
 </xsl:template>
 
 </xsl:stylesheet>
