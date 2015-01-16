@@ -46,7 +46,11 @@ namespace rng = std_2009_util_rng_0;
 using namespace std;
 
 #include "rng.h"
-
+// Some very SpineML_2_BRAHMS specific defines, common to all components.
+#define randomUniform     _randomUniform(&amp;this-&gt;rngData_BRAHMS)
+#define randomNormal      _randomNormal(&amp;this-&gt;rngData_BRAHMS)
+#define randomExponential _randomExponential(&amp;this-&gt;rngData_BRAHMS)
+#define randomPoisson     _randomPoisson(&amp;this-&gt;rngData_BRAHMS)
 #include "impulse.h"
 
 /* helper function for doing the indexing... do we need this?
