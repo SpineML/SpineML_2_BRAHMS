@@ -192,7 +192,7 @@ done
 
 # Finally, can run brahms
 cd "$SPINEML_RUN_DIR"
-BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\" --voice-$NODE"
+BRAHMS_CMD="brahms-cg $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\" --voice-$NODE"
 eval \$BRAHMS_CMD
 EOF
 
