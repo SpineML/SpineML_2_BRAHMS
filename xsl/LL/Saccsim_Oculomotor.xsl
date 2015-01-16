@@ -9,7 +9,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
      model.
 
      Currently, this DEPENDS on the SpineML model being the
-     Oculormotor model with saccade generator and on correct naming of
+     Oculomotor model with saccade generator and on correct naming of
      the outputs of the saccade generator (MN up/down, MN left/right)
 
      It also requires that the user has compiled the saccsim code,
@@ -42,7 +42,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 		<m><xsl:value-of select="$spineml_output_dir"/></m>
 		<m>ExplicitEuler</m>
 	</State>
-	<Time><SampleRate><!--<xsl:value-of select="$sampleRate"/>-->2000</SampleRate></Time>
+	<Time><SampleRate><xsl:value-of select="$sampleRate"/></SampleRate></Time>
 	<State></State>
 </Process>
 
