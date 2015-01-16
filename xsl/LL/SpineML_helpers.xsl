@@ -129,7 +129,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				<xsl:call-template name="add_indices_2_helper_2b">
 					<xsl:with-param name="params" select="$params"/>
 					<xsl:with-param name="param" select="$param"/>
-					<xsl:with-param name="start" select="concat($startTemp,$param,'S')"/>
+					<xsl:with-param name="start" select="concat($startTemp,'(*',$param,'S)')"/>
 					<xsl:with-param name="end" select="$endTemp"/>
 				</xsl:call-template>
 			</xsl:when>

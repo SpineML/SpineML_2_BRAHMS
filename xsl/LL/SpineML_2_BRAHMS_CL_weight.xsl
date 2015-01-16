@@ -583,7 +583,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			
 			for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
 			<!-- Assign the pointers to pars / SVS -->
-			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML//SMLCL:StateVariable | $WeightUpdate_file/SMLCL:SpineML//SMLCL:Parameter | $WeightUpdate_file/SMLCL:SpineML//SMLCL:AnalogReceivePort | $WeightUpdate_file/SMLCL:SpineML//SMLCL:AnalogReducePort" mode="assignPointer"/>
+			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML//SMLCL:Parameter" mode="assignPointer"/>
 			
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:Dynamics" mode="doIter"/>

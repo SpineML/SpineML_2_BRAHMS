@@ -133,35 +133,35 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:template match="SMLCL:Dynamics" mode="doTrans">
 			<xsl:if test="count(//SMLCL:OnCondition) > 0">
 			//Dynamics transitions
-			for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
+			//for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
 
 
 				// switch on regime:
 				switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
 	<xsl:apply-templates select="SMLCL:Regime" mode="doTrans"/>
 				}
-			}
+			//}
 			</xsl:if>
 			<xsl:if test="count(SMLCL:Alias) > 0">
-			for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
+			//for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
 <!---->			<!-- Only do this here if we are not an event driven component -->
 				<!--xsl:if test="count(//SMLCL:TimeDerivative | SMLCL:AnalogReceivePort | SMLCL:AnalogReducePort) > 0"-->
 					<xsl:apply-templates select="SMLCL:Alias[@name=//SMLCL:AnalogSendPort/@name]" mode="doPortAssignments"/>
 				<!--/xsl:if-->
-			}
+			//}
 			</xsl:if>
 </xsl:template>
 
 <xsl:template match="SMLCL:Dynamics" mode="doIter">
 			<xsl:if test="count(//SMLCL:TimeDerivative | //SMLCL:Alias) > 0">
 			//Dynamics time derivatives
-			for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
+			//for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
 
 				// switch on regime:
 				switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
 	<xsl:apply-templates select="SMLCL:Regime" mode="doIter"/>
 				}
-			}
+			//}
 			</xsl:if>
 </xsl:template>
 

@@ -419,6 +419,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			</xsl:for-each>
 
 			<!---->
+			
+			for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
+			<xsl:apply-templates select="$linked_file//SMLCL:Parameter" mode="assignPointer"/>
 
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:Dynamics" mode="doIter"/>
@@ -427,6 +430,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:Dynamics" mode="doTrans"/>
 			</xsl:for-each>
+			}
 <!---->
 
 			// Apply regime changes and update logs

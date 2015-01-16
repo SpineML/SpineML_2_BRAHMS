@@ -203,7 +203,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			rngDataInit(&amp;this-&gt;rngData_BRAHMS);
 			zigset(&amp;this-&gt;rngData_BRAHMS, 11);
 
-			bool all_pars_are_FV = true;
 
 			int numEl_BRAHMS = numElements_BRAHMS;
 
@@ -367,8 +366,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			<!---->
 
 			for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
-			<!-- Assign the pointers to pars / SVS -->
-			<xsl:apply-templates select="$linked_file/SMLCL:SpineML//SMLCL:StateVariable | $linked_file/SMLCL:SpineML//SMLCL:Parameter | $linked_file/SMLCL:SpineML//SMLCL:AnalogReceivePort | $linked_file/SMLCL:SpineML//SMLCL:AnalogReducePort" mode="assignPointer"/>
+			<xsl:apply-templates select="$linked_file//SMLCL:Parameter" mode="assignPointer"/>
 			
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:Dynamics" mode="doIter"/>
