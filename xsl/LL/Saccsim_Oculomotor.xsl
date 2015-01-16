@@ -88,6 +88,33 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 	<Lag>0</Lag>
 </Link>
 
+<!-- This is the world data maker process. Saccade simulator feeds rotations into this process. -->
+<Process>
+	<Name>WorldDataMaker</Name>
+	<Class>dev/NoTremor/worldDataMaker</Class>
+	<State c="z" a="output_data_path;neuronsPerPopulation;" Format="DataML" Version="5" AuthTool="SystemML Toolbox" AuthToolVersion="0">
+		<m><xsl:value-of select="$spineml_output_dir"/></m>
+                <m c="f">2500</m>
+	</State>
+	<Time><SampleRate><xsl:value-of select="$sampleRate"/></SampleRate></Time>
+	<State></State>
+</Process>
+
+<!-- Rotations output from Saccsim is input to WorldDataMaker component -->
+<Link>
+	<Src>SaccSim&gt;out</Src>
+	<Dst>WorldDataMaker&lt;&lt;&lt;rotationsIn</Dst>
+	<Lag>0</Lag>
+</Link>
+
+<!-- Output from WorldDataMaker is fed into the World population, which
+     then gates this with MN output and feeds it into Retina_1 and Retina_2 -->
+<Link>
+	<Src>WorldDataMaker&gt;corticalSheet</Src>
+	<Dst>World&lt;in</Dst>
+	<Lag>0</Lag>
+</Link>
+
 <!-- END TEMPLATE -->
 </xsl:template>
 
