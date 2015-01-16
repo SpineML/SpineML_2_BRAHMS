@@ -35,7 +35,7 @@ float (COMPONENT_CLASS_CPP::*  <xsl:value-of select="concat(translate(../@name,'
 
 
 <xsl:template match="SMLCL:TimeDerivative" mode="defineTimeDerivFuncsPtr">
-					if (all_pars_are_FV) {
+					if (1) { //all_pars_are_FV) {
 					(<xsl:value-of select="concat(translate(../@name,' -', '_H'), 'P__P')"/><xsl:value-of select="@variable"/>) = &amp;COMPONENT_CLASS_CPP::<xsl:value-of select="concat(translate(../@name,' -', '_H'), 'FV__FV')"/><xsl:value-of select="@variable"/>;
 					} else {
 					(<xsl:value-of select="concat(translate(../@name,' -', '_H'), 'P__P')"/><xsl:value-of select="@variable"/>) = &amp;COMPONENT_CLASS_CPP::<xsl:value-of select="concat(translate(../@name,' -', '_H'), 'V__V')"/><xsl:value-of select="@variable"/>;
