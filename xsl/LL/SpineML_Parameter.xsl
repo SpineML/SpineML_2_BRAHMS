@@ -4,6 +4,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 
 <xsl:template match="SMLCL:Parameter" mode="defineParameter">
 	vector &lt; double &gt; <xsl:value-of select="@name"/>;
+	double <xsl:value-of select="@name"/>S;
 </xsl:template>
 
 <xsl:template match="SMLCL:Parameter" mode="assignParameter">
@@ -92,9 +93,13 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				this-&gt;<xsl:value-of select="@name"/> = nodeState.getField("<xsl:value-of select="@name"/>").getArrayDOUBLE();
 				if (this-&gt;<xsl:value-of select="@name"/>.size() == 1) {
 					this-&gt;<xsl:value-of select="@name"/>.resize(numEl_BRAHMS, <xsl:value-of select="@name"/>[0]);
+					this-&gt;<xsl:value-of select="@name"/>S = <xsl:value-of select="@name"/>[0];
 				} else if (this-&gt;<xsl:value-of select="@name"/>.size() != numEl_BRAHMS) {
 					berr &lt;&lt; "Parameter <xsl:value-of select="@name"/> has incorrect dimensions (Its size is " &lt;&lt; <xsl:value-of select="@name"/>.size() &lt;&lt; ", not " &lt;&lt; numEl_BRAHMS &lt;&lt; ")";
 				}
+			} else {
+				// if this is not true then we must not have a single fixed value for this par 
+				all_pars_are_FV = false;
 			}
 
 			if (nodeState.hasField("<xsl:value-of select="@name"/>BIN_FILE_NAME") &amp;&amp; !finishedThis) {

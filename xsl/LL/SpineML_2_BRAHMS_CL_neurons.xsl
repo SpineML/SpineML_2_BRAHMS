@@ -240,6 +240,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			}
 
 			int numEl_BRAHMS = numElements_BRAHMS;
+			
+			bool all_pars_are_FV = true;
 
 			// State Variables
 <xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">

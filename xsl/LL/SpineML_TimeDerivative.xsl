@@ -14,6 +14,16 @@ return_val_BRAHMS = <xsl:call-template name="alias_replace">
 							</xsl:call-template>;
 return return_val_BRAHMS;
 }
+float <xsl:value-of select="concat(translate(../@name,' -', '_H'), 'FV__FV')"/><xsl:value-of select="@variable"/>(float val_BRAHMS, int num_BRAHMS) {
+float return_val_BRAHMS;
+<xsl:value-of select="@variable"/>[num_BRAHMS] = val_BRAHMS;
+return_val_BRAHMS = <xsl:call-template name="alias_replace_2">
+							<xsl:with-param name="params" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Parameter | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReceivePort"/>
+							<xsl:with-param name="aliases" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Alias"/>
+							<xsl:with-param name="string" select="SMLCL:MathInline"/>
+							</xsl:call-template>;
+return return_val_BRAHMS;
+}
 //float (*  <xsl:value-of select="concat(translate(../@name,' -', '_H'), 'P__P')"/><xsl:value-of select="@variable"/>)(float val_BRAHMS, int num_BRAHMS);
 </xsl:template>
 
@@ -25,7 +35,11 @@ float (COMPONENT_CLASS_CPP::*  <xsl:value-of select="concat(translate(../@name,'
 
 
 <xsl:template match="SMLCL:TimeDerivative" mode="defineTimeDerivFuncsPtr">
-(<xsl:value-of select="concat(translate(../@name,' -', '_H'), 'P__P')"/><xsl:value-of select="@variable"/>) = &amp;COMPONENT_CLASS_CPP::<xsl:value-of select="concat(translate(../@name,' -', '_H'), 'V__V')"/><xsl:value-of select="@variable"/>;
+					if (all_pars_are_FV) {
+					(<xsl:value-of select="concat(translate(../@name,' -', '_H'), 'P__P')"/><xsl:value-of select="@variable"/>) = &amp;COMPONENT_CLASS_CPP::<xsl:value-of select="concat(translate(../@name,' -', '_H'), 'FV__FV')"/><xsl:value-of select="@variable"/>;
+					} else {
+					(<xsl:value-of select="concat(translate(../@name,' -', '_H'), 'P__P')"/><xsl:value-of select="@variable"/>) = &amp;COMPONENT_CLASS_CPP::<xsl:value-of select="concat(translate(../@name,' -', '_H'), 'V__V')"/><xsl:value-of select="@variable"/>;
+					}
 </xsl:template>
 
 
