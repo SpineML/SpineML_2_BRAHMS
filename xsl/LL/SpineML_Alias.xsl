@@ -20,7 +20,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:template match="SMLCL:Alias" mode="defineAlias">
 <xsl:if test="@name=//SMLCL:AnalogSendPort/@name">
 vector &lt; double &gt; <xsl:value-of select="@name"/>;
-<xsl:if>
+</xsl:if>
 </xsl:template>
 
 </xsl:stylesheet>
