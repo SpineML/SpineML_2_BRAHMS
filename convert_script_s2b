@@ -35,6 +35,9 @@ directory, SpineML_2_BRAHMS.
 
 Options are:
 
+	-b b_script  Passes in a batch script file for use in creating a set of 
+							 experiments to run
+
   -w dirpath   Set the working directory - SPINEML_2_BRAHMS_DIR. If left un-set
                this will default either to SpineML_2_BRAHMS in the current
                working directory, \$HOME/SpineML_2_BRAHMS (if it already exists)
@@ -157,6 +160,7 @@ NODEARCH=""
 VERBOSE_BRAHMS="no"
 
 EXPT_NUM=""
+BATCH_SCRIPT=""
 
 # Test for arrays
 test_arr=FAIL
@@ -172,9 +176,11 @@ declare -a PROPERTY_CHANGES
 PCI=0 # Property Change Iterator
 
 # Parse cmd line options
-while getopts w:srm:o:e:p:n:a:vV\? opt
+while getopts b:w:srm:o:e:p:n:a:vV\? opt
 do
     case "$opt" in
+    		b)	BATCH_SCRIPT="$OPTARG"
+    				;;
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
             ;;
         s)  REBUILD_SYSTEMML="false"
@@ -203,6 +209,26 @@ do
     esac
 done
 shift `expr $OPTIND - 1`
+
+# Check if we need to generate a batch job
+if ! [ "$BATCH_SCRIPT" == "" ]; then
+	# the batch script should be in the model dir, copy everything into a new 
+	# OUTPUT_DIR/batch_model dir
+	mkdir -p "$OUTPUT_DIR/batch_model"
+	if [ "$?" -ne "0" ]; then
+    echo "Failed to create batch_model directory" >&2
+    exit -1
+  fi
+  cp "$MODEL_DIR/"* "$OUTPUT_DIR/batch_model/"
+  cp "$SPINEML_2_BRAHMS_DIR/batch/"* "$OUTPUT_DIR/batch_model/"
+  ls "$SPINEML_2_BRAHMS_DIR/batch/"
+  # Now run the batch python script in order to 
+  # create the batch jobs
+  cd "$OUTPUT_DIR/batch_model/"
+  python batch_run.py -d "$OUTPUT_DIR" -x $( basename "$BATCH_SCRIPT")
+	# exit with exit code from python
+	exit $?
+fi
 
 # Check NODES is a number:
 if [[ "x$NODES" -ne "x" ]]; then # user provided -n option.
