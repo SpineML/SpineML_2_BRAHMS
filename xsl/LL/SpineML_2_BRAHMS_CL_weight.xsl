@@ -361,6 +361,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				}
 
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
+				bout &lt;&lt; "resize delayedAnalogVals" &lt;&lt; D_INFO;
 				delayedAnalogVals.resize(round(max_delay_val/most_delay_accuracy)+1);
 
 				// remap the delays to indices
@@ -420,7 +421,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			}
 
 			//debug
-			//bout &lt;&lt; float(numConn_BRAHMS) &lt;&lt; D_INFO;
+			bout &lt;&lt; float(numConn_BRAHMS) &lt;&lt; D_INFO;
 
 			int numEl_BRAHMS = numConn_BRAHMS;
 
@@ -667,5 +668,3 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 <xsl:include href="SpineML_ImpulsePort.xsl"/>
 
 </xsl:stylesheet>
-
-
