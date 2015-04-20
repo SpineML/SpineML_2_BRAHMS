@@ -440,12 +440,23 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
     }
     // get data
     int recv_bytes = 0;
+    int recv_bytes_last = 0;
     while (recv_bytes < datasizeBytes) {
+        if (outputDebug) {
+            recv_bytes_last = recv_bytes;
+        }
         recv_bytes += recv(sockfd,data+recv_bytes,datasizeBytes, MSG_WAITALL);
+        if (outputDebug) {
+            std::cout << "recv() has now received " << recv_bytes << " bytes. first double is "
+                      << (double)*(double*)(data+recv_bytes_last) << std::endl;
+        }
     }
     n = recv_bytes;
     if (n < 1) {
         error =  "Error reading from socket for External Input";
+        if (outputDebug) {
+            std::cout << "Error reading from socket for External Input\n";
+        }
         return false;
     }
 
