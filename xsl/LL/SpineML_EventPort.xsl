@@ -48,6 +48,9 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				string logFileName_BRAHMS = baseNameForLogs_BRAHMS;
 				logFileName_BRAHMS.append("_<xsl:value-of select="@name"/>_log.csv");
 				<xsl:value-of select="@name"/>LOGFILE = fopen(logFileName_BRAHMS.c_str(),"w");
+				if (<xsl:value-of select="@name"/>LOGFILE == NULL) {
+                                        berr &lt;&lt; "Error opening logfile for " &lt;&lt; baseNameForLogs_BRAHMS &lt;&lt; "_<xsl:value-of select="@name"/>";
+                                }
 			}
 </xsl:template>
 
@@ -63,7 +66,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 								<xsl:value-of select="@name"/>LOGT.push_back(t);
 								<xsl:value-of select="@name"/>LOGVAR.push_back(DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]);
 							}
-						} 
+						}
 					}
 					if (<xsl:value-of select="@name"/>LOGVAR.size() &gt; 100000) {
 						for (unsigned int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="@name"/>LOGVAR.size(); i_BRAHMS++) {
@@ -112,11 +115,11 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT,"		&lt;TimeStep dt=\"%f\"/&gt;\n", dt);
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "	&lt;/EventLog&gt;\n");
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "&lt;/LogReport&gt;\n");
-				
+
 				fclose(<xsl:value-of select="@name"/>LOGREPORT);
 				fclose(<xsl:value-of select="@name"/>LOGFILE);
 			}
-</xsl:template>			
+</xsl:template>
 
 <xsl:template match="SMLCL:EventReceivePort" mode="createEventRecvPorts">
 				set_BRAHMS = iif.getSet("<xsl:value-of select="@name"/>");
@@ -125,7 +128,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; numInputs_BRAHMS; ++i_BRAHMS) {
 					PORT<xsl:value-of select="@name"/>[i_BRAHMS].selectSet(set_BRAHMS);
 					PORT<xsl:value-of select="@name"/>[i_BRAHMS].attach(hComponent, i_BRAHMS);
-					
+
 				}
 </xsl:template>
 
@@ -157,23 +160,23 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 					// remap the input
 					if (TEMP<xsl:value-of select="@name"/>[j_BRAHMS] &gt; connectivityS2C.size()-1) berr &lt;&lt; "Out of range, value = " &lt;&lt; float(TEMP<xsl:value-of select="@name"/>[j_BRAHMS]);
 					for (int k_BRAHMS = 0; k_BRAHMS &lt; connectivityS2C[TEMP<xsl:value-of select="@name"/>[j_BRAHMS]].size(); ++k_BRAHMS) {
-						DATA<xsl:value-of select="@name"/>[i_BRAHMS].push_back(connectivityS2C[TEMP<xsl:value-of select="@name"/>[j_BRAHMS]][k_BRAHMS]);						
+						DATA<xsl:value-of select="@name"/>[i_BRAHMS].push_back(connectivityS2C[TEMP<xsl:value-of select="@name"/>[j_BRAHMS]][k_BRAHMS]);
 					}
 				}
 			}
-			
+
 			// do delay
 			if (delayBuffer.size()) {
 				// for each spike
 				for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; DATA<xsl:value-of select="@name"/>.size(); ++i_BRAHMS) {
 					for (UINT32 j_BRAHMS = 0; j_BRAHMS &lt; DATA<xsl:value-of select="@name"/>[i_BRAHMS].size(); ++j_BRAHMS) {
-				
+
 						// get delay buffer index to set and add spike to buffer
 						delayBuffer[(delayBufferIndex+delayForConn[DATA<xsl:value-of select="@name"/>[i_BRAHMS][j_BRAHMS]])%delayBuffer.size()].push_back(DATA<xsl:value-of select="@name"/>[i_BRAHMS][j_BRAHMS]);
-				
-					}				
+
+					}
 				}
-			
+
 			}
 </xsl:template>
 
@@ -193,7 +196,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 
 				OUT<xsl:value-of select="@name"/>.push_back(connectivityC2D[DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]]);
 
-			}	
+			}
 			PORTOut<xsl:value-of select="@name"/>.setContent(&amp;OUT<xsl:value-of select="@name"/>[0], OUT<xsl:value-of select="@name"/>.size());
 </xsl:template>
 

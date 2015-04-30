@@ -58,6 +58,9 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				string logFileName_BRAHMS = baseNameForLogs_BRAHMS;
 				logFileName_BRAHMS.append("_<xsl:value-of select="@name"/>_log.bin");
 				<xsl:value-of select="@name"/>LOGFILE = fopen(logFileName_BRAHMS.c_str(),"wb");
+				if (<xsl:value-of select="@name"/>LOGFILE == NULL) {
+                                        berr &lt;&lt; "Error opening logfile for " &lt;&lt; baseNameForLogs_BRAHMS &lt;&lt; "_<xsl:value-of select="@name"/>";
+                                }
 			}
 </xsl:template>
 
@@ -119,7 +122,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT,"		&lt;TimeStep dt=\"%f\"/&gt;\n", dt);
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "	&lt;/AnalogLog&gt;\n");
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "&lt;/LogReport&gt;\n");
-				
+
 				fclose(<xsl:value-of select="@name"/>LOGREPORT);
 				fclose(<xsl:value-of select="@name"/>LOGFILE);
 			}
@@ -148,7 +151,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				}
 
 </xsl:template>
-    
+
 <xsl:template match="SMLCL:AnalogReducePort" mode="createAnalogReducePortsRemap">
         set_BRAHMS = iif.getSet("<xsl:value-of select="@name"/>");
         numInputs_BRAHMS = iif.getNumberOfPorts(set_BRAHMS);
@@ -159,7 +162,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
         PORT<xsl:value-of select="@name"/>[i_BRAHMS].attach(hComponent, i_BRAHMS);
         PORT<xsl:value-of select="@name"/>[i_BRAHMS].validateStructure(TYPE_REAL | TYPE_DOUBLE, Dims(numElementsIn_BRAHMS).cdims());
         }
-        
+
 </xsl:template>
 
 <xsl:template match="SMLCL:AnalogReceivePort" mode="serviceAnalogPorts">
@@ -201,7 +204,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
             	<xsl:value-of select="@name"/>.clear();
             	<xsl:value-of select="@name"/>.resize(numConn_BRAHMS,0);
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; PORT<xsl:value-of select="@name"/>.size(); ++i_BRAHMS) {
-					DATA<xsl:value-of select="@name"/> = (DOUBLE*) PORT<xsl:value-of select="@name"/>[i_BRAHMS].getContent();				
+					DATA<xsl:value-of select="@name"/> = (DOUBLE*) PORT<xsl:value-of select="@name"/>[i_BRAHMS].getContent();
 					for (int j_BRAHMS = 0; j_BRAHMS &lt; connectivityS2C.size(); ++j_BRAHMS) {
 						// sum inputs
 						for (int k_BRAHMS = 0; k_BRAHMS &lt; connectivityS2C[j_BRAHMS].size(); ++k_BRAHMS) {
@@ -211,7 +214,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				}
 			} else {
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; PORT<xsl:value-of select="@name"/>.size(); ++i_BRAHMS) {
-					DATA<xsl:value-of select="@name"/> = (DOUBLE*) PORT<xsl:value-of select="@name"/>[i_BRAHMS].getContent();	
+					DATA<xsl:value-of select="@name"/> = (DOUBLE*) PORT<xsl:value-of select="@name"/>[i_BRAHMS].getContent();
 					for (int j_BRAHMS = 0; j_BRAHMS &lt; connectivityS2C.size(); ++j_BRAHMS) {
 						// sum inputs into buffer
 						for (int k_BRAHMS = 0; k_BRAHMS &lt; connectivityS2C[j_BRAHMS].size(); ++k_BRAHMS) {
@@ -232,7 +235,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 					<xsl:value-of select="@name"/>.resize(numConn_BRAHMS,0);
 				}
 			}
-			
+
 </xsl:template>
 
 <xsl:template match="SMLCL:AnalogSendPort" mode="outputAnalogPorts">
@@ -245,7 +248,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; numEl_BRAHMS; ++i_BRAHMS) {
 
 				OUT<xsl:value-of select="@name"/>[connectivityC2D[i_BRAHMS]] += <xsl:value-of select="@name"/>[i_BRAHMS];
-			}	
+			}
 
 			PORT<xsl:value-of select="@name"/>.setContent(&amp;OUT<xsl:value-of select="@name"/>[0]);
 </xsl:template>
