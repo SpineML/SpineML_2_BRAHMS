@@ -118,7 +118,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 <!-- The centroid computation component -->
 <Process>
 	<Name>centroid</Name>
-	<Class>dev/NoTremor/centroid</Class>
+	<Class>dev/NoTremor/multicentroid</Class>
 	<State c="z" a="neuronsPerPopulation;" Format="DataML" Version="5" AuthTool="SystemML Toolbox" AuthToolVersion="0">
                 <m c="f">2500</m>
 	</State>
