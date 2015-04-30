@@ -71,7 +71,7 @@ private:
      * that incoming data from a network connection is being received,
      * without swamping the BRAHMS output log.
      */
-    int recvDebug;
+    unsigned int recvDebug;
 };
 
 string spineMLNetworkClient::getLastError()
@@ -430,8 +430,8 @@ bool spineMLNetworkClient::sendData(char * ptr, int datasizeBytes)
  */
 bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
 {
-    bool outputDebug = (this->recvDebug & RECVDEBUG_MASK == this->recvDebug);
-    int loopNum = this->recvDebug;
+    bool outputDebug = ((this->recvDebug & RECVDEBUG_MASK) == this->recvDebug);
+    unsigned int loopNum = this->recvDebug;
     this->recvDebug++;
 
     if (outputDebug) {
