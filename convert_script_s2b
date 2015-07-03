@@ -91,7 +91,21 @@ Options are:
                Multiple instances of this option may be given. The content of
                each option is passed unmodified to spineml_preflight.
 
-  -t "option"  See code on laptop for desc. This is temp.
+  -t "option"  Time varying current option. This modifies the experiment.xml file,
+               adding a TimeVaryingInput element to the Experiment node. The
+               population or projection name must be given, along with the port
+               name and a comma separated value list of the times and values.
+               As with the property change option, the three elements are
+               separated with the colon character. The value list uses a comma
+               separator and should be given in the form:
+               "time1,current1,time2,current2,..."
+
+               E.g.: -t "STN:I:0,0,100,20,200,0" - Set a time varying current
+               for the I port for population "STN". The current is 0 at 0 ms.
+               The current changes to 20 at 100 ms and then back to 0 at 200 ms.
+
+               Multiple instances of this option may be given. The content of
+               each option is passed unmodified to spineml_preflight.
 
   -n nodes     Use Sun Grid Engine: Provide the number of nodes on which to
                launch brahms instances. NB: Currently, only IPv4 TCP/IP is used
