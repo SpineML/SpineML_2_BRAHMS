@@ -135,13 +135,11 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 </Link>
 
 <!-- Output from centroid is fed into the SC_deep_output population -->
-<!--
 <Link>
 	<Src>centroid&gt;centroid</Src>
-	<Dst>SC_deep_output&lt;in</Dst>
+	<Dst>SC_avg&lt;in</Dst>
 	<Lag>0</Lag>
 </Link>
--->
 
 <!-- END TEMPLATE -->
 </xsl:template>
