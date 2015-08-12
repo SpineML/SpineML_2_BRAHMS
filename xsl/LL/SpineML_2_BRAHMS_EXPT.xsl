@@ -36,7 +36,7 @@ Ok, here we make an execution file from the Experiment file
 	</xsl:copy>
 	<Affinity/>
 	<ExecutionParameters>
-	<MaxThreadCount>x1</MaxThreadCount>
+	<MaxThreadCount>x16</MaxThreadCount>
 	</ExecutionParameters>
 </Execution>
 </xsl:template>
