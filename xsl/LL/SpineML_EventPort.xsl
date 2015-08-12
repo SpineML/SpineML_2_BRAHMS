@@ -147,6 +147,27 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 </xsl:template>
 
 <xsl:template match="SMLCL:EventReceivePort" mode="serviceEventPortsRemap">
+
+			<xsl:choose>
+			<xsl:when test="@post">
+			INT32* TEMP<xsl:value-of select="@name"/>;
+			vector &lt; vector &lt; INT32 &gt; &gt; DATA<xsl:value-of select="@name"/>;
+			vector &lt; UINT32 &gt; COUNT<xsl:value-of select="@name"/>;
+			DATA<xsl:value-of select="@name"/>.resize(PORT<xsl:value-of select="@name"/>.size());
+			COUNT<xsl:value-of select="@name"/>.resize(PORT<xsl:value-of select="@name"/>.size());
+			for (int i_BRAHMS = 0; i_BRAHMS &lt; PORT<xsl:value-of select="@name"/>.size(); ++i_BRAHMS) {
+				COUNT<xsl:value-of select="@name"/>[i_BRAHMS] = PORT<xsl:value-of select="@name"/>[i_BRAHMS].getContent(TEMP<xsl:value-of select="@name"/>);
+				// service events port
+				for (int j_BRAHMS = 0; j_BRAHMS &lt; COUNT<xsl:value-of select="@name"/>[i_BRAHMS]; ++j_BRAHMS) {
+					// remap the input
+					if (TEMP<xsl:value-of select="@name"/>[j_BRAHMS] &gt; connectivityD2C.size()-1) berr &lt;&lt; "Out of range, value = " &lt;&lt; float(TEMP<xsl:value-of select="@name"/>[j_BRAHMS]);
+					for (int k_BRAHMS = 0; k_BRAHMS &lt; connectivityD2C[TEMP<xsl:value-of select="@name"/>[j_BRAHMS]].size(); ++k_BRAHMS) {
+						DATA<xsl:value-of select="@name"/>[i_BRAHMS].push_back(connectivityD2C[TEMP<xsl:value-of select="@name"/>[j_BRAHMS]][k_BRAHMS]);						
+					}
+				}
+			}
+			</xsl:when>
+			<xsl:otherwise>
 			INT32* TEMP<xsl:value-of select="@name"/>;
 			vector &lt; vector &lt; INT32 &gt; &gt; DATA<xsl:value-of select="@name"/>;
 			vector &lt; UINT32 &gt; COUNT<xsl:value-of select="@name"/>;
@@ -175,8 +196,9 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				
 					}				
 				}
-			
 			}
+			</xsl:otherwise>
+			</xsl:choose>
 </xsl:template>
 
 <xsl:template match="SMLCL:EventSendPort" mode="serviceEventPortsRemap">

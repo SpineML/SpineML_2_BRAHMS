@@ -154,6 +154,18 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 <xsl:template match="SMLCL:AnalogReducePort" mode="createAnalogReducePortsRemap">
         set_BRAHMS = iif.getSet("<xsl:value-of select="@name"/>");
         numInputs_BRAHMS = iif.getNumberOfPorts(set_BRAHMS);
+        <xsl:choose>>
+        <xsl:when test="@post">
+        <!-- Handle postsynaptic input-->
+        PORT<xsl:value-of select="@name"/>.resize(numInputs_BRAHMS);
+        <xsl:value-of select="@name"/>.reserve(numConn_BRAHMS);
+        for (int i_BRAHMS = 0; i_BRAHMS &lt; numInputs_BRAHMS; ++i_BRAHMS) {
+        PORT<xsl:value-of select="@name"/>[i_BRAHMS].selectSet(set_BRAHMS);
+        PORT<xsl:value-of select="@name"/>[i_BRAHMS].attach(hComponent, i_BRAHMS);
+        PORT<xsl:value-of select="@name"/>[i_BRAHMS].validateStructure(TYPE_REAL | TYPE_DOUBLE, Dims(numElements_BRAHMS).cdims());
+        }
+        </xsl:when>
+        <xsl:otherwise>
         PORT<xsl:value-of select="@name"/>.resize(numInputs_BRAHMS);
         <xsl:value-of select="@name"/>.reserve(numConn_BRAHMS);
         for (int i_BRAHMS = 0; i_BRAHMS &lt; numInputs_BRAHMS; ++i_BRAHMS) {
@@ -161,6 +173,8 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
         PORT<xsl:value-of select="@name"/>[i_BRAHMS].attach(hComponent, i_BRAHMS);
         PORT<xsl:value-of select="@name"/>[i_BRAHMS].validateStructure(TYPE_REAL | TYPE_DOUBLE, Dims(numElementsIn_BRAHMS).cdims());
         }
+        </xsl:otherwise>
+        </xsl:choose>
         
 </xsl:template>
 
@@ -198,6 +212,26 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 </xsl:template>
 
 <xsl:template match="SMLCL:AnalogReducePort" mode="serviceAnalogPortsRemap">
+     <xsl:choose>>
+     <xsl:when test="@post">
+     <!-- Handle postsynaptic input-->
+     
+     		DOUBLE* DATA<xsl:value-of select="@name"/>;
+        <xsl:value-of select="@name"/>.clear();
+      	<xsl:value-of select="@name"/>.resize(numConn_BRAHMS,0);
+				for (int i_BRAHMS = 0; i_BRAHMS &lt; PORT<xsl:value-of select="@name"/>.size(); ++i_BRAHMS) {
+					DATA<xsl:value-of select="@name"/> = (DOUBLE*) PORT<xsl:value-of select="@name"/>[i_BRAHMS].getContent();				
+					for (int j_BRAHMS = 0; j_BRAHMS &lt; connectivityD2C.size(); ++j_BRAHMS) {
+						// sum inputs
+						for (int k_BRAHMS = 0; k_BRAHMS &lt; connectivityD2C[j_BRAHMS].size(); ++k_BRAHMS) {
+							<xsl:value-of select="@name"/>[connectivityD2C[j_BRAHMS][k_BRAHMS]] += DATA<xsl:value-of select="@name"/>[j_BRAHMS];
+						}
+					}
+				}
+     
+     </xsl:when>
+     <xsl:otherwise>
+
 			DOUBLE* DATA<xsl:value-of select="@name"/>;
             if (!delayedAnalogVals.size()) {
             	<xsl:value-of select="@name"/>.clear();
@@ -234,6 +268,9 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 					<xsl:value-of select="@name"/>.resize(numConn_BRAHMS,0);
 				}
 			}
+			
+			</xsl:otherwise>
+			</xsl:choose>
 			
 </xsl:template>
 
