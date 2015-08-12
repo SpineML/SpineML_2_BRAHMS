@@ -56,6 +56,34 @@ spikes::Output PORTOut<xsl:value-of select="@name"/>;
 </xsl:template>
 
 <xsl:template match="SMLCL:ImpulseReceivePort" mode="serviceImpulsePortsRemap">
+
+			<xsl:choose>
+			<xsl:when test="@post">
+			INT32* TEMP<xsl:value-of select="@name"/>;
+			vector &lt; vector &lt; INT32 &gt; &gt; DATA<xsl:value-of select="@name"/>;
+			vector &lt; vector &lt; DOUBLE &gt; &gt; DATAval<xsl:value-of select="@name"/>;
+			vector &lt; UINT32 &gt; COUNT<xsl:value-of select="@name"/>;
+			DATA<xsl:value-of select="@name"/>.resize(PORT<xsl:value-of select="@name"/>.size());
+			COUNT<xsl:value-of select="@name"/>.resize(PORT<xsl:value-of select="@name"/>.size());
+			for (int i_BRAHMS_LOOP = 0; i_BRAHMS_LOOP &lt; PORT<xsl:value-of select="@name"/>.size(); ++i_BRAHMS_LOOP) {
+				COUNT<xsl:value-of select="@name"/>[i_BRAHMS_LOOP] = PORT<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].getContent(TEMP<xsl:value-of select="@name"/>);
+				// service Impulses port
+				for (int j_BRAHMS_LOOP = 0; j_BRAHMS_LOOP &lt; COUNT<xsl:value-of select="@name"/>[i_BRAHMS_LOOP]; j_BRAHMS_LOOP+=3 /* one int + one double = 3 int */) {
+					// extract the values
+					INT32 impulseIndex__In;
+					DOUBLE impulseValue__In;
+					getImpulse(TEMP<xsl:value-of select="@name"/>, j_BRAHMS_LOOP, impulseIndex__In, impulseValue__In);
+					// remap the input
+					for (int k_BRAHMS_LOOP = 0; k_BRAHMS_LOOP &lt; connectivityD2C[impulseIndex__In].size(); ++k_BRAHMS_LOOP) {
+						// add the index from the lookup
+						DATA<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].push_back(connectivityD2C[impulseIndex__In][k_BRAHMS_LOOP]);
+						// add the value
+						DATAval<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].push_back(impulseValue__In);							
+					}
+				}
+			}
+			</xsl:when>
+			<xsl:otherwise>
 			INT32* TEMP<xsl:value-of select="@name"/>;
 			vector &lt; vector &lt; INT32 &gt; &gt; DATA<xsl:value-of select="@name"/>;
 			vector &lt; vector &lt; DOUBLE &gt; &gt; DATAval<xsl:value-of select="@name"/>;
@@ -91,9 +119,10 @@ spikes::Output PORTOut<xsl:value-of select="@name"/>;
 						delayedImpulseVals[(delayBufferIndex+delayForConn[DATA<xsl:value-of select="@name"/>[i_BRAHMS_LOOP][j_BRAHMS_LOOP]])%delayBuffer.size()].push_back(DATAval<xsl:value-of select="@name"/>[i_BRAHMS_LOOP][j_BRAHMS_LOOP]);
 				
 					}				
-				}
-			
+				}			
 			}
+			</xsl:otherwise>
+			</xsl:choose>
 </xsl:template>
 
 <xsl:template match="SMLCL:ImpulseSendPort" mode="serviceImpulsePortsRemap">
