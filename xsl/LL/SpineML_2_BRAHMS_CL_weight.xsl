@@ -220,19 +220,24 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			connectivityS2C.resize(numElementsIn_BRAHMS);
 			<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
 			connectivityC2S.reserve(numElementsIn_BRAHMS*numElements_BRAHMS);
-			connectivityD2C.resize(numElementsIn_BRAHMS);			
+			connectivityD2C.resize(numElements_BRAHMS);			
 			</xsl:if>
 			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; connectivityS2C.size(); ++i_BRAHMS) {
 				connectivityS2C[i_BRAHMS].resize(numElements_BRAHMS);
 				for (unsigned int j_BRAHMS = 0; j_BRAHMS &lt; connectivityS2C[i_BRAHMS].size(); ++j_BRAHMS) {
 					connectivityC2D.push_back(j_BRAHMS);
 					connectivityS2C[i_BRAHMS][j_BRAHMS] = connectivityC2D.size()-1;
-					<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
-					connectivityC2S.push_back(j_BRAHMS);
-					connectivityD2C[i_BRAHMS][j_BRAHMS] = connectivityC2S.size()-1;
-					</xsl:if>
 				}
 			}
+			<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; connectivityD2C.size(); ++i_BRAHMS) {
+				connectivityD2C[i_BRAHMS].resize(numElementsIn_BRAHMS);
+				for (unsigned int j_BRAHMS = 0; j_BRAHMS &lt; connectivityD2C[i_BRAHMS].size(); ++j_BRAHMS) {
+					connectivityC2S.push_back(j_BRAHMS);
+					connectivityD2C[i_BRAHMS][j_BRAHMS] = connectivityC2S.size()-1;
+				}
+			}
+			</xsl:if>
 
 			// set up the number of connections
 			numConn_BRAHMS = connectivityC2D.size();

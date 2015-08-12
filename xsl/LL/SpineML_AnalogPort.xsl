@@ -154,7 +154,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 <xsl:template match="SMLCL:AnalogReducePort" mode="createAnalogReducePortsRemap">
         set_BRAHMS = iif.getSet("<xsl:value-of select="@name"/>");
         numInputs_BRAHMS = iif.getNumberOfPorts(set_BRAHMS);
-        <xsl:choose>>
+        <xsl:choose>
         <xsl:when test="@post">
         <!-- Handle postsynaptic input-->
         PORT<xsl:value-of select="@name"/>.resize(numInputs_BRAHMS);
@@ -212,7 +212,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 </xsl:template>
 
 <xsl:template match="SMLCL:AnalogReducePort" mode="serviceAnalogPortsRemap">
-     <xsl:choose>>
+     <xsl:choose>
      <xsl:when test="@post">
      <!-- Handle postsynaptic input-->
      
