@@ -50,6 +50,8 @@ Options are:
 
   -r           DO rebuild the Brahms components, even if they already exist.
 
+  -g           No GUI. Prevent BRAHMS from displaying its progress window.
+
   -m modeldir  Set the model directory - the location of the experiment xml
                files. Defaults to: \$SPINEML_2_BRAHMS_DIR/model
 
@@ -185,6 +187,9 @@ NODEARCH=""
 
 VERBOSE_BRAHMS="no"
 
+# Should we display the BRAHMS progress GUI? If not, make this equal to "--nogui"
+BRAHMS_NOGUI=""
+
 EXPT_NUM=""
 
 # Test for arrays
@@ -205,7 +210,7 @@ CCI=0 # Constant Current Iterator
 TVCI=0
 
 # Parse cmd line options
-while getopts w:srm:o:e:p:c:t:n:a:vV\? opt
+while getopts w:srgm:o:e:p:c:t:n:a:vV\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -213,6 +218,8 @@ do
         s)  REBUILD_SYSTEMML="false"
             ;;
         r)  REBUILD_COMPONENTS="true"
+            ;;
+        g)  BRAHMS_NOGUI="--nogui"
             ;;
         m)  MODEL_DIR="$OPTARG"
             ;;
@@ -491,7 +498,7 @@ fi
 pushd "$OUTPUT_DIR"
 echo "In directory: " `pwd`
 echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $OUTPUT_MODEL_DIR $EXPERIMENT $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH $NODES $NODEARCH"
-./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$OUTPUT_MODEL_DIR" "$EXPERIMENT" "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"  "$VERBOSE_BRAHMS" "$NODES" "$NODEARCH"
+./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$OUTPUT_MODEL_DIR" "$EXPERIMENT" "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"  "$VERBOSE_BRAHMS" "$NODES" "$NODEARCH" "$BRAHMS_NOGUI"
 if [ "$?" -ne "0" ]; then
     echo "Failed to run output.script on $EXPERIMENT. Falling at the last hurdle." >&2
     exit -1;
