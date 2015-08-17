@@ -78,12 +78,12 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 	<Lag>0</Lag>
 </Link>
 <Link>
-	<Src>Zeroes&gt;out</Src>
+	<Src>MN_zplus&gt;a</Src>
 	<Dst>SaccSim&lt;&lt;&lt;supobl</Dst>
 	<Lag>0</Lag>
 </Link>
 <Link>
-	<Src>Zeroes&gt;out</Src>
+	<Src>MN_zminus&gt;a</Src>
 	<Dst>SaccSim&lt;&lt;&lt;infobl</Dst>
 	<Lag>0</Lag>
 </Link>
