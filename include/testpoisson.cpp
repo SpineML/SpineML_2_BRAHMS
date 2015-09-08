@@ -7,7 +7,7 @@ int main()
 {
     RngData rd;
     float rn;
-    int i;
+    int i=0;
 
     rngDataInit (&rd);
     zigset(&rd, DUMMY);
