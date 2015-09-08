@@ -27,6 +27,9 @@
  * }
  *
  * g++ -o testrng testrng.cpp -lm
+ *
+ * NB: Don't set seed to 0! See github.com/SpineML/SpineML_2_BRAHMS
+ * issue#21.
  */
 
 #include <cstdlib>
@@ -50,6 +53,10 @@ struct RngData {
     // prefer to have in here.
     const static int a_RNG = 1103515245;
     const static int c_RNG = 12345;
+    // NB: seed should be 'unsigned int', as corrected in commit
+    // deb2b675f75 following debugging session with Alex C on his OCM
+    // model. I don't know why Alex C reverted seed to being 'int' in
+    // his commit eef6e5c2e in Feb 2015.
     unsigned int seed; int hz;
     unsigned int iz,jz,/*jsr,*/kn[128],ke[256];
     float wn[128],fn[128], we[256],fe[256];
