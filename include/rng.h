@@ -59,7 +59,7 @@ struct RngData {
 // An initialiser function for RngData
 void rngDataInit (RngData* rd)
 {
-    rd->seed = 0;
+    rd->seed = 1; /* A seed of 0 causes trouble for this code on some CPUs, see issue:21 */
     /*rd->jsr = 123456789;*/
     rd->qBinVal = -1;
 }
