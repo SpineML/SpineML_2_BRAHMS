@@ -11,8 +11,9 @@ int main()
 
     rngDataInit (&rd);
     zigset(&rd, DUMMY);
-    rd.seed = 1;
+    rd.seed = 123;
 
+    printf ("seed = %d\n---------\n", rd.seed);
     while (i < 10) {
         rn = _randomNormal ((&rd));
         printf ("%f\n", rn);

@@ -11,9 +11,10 @@ int main()
 
     rngDataInit (&rd);
     zigset(&rd, DUMMY);
-    rd.seed = 1;
+    rd.seed = 123;
 
-    while (i < 10) {
+    printf ("seed = %d\n---------\n", rd.seed);
+    while (i < 100) {
         rn = _randomPoisson ((&rd));
         printf ("%f\n", rn);
         i++;
