@@ -111,6 +111,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			DataMLNode nodeState(&xmlNode);
 
                         rngDataInit (&this->rngData);
+                        this->rngData.seed = 123;
                         // No need to zigset(), as we only use UNI() here.
 
 			// obtain the parameters
@@ -434,5 +435,3 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 //	include the second part of the overlay (it knows you've included it once already)
 #include "brahms-1199.h"
-
-

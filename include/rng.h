@@ -16,7 +16,7 @@
  *
  *     rngDataInit (&rd);
  *     zigset(&rd, 11);
- *     rd.seed = 102;
+ *     rd.seed = 102; // very important - DO set seed >0!
  *
  *     while (i < 10) {
  *         rn = _randomNormal ((&rd));
@@ -28,8 +28,8 @@
  *
  * g++ -o testrng testrng.cpp -lm
  *
- * NB: Don't set seed to 0! See github.com/SpineML/SpineML_2_BRAHMS
- * issue#21.
+ * NB: Set seed (which is an unsigned int) to a non-zero (+ve)
+ * integer! See github.com/SpineML/SpineML_2_BRAHMS issue#21.
  */
 
 #include <cstdlib>
@@ -66,7 +66,12 @@ struct RngData {
 // An initialiser function for RngData
 void rngDataInit (RngData* rd)
 {
-    rd->seed = 1; /* A seed of 0 causes trouble for this code on some CPUs, see issue:21 */
+    rd->seed = 0; /* Note that a seed of 0 causes trouble for this
+                   * code on some CPUs, see issue:21. I would set this
+                   * to 1 by default, but generated code from
+                   * e.g. SpineML_StateVariable.xsl checks for a 0
+                   * seed and then puts in a seed using getTime()
+                   * instead. */
     /*rd->jsr = 123456789;*/
     rd->qBinVal = -1;
 }
@@ -80,6 +85,7 @@ int getTime(void)
 
 float uniformGCC(RngData* rd)
 {
+    // This is required by the fixedProbability component in tools.
     return -1.0;
     // This requires seed to be an int, but rest of code requires seed to be unsigned int.
     //rd->seed = (unsigned int)abs(rd->seed * rd->a_RNG + rd->c_RNG);

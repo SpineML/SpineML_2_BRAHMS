@@ -97,6 +97,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
                         // Initialise volatile data variables for rng.h (but no need for zigset() here)
                         rngDataInit (&rngData);
+                        this->rngData.seed = 123;
 
 			// obtain the parameters
 			values = nodeState.getField("values").getArrayDOUBLE();
@@ -311,5 +312,3 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 //	include the second part of the overlay (it knows you've included it once already)
 #include "brahms-1199.h"
-
-

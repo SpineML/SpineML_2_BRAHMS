@@ -95,6 +95,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			DataMLNode nodeState(&xmlNode);
 
                         rngDataInit (&this->rngData);
+                        // NB: this->rngData.seed is set below
 
 			// obtain the parameters
 			VDOUBLE size = nodeState.getField("sizeIn").getArrayDOUBLE();
@@ -114,6 +115,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			DOUBLE p = nodeState.getField("p").getDOUBLE();
 
 			this->rngData.seed = seedVal;
+                        if (this->rngData.seed == 0) {
+                            berr << "A seed of 0 may cause numerical problems in the random number generator";
+                        }
 
 			// generate connectivity
 			for (UINT32 i = 0; i < (UINT32)numElementsIn; ++i) {
@@ -268,5 +272,3 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 //	include the second part of the overlay (it knows you've included it once already)
 #include "brahms-1199.h"
-
-
