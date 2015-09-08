@@ -58,7 +58,7 @@ struct RngData {
     // model. I don't know why Alex C reverted seed to being 'int' in
     // his commit eef6e5c2e in Feb 2015.
     unsigned int seed; int hz;
-    unsigned int iz,jz,/*jsr,*/kn[128],ke[256];
+    unsigned int iz,jz,kn[128],ke[256];
     float wn[128],fn[128], we[256],fe[256];
     float qBinVal,sBinVal,rBinVal,aBinVal;
 };
@@ -72,7 +72,6 @@ void rngDataInit (RngData* rd)
                    * e.g. SpineML_StateVariable.xsl checks for a 0
                    * seed and then puts in a seed using getTime()
                    * instead. */
-    /*rd->jsr = 123456789;*/
     rd->qBinVal = -1;
 }
 
@@ -153,7 +152,7 @@ float efix (RngData* rd) /*provides REXP if #define cannot */
     }
 }
 
-// == This procedure creates the tables. 2nd arg deprecated and unused. ==
+// == This procedure creates the tables. 2nd arg 'jsrseed' is deprecated and unused. ==
 void zigset (RngData* rd, unsigned int jsrseed)
 {
     clock();
@@ -162,7 +161,6 @@ void zigset (RngData* rd, unsigned int jsrseed)
     double dn=3.442619855899,tn=dn,vn=9.91256303526217e-3, q;
     double de=7.697117470131487, te=de, ve=3.949659822581572e-3;
     int i;
-    /*rd->jsr=jsrseed; rd->jsr is not used*/
 
     /* Tables for RNOR: */
     q=vn/exp(-.5*dn*dn);
