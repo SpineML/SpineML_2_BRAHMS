@@ -84,12 +84,12 @@ int getTime(void)
 
 float uniformGCC(RngData* rd)
 {
-    // This is required by the fixedProbability component in tools.
-    return -1.0;
-    // This requires seed to be an int, but rest of code requires seed to be unsigned int.
-    //rd->seed = (unsigned int)abs(rd->seed * rd->a_RNG + rd->c_RNG);
-    //float seed2 = rd->seed/2147483648.0;
-    //return seed2;
+    // Some compilers may require seed to be an int, but rest of code
+    // requires seed to be unsigned int. Compiles with gcc version
+    // 4.8.4-2ubuntu1~14.04
+    rd->seed = (unsigned int)abs(rd->seed * rd->a_RNG + rd->c_RNG);
+    float seed2 = rd->seed/2147483648.0;
+    return seed2;
 }
 
 // RANDOM NUMBER GENERATOR
