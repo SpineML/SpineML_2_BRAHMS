@@ -34,6 +34,7 @@
 
 #include <cstdlib>
 #include <cmath>
+#include <climits>
 #include <ctime>
 #include <sys/time.h>
 
@@ -84,10 +85,19 @@ int getTime(void)
 
 float uniformGCC(RngData* rd)
 {
-    // Some compilers may require seed to be an int, but rest of code
-    // requires seed to be unsigned int. Compiles with gcc version
-    // 4.8.4-2ubuntu1~14.04
-    rd->seed = (unsigned int)abs(rd->seed * rd->a_RNG + rd->c_RNG);
+    // In this function, we have to cast rd->seed to (int). To keep
+    // compilers happy, make sure rd->seed isn't greater than
+    // LONG_MAX, and if it is, set rd->seed to LONG_MAX.
+
+    if (rd->seed > (unsigned int)LONG_MAX) {
+        // Warning - can't cast ULONG_MAX into an int, so make it
+        // LONG_MAX instead.
+        rd->seed = (unsigned int)LONG_MAX;
+    }
+
+    // This is the ANSI committee-published recommended RNG example
+    // (see Numerical Recipes Chapter 7, page 276):
+    rd->seed = (unsigned int)abs((int)rd->seed * rd->a_RNG + rd->c_RNG);
     float seed2 = rd->seed/2147483648.0;
     return seed2;
 }
