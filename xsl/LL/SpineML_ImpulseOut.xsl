@@ -5,7 +5,11 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLNL="http://www.shef.ac
 <xsl:template match="SMLCL:ImpulseOut">
 					//ImpulseOut
 					//bout &lt;&lt; "IMPULSE!" &lt;&lt; " from <xsl:value-of select="//SMLCL:ComponentClass/@name"/>" &lt;&lt; D_WARN;
-					addImpulse(DATAOut<xsl:value-of select="@port"/>, num_BRAHMS, <xsl:value-of select="@port"/>[num_BRAHMS]);
+                                        if (num_BRAHMS &gt;= this-&gt;<xsl:value-of select="@port"/>.size()) {
+                                        berr &lt;&lt; "Can't index <xsl:value-of select="@port"/>[" &lt;&lt; num_BRAHMS
+					     &lt;&lt; "]! Is the weight list a different length from the number of connections?";
+                                        }
+					addImpulse(DATAOut<xsl:value-of select="@port"/>, num_BRAHMS, this-&gt;<xsl:value-of select="@port"/>[num_BRAHMS]);
 </xsl:template>
 
 </xsl:stylesheet>
