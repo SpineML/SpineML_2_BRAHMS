@@ -226,7 +226,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			// Ensure field is present (trigger BRAHMS error if not)
 			modelDirectory_BRAHMS = nodeState.getField("model_directory").getSTRING();
-			
+
 			// check if we need to do model-wide things
 			is_first_pop_BRAHMS = false;
 			file_for_timestamp_BRAHMS = NULL;
@@ -257,6 +257,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 </xsl:for-each>
 
 			<!-- Log base name - note log directory is adjacent to spine_run_dir -->
+			<!-- FIXME: Add content of spineml_run_dir here! -->
 			baseNameForLogs_BRAHMS = "../log/" + nodeState.getField("logfileNameForComponent").getSTRING();
 			<!-- State variable names -->
 			<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable">
@@ -365,7 +366,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 		{
 
 			t = float(time->now)*dt;
-			
+
 			// do model wide things if we are the first pop
 			if (is_first_pop_BRAHMS) {
 				if (file_for_timestamp_BRAHMS) {
@@ -510,5 +511,3 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 <xsl:include href="SpineML_ImpulsePort.xsl"/>
 
 </xsl:stylesheet>
-
-
