@@ -442,6 +442,7 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
     int recv_bytes = 0;
     while (recv_bytes < datasizeBytes) {
         recv_bytes += recv(sockfd,data+recv_bytes,datasizeBytes, MSG_WAITALL);
+        std::cout<<"received " << float(recv_bytes) << " of data so far!\n";
     }
     n = recv_bytes;
     if (n < 1) {
