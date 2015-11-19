@@ -465,6 +465,7 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
         }
 #endif
         recv_bytes += recv(sockfd,data+recv_bytes,datasizeBytes, MSG_WAITALL);
+
 #ifdef DEBUG_RECVDATA
         if (outputDebug) {
             std::cout << "recv() has now received " << recv_bytes << " bytes. first double is "

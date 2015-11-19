@@ -230,11 +230,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				}
 			}
 			<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
-			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; connectivityD2C.size(); ++i_BRAHMS) {
-				connectivityD2C[i_BRAHMS].resize(numElementsIn_BRAHMS);
-				for (unsigned int j_BRAHMS = 0; j_BRAHMS &lt; connectivityD2C[i_BRAHMS].size(); ++j_BRAHMS) {
-					connectivityC2S.push_back(j_BRAHMS);
-					connectivityD2C[i_BRAHMS][j_BRAHMS] = connectivityC2S.size()-1;
+			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; numElementsIn_BRAHMS; ++i_BRAHMS) {
+				for (unsigned int j_BRAHMS = 0; j_BRAHMS &lt; connectivityD2C.size(); ++j_BRAHMS) {
+					if (i_BRAHMS == 0) {
+						connectivityD2C[j_BRAHMS].resize(numElementsIn_BRAHMS);
+					}
+					connectivityC2S.push_back(i_BRAHMS);
+					connectivityD2C[j_BRAHMS][i_BRAHMS] = connectivityC2S.size()-1;
 				}
 			}
 			</xsl:if>
