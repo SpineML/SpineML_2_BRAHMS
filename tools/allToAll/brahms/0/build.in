@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# This is an example of how one might generate the build script. However,
+# as I don't plan to install the build script alongside the component.so;
+# This is left just as an example.
+
+if [ $(uname) == 'Linux' ]; then
+    echo "Compiling for Linux"
+    g++ -fPIC @BRAHMS_WARNING_CPPFLAGS@ -pthread -O3 -ffast-math -shared @BRAHMS_HOST_DEFINITION@ component.cpp -o component.so \
+        -I"@BRAHMS_INCLUDE_DIR@" -I"@BRAHMS_NAMESPACE_DIR@" -I"@INCLUDE_DIR@/spineml-2-brahms" \
+        -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" \
+        -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin"
+else
+    echo "Compiling for OSX"
+    g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -O3 -ffast-math -dynamiclib -fno-strict-aliasing -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"../../../../include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine
+fi
