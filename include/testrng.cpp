@@ -8,7 +8,8 @@
 
 #define DUMMY 11
 
-#define SERIES_LENGTH 16
+#define SERIES_LENGTH 500
+#define CONTAINER_LENGTH 1024
 
 // Return true if the series are the same
 bool compareSeries (float* start, float* cur)
@@ -35,8 +36,8 @@ int main()
     float rn;
     long long int i;
 
-    float fseries[32];
-    float startseries[32];
+    float fseries[CONTAINER_LENGTH];
+    float startseries[CONTAINER_LENGTH];
 
     rngDataInit (&rd);
     zigset(&rd, DUMMY);
