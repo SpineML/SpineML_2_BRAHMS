@@ -1,12 +1,16 @@
 /*
- * This code follows Marsaglia & Tsang 2000, but with a passed-in data
- * structure for mutable variables. (RngData modifications authored by
- * Seb James, August 2014).
+ * This code follows Marsaglia, George, and Wai Wan Tsang. "The
+ * ziggurat method for generating random variables." Journal of
+ * statistical software 5.8 (2000): 1-7., but with a passed-in data
+ * structure for mutable variables.
+ *
+ * (RngData modifications authored by Seb James, August 2014).
  *
  * Example usage:
  *
  * #include <stdio.h>
  * #include "rng.h"
+ * #define DUMMY 11
  *
  * int main()
  * {
@@ -15,11 +19,12 @@
  *     int i;
  *
  *     rngDataInit (&rd);
- *     zigset(&rd, 11);
+ *     zigset(&rd, DUMMY);
  *     rd.seed = 102; // very important - DO set seed >0!
  *
  *     while (i < 10) {
- *         rn = _randomNormal ((&rd));
+ *         rn = _randomNormal ((&rd)); // rn will be a number from a normal
+ *                                     // distribution centred at 0 with sigma=1?
  *         printf ("%f\n", rn);
  *         i++;
  *     }
