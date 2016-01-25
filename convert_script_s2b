@@ -413,11 +413,11 @@ else
     set +e # Back to explicitly checking return values of commands
 fi
 
-# Check if we have packaged/pre-installed xsl scripts
-XSL_SCRIPT_PATH="$SPINEML_2_BRAHMS_DIR/xsl"
-if [ -f "/usr/share/spineml-2-brahms/xsl/SpineML_2_BRAHMS_write_script.xsl" ]; then
-    echo "Using packaged version of the SpineML to BRAHMS xsl scripts"
-    XSL_SCRIPT_PATH="/usr/share/spineml-2-brahms/xsl/"
+# Check if we have local xsl script which overrides the packaged/pre-installed xsl scripts:
+XSL_SCRIPT_PATH="/usr/share/spineml-2-brahms/xsl/SpineML_2_BRAHMS_write_script.xsl"
+if [ -f "$SPINEML_2_BRAHMS_DIR/xsl/SpineML_2_BRAHMS_write_script.xsl" ]; then
+    echo "Using local version of the SpineML to BRAHMS xsl scripts because they exist."
+    XSL_SCRIPT_PATH="$SPINEML_2_BRAHMS_DIR/xsl/"
 fi
 
 # First check we have an experiment.xml file to work from.
