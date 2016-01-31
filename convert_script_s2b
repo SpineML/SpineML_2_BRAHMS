@@ -469,7 +469,7 @@ if [ -z "$BRAHMS_NS" ]; then
             # packaged brahms
             echo "Setting BRAHMS_NS, REBUILD and SYSTEMML_INSTALL_PATH to suit packaged brahms"
             export SYSTEMML_INSTALL_PATH="" # this should be empty
-            BRAHMS_NS="/var/lib/brahms/Namespace"
+            BRAHMS_NS="/var/SystemML/Namespace"
         else
             # non-packaged brahms, assume SystemML folder in home directory.
             export SYSTEMML_INSTALL_PATH="$HOME/SystemML"
