@@ -10,7 +10,7 @@ Here they are, assuming the output dir is ./temp:
               specified in the experiment XML file which was executed.
               Referred to as "spineml_log_dir" in XSL.
 
-./temp/model/ - A pre-flight-modified version of the input model. Referred to
+./temp/model/ - A preflight-modified version of the input model. Referred to
                 as "spineml_model_dir" in the XSL.
 
 ./temp/run/ - The BRAHMS runtime files - sys.xml, sys-exe.xml and the BRAHMS
