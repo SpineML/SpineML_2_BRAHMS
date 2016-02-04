@@ -486,10 +486,10 @@ if [ -z "$BRAHMS_NS" ]; then
 	    # Use installed Brahms
 	else
 	    # Assume User has installed SpineCreator and has the bundled Brahms
-            export SYSTEMML_INSTALL_PATH="/Applications/spinecreator.app/Contents/MacOS/SystemML"
+            export SYSTEMML_INSTALL_PATH="/Applications/SystemML"
 	    # This is the SpineCreator-bundled path to Namespace:
             # /Applications/spinecreator.app/Contents/MacOS/SystemML/Namespace/
-            BRAHMS_NS="/Applications/spinecreator.app/Contents/MacOS/SystemML/Namespace"
+            BRAHMS_NS="/Applications/SystemML/Namespace"
 	fi
     fi
 fi
