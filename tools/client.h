@@ -27,16 +27,29 @@ enum dataTypes {
 
 class spineMLNetworkClient;
 
+// If you want to debug the network client, #define DEBUG_RECVDATA 1
+#ifdef DEBUG_RECVDATA
+# undef DEBUG_RECVDATA
+#endif
+
+#ifdef DEBUG_RECVDATA
 /*!
  * This is a mask used to pick out the "loops" which will cause output
- * of debug data about receiving data over the wire.
+ * of debug data about receiving data over the wire. Set it to 0x100,
+ * for example, to debug on every 0x100th loop. If set to 0x0, then no
+ * debug messages are ever emitted.
  */
-#define RECVDEBUG_MASK 0xffffffff
+# define RECVDEBUG_MASK 0x0
+#endif
 
 class spineMLNetworkClient {
 
 public:
+#ifdef DEBUG_RECVDATA
     spineMLNetworkClient() : recvDebug(0) {}
+#else
+    spineMLNetworkClient() {}
+#endif
     ~spineMLNetworkClient() {}
 
     string getLastError();
@@ -63,6 +76,7 @@ private:
     char sendVal;
     string error;
 
+#ifdef DEBUG_RECVDATA
     /*!
      * recvDebug is used to determine if an info message about
      * receiving data should be emitted (to stdout). When this is 0,
@@ -72,6 +86,7 @@ private:
      * without swamping the BRAHMS output log.
      */
     int recvDebug;
+#endif
 };
 
 string spineMLNetworkClient::getLastError()
@@ -430,7 +445,8 @@ bool spineMLNetworkClient::sendData(char * ptr, int datasizeBytes)
  */
 bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
 {
-    bool outputDebug = ((int) (this->recvDebug & RECVDEBUG_MASK) == this->recvDebug);
+#ifdef DEBUG_RECVDATA
+    bool outputDebug = ((int) (RECVDEBUG_MASK>0 && (this->recvDebug & RECVDEBUG_MASK) == RECVDEBUG_MASK));
     int loopNum = this->recvDebug;
     this->recvDebug++;
 
@@ -438,38 +454,45 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
         std::cout << "recvdata called to receive " << datasizeBytes
                   << " input bytes. Loop num is " << loopNum << "\n";
     }
+#endif
     // get data
     int recv_bytes = 0;
     int recv_bytes_last = 0;
     while (recv_bytes < datasizeBytes) {
+#ifdef DEBUG_RECVDATA
         if (outputDebug) {
             recv_bytes_last = recv_bytes;
         }
+#endif
         recv_bytes += recv(sockfd,data+recv_bytes,datasizeBytes, MSG_WAITALL);
+#ifdef DEBUG_RECVDATA
         if (outputDebug) {
             std::cout << "recv() has now received " << recv_bytes << " bytes. first double is "
                       << (double)*(double*)(data+recv_bytes_last) << std::endl;
         }
+#endif
     }
     n = recv_bytes;
     if (n < 1) {
         error =  "Error reading from socket for External Input";
+#ifdef DEBUG_RECVDATA
         if (outputDebug) {
             std::cout << "Error reading from socket for External Input\n";
         }
+#endif
         return false;
     }
 
+#ifdef DEBUG_RECVDATA
     if (outputDebug) {
         std::cout << "received " << float(recv_bytes) << " of data!\n";
     }
+#endif
 
     if (datasizeBytes < 0) {
     	error =  "Bad data sent to external input";
     	return false;
     }
-
-    //std::cout << "recvdata reply\n";
 
     sendVal = RESP_RECVD;
 
