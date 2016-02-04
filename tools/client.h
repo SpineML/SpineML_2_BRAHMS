@@ -135,7 +135,7 @@ bool spineMLNetworkClient::createClient(string hostname, int port, int size,
 
 bool spineMLNetworkClient::connectClient(int portno, string hostname)
 {
-    //std::cout << "connect\n";
+    ////std::cout << "connect\n";
 
     // connect the socket:
 
@@ -177,7 +177,7 @@ bool spineMLNetworkClient::connectClient(int portno, string hostname)
 
 bool spineMLNetworkClient::handShake(char type)
 {
-    //std::cout << "handshake send\n";
+    ////std::cout << "handshake send\n";
 
     // send first
     sendVal = type;
@@ -187,7 +187,7 @@ bool spineMLNetworkClient::handShake(char type)
         return false;
     }
 
-    //std::cout << "handshake reply recv\n";
+    ////std::cout << "handshake reply recv\n";
 
     // get reply
     n = recv(sockfd,&(returnVal),1, MSG_WAITALL);
@@ -206,7 +206,7 @@ bool spineMLNetworkClient::handShake(char type)
 
 bool spineMLNetworkClient::sendDataType(dataTypes dataType)
 {
-    //std::cout << "dataType send\n";
+    ////std::cout << "dataType send\n";
 
     // send the data type
     switch (dataType) {
@@ -235,7 +235,7 @@ bool spineMLNetworkClient::sendDataType(dataTypes dataType)
         return false;
     }
 
-    //std::cout << "dataType reply recv\n";
+    ////std::cout << "dataType reply recv\n";
 
     // get reply
     n = recv(sockfd,&(returnVal),1, MSG_WAITALL);
@@ -254,7 +254,7 @@ bool spineMLNetworkClient::sendDataType(dataTypes dataType)
 
 dataTypes spineMLNetworkClient::recvDataType(bool &ok)
 {
-    //std::cout << "dataType recv\n";
+    ////std::cout << "dataType recv\n";
 
     // get dataType
     n = recv(sockfd,&(returnVal),1, MSG_WAITALL);
@@ -270,7 +270,7 @@ dataTypes spineMLNetworkClient::recvDataType(bool &ok)
         return IMPULSE;
     }
 
-    //std::cout << "dataType reply send\n";
+    ////std::cout << "dataType reply send\n";
 
     sendVal = RESP_RECVD;
 
@@ -307,7 +307,7 @@ dataTypes spineMLNetworkClient::recvDataType(bool &ok)
  */
 bool spineMLNetworkClient::sendSize(int size)
 {
-    //std::cout << "size send\n";
+    ////std::cout << "size send\n";
 
     // send size
     n = send(sockfd, &size, sizeof(int), MSG_WAITALL);
@@ -316,7 +316,7 @@ bool spineMLNetworkClient::sendSize(int size)
         return false;
     }
 
-    //std::cout << "size reply recv\n";
+    ////std::cout << "size reply recv\n";
 
     // get reply
     n = recv(sockfd,&(returnVal),1, MSG_WAITALL);
@@ -330,7 +330,7 @@ bool spineMLNetworkClient::sendSize(int size)
         return false;
     }
 
-    //std::cout << "size reply recv'd\n";
+    ////std::cout << "size reply recv'd\n";
 
     return true;
 }
@@ -374,7 +374,7 @@ bool spineMLNetworkClient::sendName(const string& connName)
  */
 int spineMLNetworkClient::recvSize(bool &ok)
 {
-    //std::cout << "size recv\n";
+    ////std::cout << "size recv\n";
 
     int size;
 
@@ -394,7 +394,7 @@ int spineMLNetworkClient::recvSize(bool &ok)
 
     sendVal = RESP_RECVD;
 
-    //std::cout << "size reply send\n";
+    ////std::cout << "size reply send\n";
 
     n = send(sockfd,&sendVal,1, MSG_DONTWAIT);
     if (n < 1) {
@@ -451,8 +451,8 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
     this->recvDebug++;
 
     if (outputDebug) {
-        std::cout << "recvdata called to receive " << datasizeBytes
-                  << " input bytes. Loop num is " << loopNum << "\n";
+        //std::cout << "recvdata called to receive " << datasizeBytes
+                  //<< " input bytes. Loop num is " << loopNum << "\n";
     }
 #endif
     // get data
@@ -485,7 +485,7 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
 
 #ifdef DEBUG_RECVDATA
     if (outputDebug) {
-        std::cout << "received " << float(recv_bytes) << " of data!\n";
+        //std::cout << "received " << float(recv_bytes) << " of data!\n";
     }
 #endif
 
