@@ -160,7 +160,7 @@ DBG_FLAG="-g"
 fi
 
 <!-- We have enough information at this point in the script to build our BRAHMS_CMD: -->
-BRAHMS_CMD="brahms $BRAHMS_NOGUI $VERBOSE_BRAHMS --par-ShowGUI=0 --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
+BRAHMS_CMD="brahms $BRAHMS_NOGUI $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
 
 <!--
  If we're in "Sun Grid Engine mode", we can submit our brahms execution scripts
