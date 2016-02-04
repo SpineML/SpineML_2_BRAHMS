@@ -207,7 +207,7 @@ int fastBinomial(RngData* rd, int N, float p)
     return x;
 }
 
-#define _randomUniform(rd) uniformGCC(rd)
+#define _randomUniform(rd) UNI(rd)
 #define _randomNormal(rd) RNOR(rd)
 #define _randomExponential(rd) REXP(rd)
 #define _randomPoisson(rd) RPOIS(rd)

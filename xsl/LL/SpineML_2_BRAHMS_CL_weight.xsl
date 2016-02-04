@@ -375,7 +375,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			connectivityC2D.resize(srcInds.size());
 			<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
 			connectivityC2S.resize(srcInds.size());
-			connectivityD2C.resize(numElementsIn_BRAHMS);			
+			connectivityD2C.resize(numElements_BRAHMS);			
 			</xsl:if>
 
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; srcInds.size(); ++i_BRAHMS) {
@@ -493,7 +493,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// Log base name
 			baseNameForLogs_BRAHMS = "../log/" + nodeState.getField("logfileNameForComponent").getSTRING();
 			<!-- State variable names -->
-			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable">
+			<xsl:for-each select="WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable">
 				<xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT = "../model/" + nodeState.getField("<xsl:value-of select="@name"/>BIN_FILE_NAME").getSTRING();
 			</xsl:for-each>
 
