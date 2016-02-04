@@ -445,9 +445,14 @@ bool spineMLNetworkClient::sendData(char * ptr, int datasizeBytes)
  */
 bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
 {
+<<<<<<< HEAD
 #ifdef DEBUG_RECVDATA
     bool outputDebug = ((int) (RECVDEBUG_MASK>0 && (this->recvDebug & RECVDEBUG_MASK) == RECVDEBUG_MASK));
     int loopNum = this->recvDebug;
+=======
+    bool outputDebug = ((int) (this->recvDebug & RECVDEBUG_MASK) == this->recvDebug);
+    //int loopNum = this->recvDebug;
+>>>>>>> e8ec95a... Fix for SV in weightupdates - missing $ caused issues with file names
     this->recvDebug++;
 
     if (outputDebug) {
@@ -465,7 +470,6 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
         }
 #endif
         recv_bytes += recv(sockfd,data+recv_bytes,datasizeBytes, MSG_WAITALL);
-
 #ifdef DEBUG_RECVDATA
         if (outputDebug) {
             std::cout << "recv() has now received " << recv_bytes << " bytes. first double is "
@@ -495,6 +499,11 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
     	return false;
     }
 
+<<<<<<< HEAD
+=======
+    ////std::cout << "recvdata reply\n";
+
+>>>>>>> e8ec95a... Fix for SV in weightupdates - missing $ caused issues with file names
     sendVal = RESP_RECVD;
 
     n = send(sockfd,&sendVal,1, MSG_DONTWAIT);
