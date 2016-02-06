@@ -48,7 +48,12 @@ Options are:
                doesn't exist, the xsltproc calls DO go ahead, despite the
                presence of this option.
 
-  -r           DO rebuild the Brahms components, even if they already exist.
+  -r           DO rebuild the BRAHMS components, even if they already exist.
+
+  -A           ASSUME that the BRAHMS components exist; don't do any checking.
+               This is intended for running a large model many times over in a
+               batch where the component check may add significantly to the run
+               time.
 
   -g           No GUI. Prevent BRAHMS from displaying its progress window.
 
@@ -176,6 +181,8 @@ REBUILD_SYSTEMML="true"
 
 REBUILD_COMPONENTS="false"
 
+ASSUME_COMPONENTS_PRESENT=""
+
 # Input directory containing the model.
 MODEL_DIR="_unknown_model"
 # The output directory for temporary files and output logs.
@@ -210,7 +217,7 @@ CCI=0 # Constant Current Iterator
 TVCI=0
 
 # Parse cmd line options
-while getopts w:srgm:o:e:p:c:t:n:a:vV\? opt
+while getopts w:srAgm:o:e:p:c:t:n:a:vV\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -218,6 +225,8 @@ do
         s)  REBUILD_SYSTEMML="false"
             ;;
         r)  REBUILD_COMPONENTS="true"
+            ;;
+        A)  ASSUME_COMPONENTS_PRESENT="true"
             ;;
         g)  BRAHMS_NOGUI="--par-ShowGUI=0"
             ;;
@@ -498,7 +507,7 @@ fi
 pushd "$OUTPUT_DIR"
 echo "In directory: " `pwd`
 echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $OUTPUT_MODEL_DIR $EXPERIMENT $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH $NODES $NODEARCH"
-./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$OUTPUT_MODEL_DIR" "$EXPERIMENT" "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"  "$VERBOSE_BRAHMS" "$NODES" "$NODEARCH" "$BRAHMS_NOGUI"
+./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$OUTPUT_MODEL_DIR" "$EXPERIMENT" "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"  "$VERBOSE_BRAHMS" "$NODES" "$NODEARCH" "$BRAHMS_NOGUI" "$ASSUME_COMPONENTS_PRESENT"
 if [ "$?" -ne "0" ]; then
     echo "Failed to run output.script on $EXPERIMENT. Falling at the last hurdle." >&2
     exit -1;
