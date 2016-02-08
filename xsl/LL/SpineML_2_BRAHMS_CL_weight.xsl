@@ -194,7 +194,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 	{
 		case EVENT_STATE_SET:
 		{
-			// Initialised allParamsDelaysAreFixedValue
+			// Initialise allParamsDelaysAreFixedValue to true. Non fixed-value features
+			// will then set this false if necessary.
 			this-&gt;allParamsDelaysAreFixedValue = true;
 
 			//	extract DataML
@@ -489,14 +490,25 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			</xsl:for-each>
 
 			// Now, at runtime, work out if we can optimise AllToAll connectivity by changing connectivityS2C...
-			bout &lt;&lt; "allParamsDelaysAreFixedValue:" &lt;&lt; allParamsDelaysAreFixedValue &lt;&lt; D_INFO;
+			// bout &lt;&lt; "allParamsDelaysAreFixedValue:" &lt;&lt; allParamsDelaysAreFixedValue &lt;&lt; D_INFO;
                         <xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
-#ifdef IN_PROGRESS
-			if (allParamsDelaysAreFixedValue == true) {
-			connectivityC2D.resize(numElementsIn_BRAHMS);
-			// etc etc etc
-			}
-#endif
+			if (this-&gt;allParamsDelaysAreFixedValue == true) {
+				connectivityC2D.resize(numElementsIn_BRAHMS);
+				numConn_BRAHMS = connectivityC2D.size();
+<!---->
+				// Now we only need one field in each of the vectors in connectivityS2C:
+				for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; connectivityS2C.size(); ++i_BRAHMS) {
+					connectivityS2C[i_BRAHMS].resize(1);
+					connectivityS2C[i_BRAHMS][0] = i_BRAHMS;
+				}
+<!---->
+				// Must also resize aliases again:
+				numEl_BRAHMS = numConn_BRAHMS;
+				<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
+					<xsl:apply-templates select="SMLCL:Alias" mode="resizeAlias"/>
+				</xsl:for-each>
+			} // else not fixed value
+			</xsl:if>
 		}
 
 		// CREATE THE PORTS
@@ -573,7 +585,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			    <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS] = <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS];
 
 			}
-
 			// service inputs
 			<!---->
 			// Analog Ports Remaps (if any)
@@ -609,11 +620,23 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			</xsl:for-each>
 
 			// Dynamics doTrans (if any) (Alias operations appear here)
+			<xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
+
+			if (this-&gt;allParamsDelaysAreFixedValue == true) {
+			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
+				<xsl:apply-templates select="SMLCL:Dynamics" mode="doAllToAllTrans"/>
+			</xsl:for-each>
+			} else {
+			</xsl:if>
+<!---->
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:Dynamics" mode="doTrans"/>
 			</xsl:for-each>
 <!---->
-
+			<xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
+			}
+			</xsl:if>
+<!---->
 			// Apply regime changes
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.size(); ++i_BRAHMS) {
 						        <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS] = <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS];
