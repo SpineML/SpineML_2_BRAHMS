@@ -190,8 +190,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 	{
 		case EVENT_STATE_SET:
 		{
-			// Initialised allParamsDelaysAreFixedValue
-			this-&gt;allParamsDelaysAreFixedValue = true;
+			// Initialise allParamsDelaysAreFixedValue to false as this only pertains to weight components
+			this-&gt;allParamsDelaysAreFixedValue = false;
 
 			//	extract DataML
 			EventStateSet* data = (EventStateSet*) event->data;

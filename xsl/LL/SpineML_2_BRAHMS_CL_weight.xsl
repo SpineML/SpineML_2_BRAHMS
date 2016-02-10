@@ -436,6 +436,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			// State Variables
 <!---->
+			<xsl:if test="count($WeightUpdate_file//SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics)>0">
+			this-&gt;allParamsDelaysAreFixedValue = false;
+			</xsl:if>
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 				<xsl:apply-templates select="SMLCL:StateVariable" mode="assignStateVariable"/>
 			</xsl:for-each>
