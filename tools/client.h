@@ -27,10 +27,13 @@ enum dataTypes {
 
 class spineMLNetworkClient;
 
-// If you want to debug the network client, #define DEBUG_RECVDATA 1
-#ifdef DEBUG_RECVDATA
-# undef DEBUG_RECVDATA
-#endif
+/*
+ * On debugging:
+ *
+ * If you want to debug the process of reading data, #define
+ * DEBUG_RECVDATA 1. You can also #define DEBUG_SENDDATA 1 and
+ * #define DEBUG_CONNECTHANDSHAKE 1 for other debug messages.
+ */
 
 #ifdef DEBUG_RECVDATA
 /*!
@@ -135,7 +138,9 @@ bool spineMLNetworkClient::createClient(string hostname, int port, int size,
 
 bool spineMLNetworkClient::connectClient(int portno, string hostname)
 {
-    ////std::cout << "connect\n";
+#ifdef DEBUG_CONNECTHANDSHAKE
+    std::cout << "connect\n";
+#endif
 
     // connect the socket:
 
@@ -177,7 +182,9 @@ bool spineMLNetworkClient::connectClient(int portno, string hostname)
 
 bool spineMLNetworkClient::handShake(char type)
 {
-    ////std::cout << "handshake send\n";
+#ifdef DEBUG_CONNECTHANDSHAKE
+    std::cout << "handshake send\n";
+#endif
 
     // send first
     sendVal = type;
@@ -187,7 +194,9 @@ bool spineMLNetworkClient::handShake(char type)
         return false;
     }
 
-    ////std::cout << "handshake reply recv\n";
+#ifdef DEBUG_CONNECTHANDSHAKE
+    std::cout << "handshake reply recv\n";
+#endif
 
     // get reply
     n = recv(sockfd,&(returnVal),1, MSG_WAITALL);
@@ -206,7 +215,9 @@ bool spineMLNetworkClient::handShake(char type)
 
 bool spineMLNetworkClient::sendDataType(dataTypes dataType)
 {
-    ////std::cout << "dataType send\n";
+#ifdef DEBUG_CONNECTHANDSHAKE
+    std::cout << "dataType send\n";
+#endif
 
     // send the data type
     switch (dataType) {
@@ -235,7 +246,9 @@ bool spineMLNetworkClient::sendDataType(dataTypes dataType)
         return false;
     }
 
-    ////std::cout << "dataType reply recv\n";
+#ifdef DEBUG_CONNECTHANDSHAKE
+    std::cout << "dataType reply recv\n";
+#endif
 
     // get reply
     n = recv(sockfd,&(returnVal),1, MSG_WAITALL);
@@ -254,7 +267,9 @@ bool spineMLNetworkClient::sendDataType(dataTypes dataType)
 
 dataTypes spineMLNetworkClient::recvDataType(bool &ok)
 {
-    ////std::cout << "dataType recv\n";
+#ifdef DEBUG_CONNECTHANDSHAKE
+    std::cout << "dataType recv\n";
+#endif
 
     // get dataType
     n = recv(sockfd,&(returnVal),1, MSG_WAITALL);
@@ -270,7 +285,9 @@ dataTypes spineMLNetworkClient::recvDataType(bool &ok)
         return IMPULSE;
     }
 
-    ////std::cout << "dataType reply send\n";
+#ifdef DEBUG_CONNECTHANDSHAKE
+    std::cout << "dataType reply send\n";
+#endif
 
     sendVal = RESP_RECVD;
 
@@ -307,7 +324,9 @@ dataTypes spineMLNetworkClient::recvDataType(bool &ok)
  */
 bool spineMLNetworkClient::sendSize(int size)
 {
-    ////std::cout << "size send\n";
+#ifdef DEBUG_CONNECTHANDSHAKE
+    std::cout << "size send\n";
+#endif
 
     // send size
     n = send(sockfd, &size, sizeof(int), MSG_WAITALL);
@@ -316,7 +335,9 @@ bool spineMLNetworkClient::sendSize(int size)
         return false;
     }
 
-    ////std::cout << "size reply recv\n";
+#ifdef DEBUG_CONNECTHANDSHAKE
+    std::cout << "size reply recv\n";
+#endif
 
     // get reply
     n = recv(sockfd,&(returnVal),1, MSG_WAITALL);
@@ -330,7 +351,9 @@ bool spineMLNetworkClient::sendSize(int size)
         return false;
     }
 
-    ////std::cout << "size reply recv'd\n";
+#ifdef DEBUG_CONNECTHANDSHAKE
+    std::cout << "size reply recv'd\n";
+#endif
 
     return true;
 }
@@ -374,7 +397,9 @@ bool spineMLNetworkClient::sendName(const string& connName)
  */
 int spineMLNetworkClient::recvSize(bool &ok)
 {
-    ////std::cout << "size recv\n";
+#ifdef DEBUG_RECVDATA
+    std::cout << "size recv\n";
+#endif
 
     int size;
 
@@ -394,8 +419,9 @@ int spineMLNetworkClient::recvSize(bool &ok)
 
     sendVal = RESP_RECVD;
 
-    ////std::cout << "size reply send\n";
-
+#ifdef DEBUG_RECVDATA
+    std::cout << "size reply send\n";
+#endif
     n = send(sockfd,&sendVal,1, MSG_DONTWAIT);
     if (n < 1) {
         error =  "Error writing to socket (recvSize)";
@@ -422,7 +448,9 @@ bool spineMLNetworkClient::sendData(char * ptr, int datasizeBytes)
         return false;
     }
 
-    //cout << "Sent data" << endl;
+#ifdef DEBUG_SENDDATA
+    std::cout << "Sent data\n";
+#endif
 
     // get reply
     n = recv(sockfd,&(returnVal),1, MSG_WAITALL);
@@ -435,7 +463,9 @@ bool spineMLNetworkClient::sendData(char * ptr, int datasizeBytes)
     	error =  "External target aborted the simulation after send data";
     	return false;
     }
-    //cout << "data send confirmed" << endl;;
+#ifdef DEBUG_SENDDATA
+    std::cout << "data send confirmed\n";
+#endif
 
     return true;
 }
@@ -445,19 +475,15 @@ bool spineMLNetworkClient::sendData(char * ptr, int datasizeBytes)
  */
 bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
 {
-<<<<<<< HEAD
 #ifdef DEBUG_RECVDATA
     bool outputDebug = ((int) (RECVDEBUG_MASK>0 && (this->recvDebug & RECVDEBUG_MASK) == RECVDEBUG_MASK));
     int loopNum = this->recvDebug;
-=======
-    bool outputDebug = ((int) (this->recvDebug & RECVDEBUG_MASK) == this->recvDebug);
-    //int loopNum = this->recvDebug;
->>>>>>> e8ec95a... Fix for SV in weightupdates - missing $ caused issues with file names
+
     this->recvDebug++;
 
     if (outputDebug) {
-        //std::cout << "recvdata called to receive " << datasizeBytes
-                  //<< " input bytes. Loop num is " << loopNum << "\n";
+        std::cout << "recvdata called to receive " << datasizeBytes
+                  << " input bytes. Loop num is " << loopNum << "\n";
     }
 #endif
     // get data
@@ -490,7 +516,7 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
 
 #ifdef DEBUG_RECVDATA
     if (outputDebug) {
-        //std::cout << "received " << float(recv_bytes) << " of data!\n";
+        std::cout << "received " << float(recv_bytes) << " of data!\n";
     }
 #endif
 
@@ -499,11 +525,6 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
     	return false;
     }
 
-<<<<<<< HEAD
-=======
-    ////std::cout << "recvdata reply\n";
-
->>>>>>> e8ec95a... Fix for SV in weightupdates - missing $ caused issues with file names
     sendVal = RESP_RECVD;
 
     n = send(sockfd,&sendVal,1, MSG_DONTWAIT);
