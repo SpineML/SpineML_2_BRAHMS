@@ -435,10 +435,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			int numEl_BRAHMS = numConn_BRAHMS;
 
 			// State Variables
-<!---->
-			<xsl:if test="count($WeightUpdate_file//SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics)>0">
-			this-&gt;allParamsDelaysAreFixedValue = false;
-			</xsl:if>
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 				<xsl:apply-templates select="SMLCL:StateVariable" mode="assignStateVariable"/>
 			</xsl:for-each>
@@ -496,6 +492,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// bout &lt;&lt; "allParamsDelaysAreFixedValue:" &lt;&lt; allParamsDelaysAreFixedValue &lt;&lt; D_INFO;
                         <xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
 			if (this-&gt;allParamsDelaysAreFixedValue == true) {
+				bout &lt;&lt; "Resizing connectivity data structures for alltoall optimization..." &lt;&lt; D_INFO;
 				connectivityC2D.resize(numElementsIn_BRAHMS);
 				numConn_BRAHMS = connectivityC2D.size();
 <!---->
@@ -676,6 +673,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 		{
 			int numEl_BRAHMS = numConn_BRAHMS;
 			t = float(time->now)*dt;
+
+			bout &lt;&lt; "allParamsDelaysAreFixedValue was:" &lt;&lt; allParamsDelaysAreFixedValue &lt;&lt; D_INFO;
 
 			<!-- WRITE XML FOR LOGS -->
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="finaliseLogs"/>

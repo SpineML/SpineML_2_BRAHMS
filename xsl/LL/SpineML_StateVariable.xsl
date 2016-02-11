@@ -64,6 +64,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:template match="SMLCL:StateVariable" mode="assignStateVariable"><xsl:text>
 			</xsl:text>
 			<!-- if it is a random variable -->
+			// Any state variable means that we can't optimise alltoall weight update components:
+			this-&gt;allParamsDelaysAreFixedValue = false;
 			{
 			bool finishedThis = false;
 			// see if not there at all (if so initialise to zero)
