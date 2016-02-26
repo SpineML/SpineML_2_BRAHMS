@@ -8,7 +8,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 <xsl:output method="xml" omit-xml-declaration="no" version="1.0" encoding="UTF-8" indent="yes"/>
 
 <!-- This xsl file generates the SystemML <Process> for a weight
-     update. It's called by SpineML_2_BRAHMS_NL.xsl which genrrates
+     update. It's called by SpineML_2_BRAHMS_NL.xsl which generates
      the overall SystemML description file sys.xml. -->
 
 <!-- START TEMPLATE -->

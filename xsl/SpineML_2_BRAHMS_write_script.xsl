@@ -51,6 +51,14 @@ VERBOSE_BRAHMS=${9}
 NODES=${10} <!-- Number of machine nodes to use. If >1, then this assumes we're using Sun Grid Engine. -->
 NODEARCH=${11}
 BRAHMS_NOGUI=${12}
+<!--
+    Here's a variable that can be set to avoid the component testing
+    from going ahead. This may be useful when you are running your sim
+    many times and you don't want the component check to happen each
+    time; it may take a few seconds for large models. If you prefer
+    NOT to assume components are present, then set this blank.
+    -->
+ASSUME_COMPONENTS_PRESENT=${13}
 
 echo "VERBOSE_BRAHMS: $VERBOSE_BRAHMS"
 echo "NODES: $NODES"
@@ -220,8 +228,17 @@ echo "Removing existing components in advance of rebuilding..."
 # clean up the temporary dirs - we don't want old component versions lying around!
 rm -R "$SPINEML_2_BRAHMS_NS/dev/SpineML/temp"/* &amp;&gt; /dev/null
 fi
-echo "Creating the Neuron populations..."
 
+if [ ! x"${ASSUME_COMPONENTS_PRESENT}" = "x" ]; then
+echo "DANGER:"
+echo "DANGER: output.script is ASSUMING that all SpineML components have been built!"
+echo "DANGER: (you would want to do this if running the model over and over with a batch script)"
+echo "DANGER:"
+fi
+
+if [ x"${ASSUME_COMPONENTS_PRESENT}" = "x" ]; then
+
+echo "Creating the Neuron populations..."
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
 # Also update time.txt for SpineCreator / other tools
 echo "*Compiling neuron <xsl:value-of select="position()"/> / <xsl:value-of select="count(/SMLLOWNL:SpineML/SMLLOWNL:Population)"/>" &gt; $MODEL_DIR/time.txt
@@ -267,11 +284,15 @@ chmod +x build
 echo "Compiling component binary"
 ./build
 popd &amp;&gt; /dev/null
-fi # The check if component exists
-
+fi # The check if component code exists
 </xsl:otherwise>
 </xsl:choose>
 </xsl:for-each>
+fi # The enclosing check if the user wants to skip component existence checking
+
+
+
+if [ x"${ASSUME_COMPONENTS_PRESENT}" = "x" ]; then
 echo "Creating the projections..."
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
 # Also update time.txt for SpineCreator / other tools
@@ -297,7 +318,8 @@ echo "&lt;Nums&gt;&lt;Number1&gt;<xsl:value-of select="$number1"/>&lt;/Number1&g
 DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/WU/<xsl:value-of select="local-name(SMLNL:ConnectionList)"/><xsl:value-of select="local-name(SMLNL:FixedProbabilityConnection)"/><xsl:value-of select="local-name(SMLNL:AllToAllConnection)"/><xsl:value-of select="local-name(SMLNL:OneToOneConnection)"/><xsl:value-of select="translate(document(SMLLOWNL:WeightUpdate/@url)//SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0&quot;
 CODE_NUM=$((CODE_NUM+1))
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="$wu_url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="$wu_url"/>&quot; &amp;&gt; /dev/null
-<!--if [ $? == 0 ] &amp;&amp; [ -f "$DIRNAME/component.cpp" ]; then-->
+
+<!-- Check that the weight update component exists -->
 if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
 <!-- The following echo will create a lot of output, but it's useful for debugging: -->
 #echo "Weight Update component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping ($DIRNAME/component.cpp)"
@@ -325,12 +347,13 @@ echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Conne
 chmod +x build
 ./build
 cd - &amp;&gt; /dev/null
-fi
+fi <!-- end check that the weight update component exists -->
 
 DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/PS/<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass"><xsl:value-of select="translate(@name,' -', 'oH')"/></xsl:for-each>/brahms/0&quot;
 CODE_NUM=$((CODE_NUM+1))
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="$ps_url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="$ps_url"/>&quot; &amp;&gt; /dev/null
-<!--if [ $? == 0 ] &amp;&amp; [ -f "$DIRNAME/component.cpp" ]; then-->
+
+<!-- Check that the postsynapse component exists -->
 if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
 <!-- Lots of output, but useful for debugging: -->
 echo "Post-synapse component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping ($DIRNAME/component.cpp)"
@@ -356,12 +379,14 @@ echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Conne
 chmod +x build
 ./build
 cd - &amp;&gt; /dev/null
-fi
-<!-- MORE HERE -->
+fi <!-- end check that the postsynapse component exists -->
 
-		</xsl:for-each>
-	</xsl:for-each>
-</xsl:for-each>
+<!-- MORE HERE -->
+</xsl:for-each> <!-- synapse -->
+</xsl:for-each> <!-- proj -->
+</xsl:for-each> <!-- pop -->
+
+fi <!-- end "assume" test -->
 
 if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f "$SPINEML_RUN_DIR/sys.xml" ] ; then
   echo "Building the SystemML system..."

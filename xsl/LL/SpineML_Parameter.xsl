@@ -11,6 +11,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 			{
 			bool finishedThis = false;
 			if (nodeState.hasField("<xsl:value-of select="@name"/>RANDXOVER2")) {
+				this-&gt;allParamsDelaysAreFixedValue = false;
 				this-&gt;<xsl:value-of select="@name"/> = nodeState.getField("<xsl:value-of select="@name"/>RANDXOVER2").getArrayDOUBLE();
 				float val1_BRAHMS = 0;
 				float val2_BRAHMS = 1;
@@ -43,6 +44,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				finishedThis = true;
 			}
 			if (nodeState.hasField("<xsl:value-of select="@name"/>OVER2") &amp;&amp; !finishedThis) {
+				this-&gt;allParamsDelaysAreFixedValue = false;
 				if (nodeState.getField("<xsl:value-of select="@name"/>OVER2").getDims()[0] == 1) {
 					this-&gt;<xsl:value-of select="@name"/> = nodeState.getField("<xsl:value-of select="@name"/>OVER2").getArrayDOUBLE();
 					if (this-&gt;<xsl:value-of select="@name"/>.size() == 1) {
@@ -55,7 +57,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 			}
 
 			if (nodeState.hasField("<xsl:value-of select="@name"/>RANDX") &amp;&amp; !finishedThis) {
-
+				this-&gt;allParamsDelaysAreFixedValue = false;
 				this-&gt;<xsl:value-of select="@name"/> = nodeState.getField("<xsl:value-of select="@name"/>RANDX").getArrayDOUBLE();
 				float val1_BRAHMS = 0;
 				float val2_BRAHMS = 1;
@@ -86,7 +88,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 					}
 				}
 			}
-
+			<!-- This is the simple FixedValue -->
 			if (nodeState.hasField("<xsl:value-of select="@name"/>") &amp;&amp; !finishedThis)
 			{
 				this-&gt;<xsl:value-of select="@name"/> = nodeState.getField("<xsl:value-of select="@name"/>").getArrayDOUBLE();
@@ -98,6 +100,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 			}
 
 			if (nodeState.hasField("<xsl:value-of select="@name"/>BIN_FILE_NAME") &amp;&amp; !finishedThis) {
+				this-&gt;allParamsDelaysAreFixedValue = false;
 			        if (!nodeState.hasField("<xsl:value-of select="@name"/>BIN_NUM_ELEMENTS")) {
 				        berr &lt;&lt; "Found a binary file name without corresponding binary number of elements.";
 				}
@@ -133,8 +136,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				}
 			}
 
-			if (nodeState.hasField("<xsl:value-of select="@name"/>OVER1") &amp;&amp; !finishedThis)
-			{
+			if (nodeState.hasField("<xsl:value-of select="@name"/>OVER1") &amp;&amp; !finishedThis) {
+				this-&gt;allParamsDelaysAreFixedValue = false;
 				vector &lt; double &gt; __tempInputValues__;
 				__tempInputValues__ = nodeState.getField("<xsl:value-of select="@name"/>OVER1").getArrayDOUBLE();
 				// since OVER1 always means sparse Values
@@ -152,8 +155,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				}
 			}
 
-			if (nodeState.hasField("<xsl:value-of select="@name"/>OVER2") &amp;&amp; !finishedThis)
-			{
+			if (nodeState.hasField("<xsl:value-of select="@name"/>OVER2") &amp;&amp; !finishedThis) {
+				this-&gt;allParamsDelaysAreFixedValue = false;
 				vector &lt; double &gt; __tempInputValues__;
 				__tempInputValues__ = nodeState.getField("<xsl:value-of select="@name"/>OVER2").getArrayDOUBLE();
 				// OVER2 here means sparse Values

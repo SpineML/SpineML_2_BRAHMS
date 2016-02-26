@@ -114,6 +114,11 @@ string baseNameForLogs_BRAHMS;
 // model directory string
 string modelDirectory_BRAHMS;
 
+// Determine if this weight update component has only FixedValue Parameters and
+// FixedValue delays. Initialised to true; may be set false. If it remains true,
+// then AllToAll connectivity may be optimised.
+bool allParamsDelaysAreFixedValue;
+
 // define regimes
 <xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 <xsl:apply-templates select="SMLCL:Regime" mode="defineRegime"/>
@@ -209,6 +214,10 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 	{
 		case EVENT_STATE_SET:
 		{
+			// Initialise allParamsDelaysAreFixedValue to false; no "allToAll" optimisation
+			// for anything but weight update components
+			this-&gt;allParamsDelaysAreFixedValue = false;
+
 			//	extract DataML
 			EventStateSet* data = (EventStateSet*) event->data;
 			XMLNode xmlNode(data->state);
