@@ -444,7 +444,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			}
 
 			// check what is happening
-			if (delayForConnTemp.size() == 4) {
+			if (nodeState.hasField("pDelay") &amp;&amp; delayForConnTemp.size() == 4) {
 
 				bout &lt;&lt; "have p delays: right size" &lt;&lt; D_INFO;
 
