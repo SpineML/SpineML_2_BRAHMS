@@ -48,51 +48,97 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 </Process>
 
 <Process>
-	<Name>Zeroes</Name>
+	<Name>ZeroInput</Name>
 	<Class>std/2009/source/numeric</Class>
-	<Time><SampleRate><xsl:value-of select="$sampleRate"/></SampleRate></Time>
+	<Time><SampleRate>1000</SampleRate></Time>
 	<State c="z" a="data;repeat;" Format="DataML" Version="5" AuthTool="SystemML Toolbox" AuthToolVersion="0">
 		<m b="1 1" c="d">0</m>
 		<m c="l">1</m>
 	</State>
 </Process>
 
-<!-- Here, we link each commanded acceleration input process to the Arm simulator. -->
+<!-- Here, we link each channel input activity process to the arm simulator. -->
 <Link>
-	<Src>MN_up&gt;a</Src>
-	<Dst>SaccSim&lt;&lt;&lt;suprect</Dst>
+  <Src>ZeroInput&gt;out</Src>
+  <Dst>Armsim&lt;&lt;&lt;accelerationCh1X</Dst>
+  <Lag>0</Lag>
+</Link>
+<Link>
+  <Src>ZeroInput&gt;out</Src>
+  <Dst>ArmSimulator&lt;&lt;&lt;accelerationCh1Y</Dst>
+  <Lag>0</Lag>
+</Link>
+<Link>
+  <Src>IntegrateJ&gt;a</Src>
+  <Dst>ArmSimulator&lt;&lt;&lt;accelerationCh1Z</Dst>
+  <Lag>0</Lag>
+</Link>
+
+<Link>
+  <Src>ZeroInput&gt;out</Src>
+  <Dst>ArmSimulator&lt;&lt;&lt;accelerationCh2X</Dst>
+  <Lag>0</Lag>
+</Link>
+<Link>
+  <Src>ZeroInput&gt;out</Src>
+  <Dst>ArmSimulator&lt;&lt;&lt;accelerationCh2Y</Dst>
+  <Lag>0</Lag>
+</Link>
+<Link>
+  <Src>IntegrateJ&gt;a</Src>
+  <Dst>ArmSimulator&lt;&lt;&lt;accelerationCh2Z</Dst>
+  <Lag>0</Lag>
+</Link>
+
+
+<!-- Position from Armsim is fed into X population -->
+<Link>
+	<Src>Armsim&gt;endEffectorPositionX</Src>
+	<Dst>Xpopulation&lt;&lt;&lt;rx</Dst>
 	<Lag>0</Lag>
 </Link>
 <Link>
-	<Src>MN_down&gt;a</Src>
-	<Dst>SaccSim&lt;&lt;&lt;infrect</Dst>
+	<Src>Armsim&gt;endEffectorPositionY</Src>
+	<Dst>Xpopulation&lt;&lt;&lt;ry</Dst>
 	<Lag>0</Lag>
 </Link>
 <Link>
-	<Src>MN_right&gt;a</Src>
-	<Dst>SaccSim&lt;&lt;&lt;medrect</Dst>
-	<Lag>0</Lag>
-</Link>
-<Link>
-	<Src>MN_left&gt;a</Src>
-	<Dst>SaccSim&lt;&lt;&lt;latrect</Dst>
-	<Lag>0</Lag>
-</Link>
-<Link>
-	<Src>MN_zplus&gt;a</Src>
-	<Dst>SaccSim&lt;&lt;&lt;supobl</Dst>
-	<Lag>0</Lag>
-</Link>
-<Link>
-	<Src>MN_zminus&gt;a</Src>
-	<Dst>SaccSim&lt;&lt;&lt;infobl</Dst>
+	<Src>Armsim&gt;endEffectorPositionZ</Src>
+	<Dst>Xpopulation&lt;&lt;&lt;rz</Dst>
 	<Lag>0</Lag>
 </Link>
 
-<!-- Rotations output from Armsim is fed into X population -->
+<!-- Velocity from Armsim is fed into X population -->
 <Link>
-	<Src>SaccSim&gt;out</Src>
-	<Dst>WorldDataMaker&lt;&lt;&lt;rotationsIn</Dst>
+	<Src>Armsim&gt;endEffectorVelocityX</Src>
+	<Dst>Xpopulation&lt;&lt;&lt;vx</Dst>
+	<Lag>0</Lag>
+</Link>
+<Link>
+	<Src>Armsim&gt;endEffectorVelocityY</Src>
+	<Dst>Xpopulation&lt;&lt;&lt;vy</Dst>
+	<Lag>0</Lag>
+</Link>
+<Link>
+	<Src>Armsim&gt;endEffectorVelocityZ</Src>
+	<Dst>Xpopulation&lt;&lt;&lt;vz</Dst>
+	<Lag>0</Lag>
+</Link>
+
+<!-- Acceleration from Armsim is fed into X population -->
+<Link>
+	<Src>Armsim&gt;endEffectorAccelerationX</Src>
+	<Dst>Xpopulation&lt;&lt;&lt;ax</Dst>
+	<Lag>0</Lag>
+</Link>
+<Link>
+	<Src>Armsim&gt;endEffectorAccelerationY</Src>
+	<Dst>Xpopulation&lt;&lt;&lt;ay</Dst>
+	<Lag>0</Lag>
+</Link>
+<Link>
+	<Src>Armsim&gt;endEffectorAccelerationZ</Src>
+	<Dst>Xpopulation&lt;&lt;&lt;az</Dst>
 	<Lag>0</Lag>
 </Link>
 
