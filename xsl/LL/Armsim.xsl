@@ -45,8 +45,11 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 		<m c="d">0</m>
 		<m c="d">0</m>
 	</State>
+	<Time><SampleRate>1000</SampleRate></Time>
+	<State></State>
 </Process>
 
+<!-- Not used, but retained as a reminder of how to do this: -->
 <Process>
 	<Name>ZeroInput</Name>
 	<Class>std/2009/source/numeric</Class>
@@ -57,88 +60,72 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 	</State>
 </Process>
 
-<!-- Here, we link each channel input activity process to the arm simulator. -->
+<!-- I created a "passthrough" population called ToArm which routes
+     signals into this component. -->
 <Link>
-  <Src>ZeroInput&gt;out</Src>
-  <Dst>Armsim&lt;&lt;&lt;accelerationCh1X</Dst>
-  <Lag>0</Lag>
+	<Src>ToArm&gt;ax_out</Src>
+	<Dst>Armsim&lt;&lt;&lt;accelerationX</Dst>
+	<Lag>0</Lag>
 </Link>
 <Link>
-  <Src>ZeroInput&gt;out</Src>
-  <Dst>ArmSimulator&lt;&lt;&lt;accelerationCh1Y</Dst>
-  <Lag>0</Lag>
+	<Src>ToArm&gt;ay_out</Src>
+	<Dst>Armsim&lt;&lt;&lt;accelerationY</Dst>
+	<Lag>0</Lag>
 </Link>
 <Link>
-  <Src>IntegrateJ&gt;a</Src>
-  <Dst>ArmSimulator&lt;&lt;&lt;accelerationCh1Z</Dst>
-  <Lag>0</Lag>
-</Link>
-
-<Link>
-  <Src>ZeroInput&gt;out</Src>
-  <Dst>ArmSimulator&lt;&lt;&lt;accelerationCh2X</Dst>
-  <Lag>0</Lag>
-</Link>
-<Link>
-  <Src>ZeroInput&gt;out</Src>
-  <Dst>ArmSimulator&lt;&lt;&lt;accelerationCh2Y</Dst>
-  <Lag>0</Lag>
-</Link>
-<Link>
-  <Src>IntegrateJ&gt;a</Src>
-  <Dst>ArmSimulator&lt;&lt;&lt;accelerationCh2Z</Dst>
-  <Lag>0</Lag>
+	<Src>ToArm&gt;az_out</Src>
+	<Dst>Armsim&lt;&lt;&lt;accelerationZ</Dst>
+	<Lag>0</Lag>
 </Link>
 
-
-<!-- Position from Armsim is fed into X population -->
+<!-- Position from Armsim is fed into the "FromArm" population -->
 <Link>
 	<Src>Armsim&gt;endEffectorPositionX</Src>
-	<Dst>Xpopulation&lt;&lt;&lt;rx</Dst>
+	<Dst>FromArm&lt;rx</Dst>
 	<Lag>0</Lag>
 </Link>
 <Link>
 	<Src>Armsim&gt;endEffectorPositionY</Src>
-	<Dst>Xpopulation&lt;&lt;&lt;ry</Dst>
+	<Dst>FromArm&lt;ry</Dst>
 	<Lag>0</Lag>
 </Link>
 <Link>
 	<Src>Armsim&gt;endEffectorPositionZ</Src>
-	<Dst>Xpopulation&lt;&lt;&lt;rz</Dst>
+	<Dst>FromArm&lt;rz</Dst>
 	<Lag>0</Lag>
 </Link>
 
 <!-- Velocity from Armsim is fed into X population -->
 <Link>
 	<Src>Armsim&gt;endEffectorVelocityX</Src>
-	<Dst>Xpopulation&lt;&lt;&lt;vx</Dst>
+	<Dst>FromArm&lt;&lt;&lt;vx</Dst>
 	<Lag>0</Lag>
 </Link>
 <Link>
 	<Src>Armsim&gt;endEffectorVelocityY</Src>
-	<Dst>Xpopulation&lt;&lt;&lt;vy</Dst>
+	<Dst>FromArm&lt;&lt;&lt;vy</Dst>
 	<Lag>0</Lag>
 </Link>
 <Link>
 	<Src>Armsim&gt;endEffectorVelocityZ</Src>
-	<Dst>Xpopulation&lt;&lt;&lt;vz</Dst>
+	<Dst>FromArm&lt;&lt;&lt;vz</Dst>
 	<Lag>0</Lag>
 </Link>
 
 <!-- Acceleration from Armsim is fed into X population -->
 <Link>
 	<Src>Armsim&gt;endEffectorAccelerationX</Src>
-	<Dst>Xpopulation&lt;&lt;&lt;ax</Dst>
+	<Dst>FromArm&lt;&lt;&lt;ax</Dst>
 	<Lag>0</Lag>
 </Link>
 <Link>
 	<Src>Armsim&gt;endEffectorAccelerationY</Src>
-	<Dst>Xpopulation&lt;&lt;&lt;ay</Dst>
+	<Dst>FromArm&lt;&lt;&lt;ay</Dst>
 	<Lag>0</Lag>
 </Link>
 <Link>
 	<Src>Armsim&gt;endEffectorAccelerationZ</Src>
-	<Dst>Xpopulation&lt;&lt;&lt;az</Dst>
+	<Dst>FromArm&lt;&lt;&lt;az</Dst>
 	<Lag>0</Lag>
 </Link>
 
