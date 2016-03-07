@@ -45,7 +45,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 		<m c="d">0</m>
 		<m c="d">0</m>
 	</State>
-	<Time><SampleRate>1000</SampleRate></Time>
+	<Time><SampleRate>10000</SampleRate></Time>
 	<State></State>
 </Process>
 
@@ -53,7 +53,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 <Process>
 	<Name>ZeroInput</Name>
 	<Class>std/2009/source/numeric</Class>
-	<Time><SampleRate>1000</SampleRate></Time>
+	<Time><SampleRate>10000</SampleRate></Time>
 	<State c="z" a="data;repeat;" Format="DataML" Version="5" AuthTool="SystemML Toolbox" AuthToolVersion="0">
 		<m b="1 1" c="d">0</m>
 		<m c="l">1</m>
