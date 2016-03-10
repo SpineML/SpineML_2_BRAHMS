@@ -1,0 +1,22 @@
+How to modify SpineML_2_BRAHMS to debug a simulation using gdb:
+
+Find brahms-gdb in the brahms source code.
+
+Install brahms-gdb in your path
+
+Create a gdbcmd file in your home dir containing something like:
+
+dir ~/src/saccsim/src
+dir ~/src/brahms
+dir ~/src/SpineML_2_BRAHMS/Namespace/dev/SpineML/temp/WU/ConnectionListStaticoweight/brahms/0
+run
+
+Add as make of the Namespace/dev/SpineML paths as you need to debug your code.
+
+Modify SpineML_2_BRAHMS/xsl/SpineML_2_BRAHMS_write_script.xsl
+
+Change the BRAHMS_CMD fields to call brahms-gdb instead of plain brahms.
+
+There's a similar scheme for brahms-vg - for valgrind.
+
+
