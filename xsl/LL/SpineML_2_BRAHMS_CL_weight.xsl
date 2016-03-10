@@ -194,9 +194,15 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 	{
 		case EVENT_STATE_SET:
 		{
+#define DISABLE_ALLTOALL_OPTIMISATION 1
+#ifdef DISABLE_ALLTOALL_OPTIMISATION
+			// Setting this to false will avoid any of the all to all optimisations:
+			this-&gt;allParamsDelaysAreFixedValue = false;
+#else
 			// Initialise allParamsDelaysAreFixedValue to true. Non fixed-value features
 			// will then set this false if necessary.
 			this-&gt;allParamsDelaysAreFixedValue = true;
+#endif
 
 			//	extract DataML
 			EventStateSet* data = (EventStateSet*) event->data;
