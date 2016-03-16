@@ -140,6 +140,11 @@ SPINEML_2_BRAHMS_NS="$SPINEML_2_BRAHMS_DIR/Namespace"
 echo "SPINEML_2_BRAHMS_NS is $SPINEML_2_BRAHMS_NS"
 echo "BRAHMS_NS is $BRAHMS_NS"
 
+<!-- If user has packaged spineml-2-brahms, then they need to add this
+     to their namespace list in BRAHMS_CMD - it's an extra namespace
+     path for the SpineML_2_BRAHMS tools. -->
+SPINEML_2_BRAHMS_TOOLS_NS="/usr/lib/spineml-2-brahms"
+
 <!--
  Debugging. Set DEBUG to "true" to add the -g flag to your compile commands so that
  the components will be gdb-debuggable.
@@ -160,7 +165,7 @@ DBG_FLAG="-g"
 fi
 
 <!-- We have enough information at this point in the script to build our BRAHMS_CMD: -->
-BRAHMS_CMD="brahms $BRAHMS_NOGUI $VERBOSE_BRAHMS --par-ShowGUI=0 --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
+BRAHMS_CMD="brahms $BRAHMS_NOGUI $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_TOOLS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
 
 <!--
  If we're in "Sun Grid Engine mode", we can submit our brahms execution scripts
@@ -193,7 +198,7 @@ done
 
 # Finally, can run brahms
 cd "$SPINEML_RUN_DIR"
-BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\" --voice-$NODE"
+BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_TOOLS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\" --voice-$NODE"
 eval \$BRAHMS_CMD
 EOF
 
