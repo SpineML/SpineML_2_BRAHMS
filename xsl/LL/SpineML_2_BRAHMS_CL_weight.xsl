@@ -575,11 +575,11 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					<xsl:apply-templates select="SMLCL:Alias" mode="resizeAlias"/>
 				</xsl:for-each>
 <!---->
-			} else { // not fixed value
+			} else { // not fixed value or thereAreLogs
 				if (thereAreLogs) {
                         	        bout &lt;&lt; "NOT optimising the all-to-all connection " &lt;&lt; baseNameForLogs_BRAHMS
                                 	     &lt;&lt; " because at least one connection is logged" &lt;&lt; D_INFO;
-				}
+				} // else it must be the case that allParamsDelaysAreFixedValue == false
 			</xsl:if>
 			        // Alias resize
 				<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">

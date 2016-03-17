@@ -202,7 +202,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				}
 
 <!---->
-} else {
+			} else {
 			</xsl:if><!-- SMLNL:AllToAllConnection -->
 				for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
 <!---->			<!-- Only do this here if we are not an event driven component -->
