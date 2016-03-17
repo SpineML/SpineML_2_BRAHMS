@@ -159,7 +159,7 @@ echo "BRAHMS_NS is $BRAHMS_NS"
  brahms-vg calls brahms-execute (prepend valgrind). Now change
  BRAHMS_CMD below so it calls brahms-vg, instead of brahms.
 -->
-DEBUG="false"
+DEBUG="true"
 
 DBG_FLAG=""
 if [ $DEBUG = "true" ]; then
@@ -168,7 +168,7 @@ DBG_FLAG="-g"
 fi
 
 <!-- We have enough information at this point in the script to build our BRAHMS_CMD: -->
-BRAHMS_CMD="brahms $BRAHMS_NOGUI $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
+BRAHMS_CMD="brahms --par-MaxThreadCount=1 --nothreads $BRAHMS_NOGUI $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
 
 <!--
  If we're in "Sun Grid Engine mode", we can submit our brahms execution scripts
@@ -201,7 +201,7 @@ done
 
 # Finally, can run brahms
 cd "$SPINEML_RUN_DIR"
-BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\" --voice-$NODE"
+BRAHMS_CMD="brahms --nothreads --par-MaxThreadCount=1 $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\" --voice-$NODE"
 eval \$BRAHMS_CMD
 EOF
 

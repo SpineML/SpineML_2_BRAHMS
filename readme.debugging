@@ -13,9 +13,11 @@ run
 
 Add as make of the Namespace/dev/SpineML paths as you need to debug your code.
 
-Modify SpineML_2_BRAHMS/xsl/SpineML_2_BRAHMS_write_script.xsl
+Modify SpineML_2_BRAHMS/xsl/SpineML_2_BRAHMS_write_script.xsl:
 
-Change the BRAHMS_CMD fields to call brahms-gdb instead of plain brahms.
+* Change the BRAHMS_CMD fields to call brahms-gdb instead of plain brahms.
+* Change DEBUG="false" to DEBUG="true" to make sure that your components get 
+  compiled with the -g option.
 
 There's a similar scheme for brahms-vg - for valgrind.
 

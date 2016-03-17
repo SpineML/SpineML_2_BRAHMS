@@ -119,6 +119,8 @@ string modelDirectory_BRAHMS;
 // then AllToAll connectivity may be optimised.
 bool allParamsDelaysAreFixedValue;
 
+bool thereAreLogs;
+
 // define regimes
 <xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 <xsl:apply-templates select="SMLCL:Regime" mode="defineRegime"/>
@@ -217,6 +219,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// Initialise allParamsDelaysAreFixedValue to false; no "allToAll" optimisation
 			// for anything but weight update components
 			this-&gt;allParamsDelaysAreFixedValue = false;
+
+			// Used in SpineML_2_BRAHMS_CL_weight.xsl only.
+			this-&gt;thereAreLogs = false;
 
 			//	extract DataML
 			EventStateSet* data = (EventStateSet*) event->data;
