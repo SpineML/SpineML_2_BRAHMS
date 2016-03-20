@@ -37,7 +37,6 @@ spikes::Output PORTOut<xsl:value-of select="@name"/>;
 					PORT<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].attach(hComponent, i_BRAHMS_LOOP);
 
 				}
-
 </xsl:template>
 
 <xsl:template match="SMLCL:ImpulseReceivePort" mode="serviceImpulsePorts">
@@ -135,17 +134,13 @@ spikes::Output PORTOut<xsl:value-of select="@name"/>;
 </xsl:template>
 
 <xsl:template match="SMLCL:ImpulseSendPort" mode="outputImpulsePortsRemap">
-
 			vector &lt; INT32 &gt; OUT<xsl:value-of select="@name"/>;
-			// FIXME FIXME This may break/needs changing for AllToAll optimization!!
 			for (INT32 i_BRAHMS_LOOP = 0; i_BRAHMS_LOOP &lt; DATAOut<xsl:value-of select="@name"/>.size(); i_BRAHMS_LOOP+=3) {
-
 				INT32 impulseIndex__Out;
 				DOUBLE impulseValue__Out;
 				getImpulse(&amp;(DATAOut<xsl:value-of select="@name"/>[0]), i_BRAHMS_LOOP, impulseIndex__Out, impulseValue__Out);
 				// add the remapped impulse to the output
 				addImpulse(OUT<xsl:value-of select="@name"/>, connectivityC2D[impulseIndex__Out], impulseValue__Out);
-
 			}
 			PORTOut<xsl:value-of select="@name"/>.setContent(&amp;OUT<xsl:value-of select="@name"/>[0], OUT<xsl:value-of select="@name"/>.size());
 </xsl:template>

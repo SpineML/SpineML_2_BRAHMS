@@ -212,21 +212,11 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 </xsl:template>
 
 <xsl:template match="SMLCL:EventSendPort" mode="outputEventPortsRemap">
-
 			vector &lt; INT32 &gt; OUT<xsl:value-of select="@name"/>;
 			vector &lt; DOUBLE &gt; OUT<xsl:value-of select="@name"/>;
 			OUT<xsl:value-of select="@name"/>.resize(numElements_BRAHMS, 0);
-			if (this-&gt;allParamsDelaysAreFixedValue == true &amp;&amp; !thereAreLogs) {
-				// In this case, we've already summed the inputs via the fixed weights.
-				// Just need to place the value in each output.
-				for (int i_BRAHMS = 0; i_BRAHMS &lt; numElements_BRAHMS; ++i_BRAHMS) {
-					// FIXME FIXME THIS NEEDS TESTING
-					OUT<xsl:value-of select="@name"/>.push_back(connectivityC2D[DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]]);
-				}
-			} else {
-				for (int i_BRAHMS = 0; i_BRAHMS &lt; DATAOut<xsl:value-of select="@name"/>.size(); ++i_BRAHMS) {
-					OUT<xsl:value-of select="@name"/>.push_back(connectivityC2D[DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]]);
-				}
+			for (int i_BRAHMS = 0; i_BRAHMS &lt; DATAOut<xsl:value-of select="@name"/>.size(); ++i_BRAHMS) {
+				OUT<xsl:value-of select="@name"/>.push_back(connectivityC2D[DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]]);
 			}
 			PORTOut<xsl:value-of select="@name"/>.setContent(&amp;OUT<xsl:value-of select="@name"/>[0], OUT<xsl:value-of select="@name"/>.size());
 </xsl:template>
