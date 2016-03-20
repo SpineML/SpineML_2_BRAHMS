@@ -280,9 +280,20 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 </xsl:template>
 
 <xsl:template match="SMLCL:AnalogSendPort" mode="outputAnalogPortsRemap">
+			// SMLCL:AnalogSendPort outputAnalogPortsRemap START
 			vector &lt; DOUBLE &gt; OUT<xsl:value-of select="@name"/>;
 			OUT<xsl:value-of select="@name"/>.resize(numElements_BRAHMS, 0);
-			<xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
+			for (int i_BRAHMS = 0; i_BRAHMS &lt; numEl_BRAHMS; ++i_BRAHMS) {
+				OUT<xsl:value-of select="@name"/>[connectivityC2D[i_BRAHMS]] += <xsl:value-of select="@name"/>[i_BRAHMS];
+			}
+			PORT<xsl:value-of select="@name"/>.setContent(&amp;OUT<xsl:value-of select="@name"/>[0]);
+			// SMLCL:AnalogSendPort outputAnalogPortsRemap END
+</xsl:template>
+
+<xsl:template match="SMLCL:AnalogSendPort" mode="outputAnalogPortsRemapAllToAll">
+			// SMLCL:AnalogSendPort outputAnalogPortsRemapAllToAll START
+			vector &lt; DOUBLE &gt; OUT<xsl:value-of select="@name"/>;
+			OUT<xsl:value-of select="@name"/>.resize(numElements_BRAHMS, 0);
 			if (this-&gt;allParamsDelaysAreFixedValue == true &amp;&amp; !thereAreLogs) {
 				// In this case, we've already summed the inputs via the fixed weights.
 				// Just need to place the value in each output.
@@ -290,15 +301,12 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 					OUT<xsl:value-of select="@name"/>[connectivityC2D[i_BRAHMS]] = <xsl:value-of select="@name"/>[0];
 				}
 			} else {
-			</xsl:if>
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; numEl_BRAHMS; ++i_BRAHMS) {
 					OUT<xsl:value-of select="@name"/>[connectivityC2D[i_BRAHMS]] += <xsl:value-of select="@name"/>[i_BRAHMS];
 				}
-
-			<xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
 			}
-			</xsl:if>
 			PORT<xsl:value-of select="@name"/>.setContent(&amp;OUT<xsl:value-of select="@name"/>[0]);
+			// SMLCL:AnalogSendPort outputAnalogPortsRemapAllToAll END
 </xsl:template>
 
 </xsl:stylesheet>

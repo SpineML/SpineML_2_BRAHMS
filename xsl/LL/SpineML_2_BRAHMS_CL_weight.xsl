@@ -700,9 +700,17 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			</xsl:for-each>
 
 			// Dynamics doTrans (if any) (Alias operations appear here)
-			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
-				<xsl:apply-templates select="SMLCL:Dynamics" mode="doTrans"/>
-			</xsl:for-each>
+			<xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
+				<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
+					<xsl:apply-templates select="SMLCL:Dynamics" mode="doTransAllToAll"/>
+				</xsl:for-each>
+			</xsl:if>
+			<xsl:if test="count(./SMLNL:AllToAllConnection) = 0">
+				<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
+					<xsl:apply-templates select="SMLCL:Dynamics" mode="doTrans"/>
+				</xsl:for-each>
+			</xsl:if>
+
 <!---->
 			// Apply regime changes
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.size(); ++i_BRAHMS) {
@@ -719,15 +727,24 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="saveSendPortLogs"/>
 
 			<!---->
-			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
-				<xsl:apply-templates select="SMLCL:AnalogReceivePort | SMLCL:AnalogSendPort | SMLCL:AnalogReducePort" mode="outputAnalogPortsRemap"/>
-			</xsl:for-each>
+			// Output ports remap (analog)...
+			<xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
+				<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
+					<xsl:apply-templates select="SMLCL:AnalogReceivePort | SMLCL:AnalogSendPort | SMLCL:AnalogReducePort" mode="outputAnalogPortsRemapAllToAll"/>
+				</xsl:for-each>
+			</xsl:if>
+			<xsl:if test="count(./SMLNL:AllToAllConnection) = 0">
+				<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
+					<xsl:apply-templates select="SMLCL:AnalogReceivePort | SMLCL:AnalogSendPort | SMLCL:AnalogReducePort" mode="outputAnalogPortsRemap"/>
+				</xsl:for-each>
+			</xsl:if>
 
-			// Output ports remap...
+			// Output ports remap (event)...
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:EventReceivePort | SMLCL:EventSendPort" mode="outputEventPortsRemap"/>
 			</xsl:for-each>
 
+			// Output ports remap (impulse)...
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:ImpulseReceivePort | SMLCL:ImpulseSendPort" mode="outputImpulsePortsRemap"/>
 			</xsl:for-each>
