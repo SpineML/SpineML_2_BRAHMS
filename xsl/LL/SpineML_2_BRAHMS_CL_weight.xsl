@@ -514,7 +514,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			// Log base name
 			baseNameForLogs_BRAHMS = "../log/" + nodeState.getField("logfileNameForComponent").getSTRING();
-			<!-- State variable names -->
+<!---->			<!-- State variable names -->
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable">
 				<xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT = "../model/" + nodeState.getField("<xsl:value-of select="@name"/>BIN_FILE_NAME").getSTRING();
 			</xsl:for-each>
@@ -528,7 +528,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			<xsl:text>
 			</xsl:text>
-			<!-- SELECT INITIAL_REGIME, OR DEFAULT TO REGIME 1 -->
+<!---->			<!-- SELECT INITIAL_REGIME, OR DEFAULT TO REGIME 1 -->
 			<xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.resize(numEl_BRAHMS,<!---->
 			<xsl:if test="$WeightUpdate_file//SMLCL:Dynamics/@initial_regime">
 				<xsl:for-each select="$WeightUpdate_file//SMLCL:Regime">
@@ -550,16 +550,15 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				<xsl:apply-templates select="SMLCL:ImpulseReceivePort" mode="resizeReceive"/>
 			</xsl:for-each>
 
-			// Now, at runtime, work out if we can optimise AllToAll connectivity by changing connectivityS2C...
-			<!-- Couple of things here: We need to resize numEl_BRAHMS only if NO weights are being logged -->
-                        <xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
+<!---->			<!-- Only optimise _analog_ alltoall connections: -->
+			<xsl:if test="count(./SMLNL:AllToAllConnection) = 1 and not($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass//SMLCL:OnEvent)">
+			// If we can optimise AllToAll connectivity, then we resize connectivityS2C:
+			// We can optimise all params and delays are fixed values and if NO weights are being logged
 			if (this-&gt;allParamsDelaysAreFixedValue == true &amp;&amp; !thereAreLogs) {
 				bout &lt;&lt; "Applying optimisation for the all-to-all connection "
 				     &lt;&lt; baseNameForLogs_BRAHMS &lt;&lt; D_INFO;
-				// REDUCE size of C2D as we don't need all
-				// of it. This is now the connection tree
-				// that you have from each input element
-				// to each output element.
+				// REDUCE size of C2D as we don't need all of it. This is now the connection
+				// tree that you have from a single input element to each output element.
 				connectivityC2D.resize(numElementsIn_BRAHMS);
 <!---->
 				// Now we only need one field in each of the vectors in connectivityS2C:
@@ -568,26 +567,22 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					connectivityS2C[i_BRAHMS][0] = i_BRAHMS;
 				}
 <!---->
-				// In optimised code, we change numEl_BRAHMS to 1:
+				// In optimised code, we change numEl_BRAHMS to 1 (though note that it will
+				// contain a different value in the EVENT_RUN_SERVICE code)
 				numEl_BRAHMS = 1;
-
-				<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
-					<xsl:apply-templates select="SMLCL:Alias" mode="resizeAlias"/>
-				</xsl:for-each>
 <!---->
 			} else { // not fixed value or thereAreLogs
 				if (thereAreLogs) {
                         	        bout &lt;&lt; "NOT optimising the all-to-all connection " &lt;&lt; baseNameForLogs_BRAHMS
                                 	     &lt;&lt; " because at least one connection is logged" &lt;&lt; D_INFO;
 				} // else it must be the case that allParamsDelaysAreFixedValue == false
-			</xsl:if>
-			        // Alias resize
-				<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
-					<xsl:apply-templates select="SMLCL:Alias" mode="resizeAlias"/>
-				</xsl:for-each>
-			<xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
 			}
-			</xsl:if>
+			</xsl:if><!-- test for AllToAll connection and no OnEvent element in the component -->
+
+			// Alias resize
+			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
+				<xsl:apply-templates select="SMLCL:Alias" mode="resizeAlias"/>
+			</xsl:for-each>
 		}
 
 		// CREATE THE PORTS
@@ -666,7 +661,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			}
 			// service inputs
-			<!---->
+<!---->
 			// Analog Ports Remaps (if any)
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:AnalogReceivePort | SMLCL:AnalogReducePort" mode="serviceAnalogPortsRemap"/>
@@ -692,7 +687,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				<xsl:apply-templates select="SMLCL:Dynamics" mode="doImpulseInputsRemap"/>
 			</xsl:for-each>
 
-			<!-- REMAPPED -->
+<!---->			<!-- REMAPPED -->
 
 			// Dynamics doIter (if any)
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
@@ -726,7 +721,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
            		// writing logs...
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="saveSendPortLogs"/>
 
-			<!---->
+<!---->
 			// Output ports remap (analog)...
 			<xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
 				<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
@@ -759,10 +754,10 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			int numEl_BRAHMS = numConn_BRAHMS;
 			t = float(time->now)*dt;
 
-			<!-- WRITE XML FOR LOGS -->
+<!---->			<!-- WRITE XML FOR LOGS -->
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="finaliseLogs"/>
 
-			<!-- Write out state variables -->
+<!---->			<!-- Write out state variables -->
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 				<xsl:apply-templates select="SMLCL:StateVariable" mode="writeoutStateVariable"/>
 			</xsl:for-each>
