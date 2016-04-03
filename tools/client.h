@@ -488,7 +488,9 @@ bool spineMLNetworkClient::recvData(char * data, int datasizeBytes)
 #endif
     // get data
     int recv_bytes = 0;
+#ifdef DEBUG_RECVDATA
     int recv_bytes_last = 0;
+#endif
     while (recv_bytes < datasizeBytes) {
 #ifdef DEBUG_RECVDATA
         if (outputDebug) {
