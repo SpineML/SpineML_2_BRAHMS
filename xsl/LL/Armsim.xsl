@@ -33,7 +33,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 <Process>
 	<Name>Armsim</Name>
 	<Class>dev/NoTremor/armsimulator</Class>
-	<State c="z" a="model_path;initial_state_path;end_effector_body;result_dir;end_effector_offset_x;end_effector_offset_y;end_effector_offset_z;use_muscle_controller;use_dual_channe;use_elbow_constraint;" Format="DataML" Version="5" AuthTool="SystemML Toolbox" AuthToolVersion="0">
+	<State c="z" a="model_path;initial_state_path;end_effector_body;result_dir;end_effector_offset_x;end_effector_offset_y;end_effector_offset_z;use_muscle_controller;use_dual_channe;use_elbow_constraint;use_z_direction_only;" Format="DataML" Version="5" AuthTool="SystemML Toolbox" AuthToolVersion="0">
 		<m>/home/seb/src/armsimulator/data/models/Stanford VA upper limb model/NoTremor Upper Limb Model6.osim</m>
 		<m></m> <!-- Options: "", path -->
 		<m>hand</m>
@@ -44,6 +44,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 		<m c="d">0</m>
 		<m c="d">0</m>
 		<m c="d">0</m>
+		<m c="d">1</m>
 	</State>
 	<Time><SampleRate>10000</SampleRate></Time>
 	<State></State>
