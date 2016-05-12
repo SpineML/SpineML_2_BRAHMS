@@ -15,11 +15,11 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
      as applicable. -->
 <xsl:variable name="compiler_flags">
     <xsl:if test="$hostos='Linux32' or $hostos='Linux64'">-fPIC -Werror -pthread -O3 -shared -D__GLN__</xsl:if>
-    <xsl:if test="$hostos='OSX'">-fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -O3 -dynamiclib -arch i386 -D__OSX__</xsl:if>
+    <xsl:if test="$hostos='OSX'">-undefined dynamic_lookup -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -fPIC -O3 -dynamiclib</xsl:if>
 </xsl:variable>
 
 <xsl:variable name="linker_flags">
-    <xsl:if test="$hostos='OSX'">-L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine</xsl:if>
+    <xsl:if test="$hostos='OSXNOT'">-L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine</xsl:if>
 </xsl:variable>
 
 <xsl:variable name="component_output_file">
