@@ -218,26 +218,50 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
                         <xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
 			connectivityC2D.reserve(numElementsIn_BRAHMS*numElements_BRAHMS);
 			connectivityS2C.resize(numElementsIn_BRAHMS);
+			<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+			connectivityC2S.reserve(numElementsIn_BRAHMS*numElements_BRAHMS);
+			connectivityD2C.resize(numElements_BRAHMS);			
+			</xsl:if>
 			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; connectivityS2C.size(); ++i_BRAHMS) {
 				connectivityS2C[i_BRAHMS].resize(numElements_BRAHMS);
 				for (unsigned int j_BRAHMS = 0; j_BRAHMS &lt; connectivityS2C[i_BRAHMS].size(); ++j_BRAHMS) {
 					connectivityC2D.push_back(j_BRAHMS);
 					connectivityS2C[i_BRAHMS][j_BRAHMS] = connectivityC2D.size()-1;
-
 				}
 			}
+			<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; numElementsIn_BRAHMS; ++i_BRAHMS) {
+				for (unsigned int j_BRAHMS = 0; j_BRAHMS &lt; connectivityD2C.size(); ++j_BRAHMS) {
+					if (i_BRAHMS == 0) {
+						connectivityD2C[j_BRAHMS].resize(numElementsIn_BRAHMS);
+					}
+					connectivityC2S.push_back(i_BRAHMS);
+					connectivityD2C[j_BRAHMS][i_BRAHMS] = connectivityC2S.size()-1;
+				}
+			}
+			</xsl:if>
 
 			// set up the number of connections
 			numConn_BRAHMS = connectivityC2D.size();
 			</xsl:if>
-                        <xsl:if test="count(./SMLNL:OneToOneConnection) = 1">
+      <xsl:if test="count(./SMLNL:OneToOneConnection) = 1">
 			connectivityC2D.resize(numElementsIn_BRAHMS);
 			connectivityS2C.resize(numElementsIn_BRAHMS);
+			<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+			connectivityC2S.resize(numElementsIn_BRAHMS);
+			connectivityD2C.resize(numElementsIn_BRAHMS);			
+			</xsl:if>
 			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; connectivityS2C.size(); ++i_BRAHMS) {
 				connectivityS2C[i_BRAHMS].push_back(i_BRAHMS);
+				<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+				connectivityD2C[i_BRAHMS].push_back(i_BRAHMS);			
+				</xsl:if>
 			}
 			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; connectivityC2D.size(); ++i_BRAHMS) {
 				connectivityC2D[i_BRAHMS] = i_BRAHMS;
+				<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+				connectivityC2S[i_BRAHMS] = i_BRAHMS;
+				</xsl:if>
 			}
 
 			// set up the number of connections
@@ -253,19 +277,33 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// run through connections, creating connectivity pattern:
 			connectivityC2D.reserve(numElements_BRAHMS);
 			connectivityS2C.resize(numElementsIn_BRAHMS);
+			<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+			connectivityC2S.reserve(numElements_BRAHMS);
+			connectivityD2C.resize(numElementsIn_BRAHMS);			
+			</xsl:if>
 			for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; connectivityS2C.size(); ++i_BRAHMS) {
 				connectivityS2C[i_BRAHMS].reserve((int) round(numElements_BRAHMS*probabilityValue_BRAHMS));
+				<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+				connectivityD2C[i_BRAHMS].reserve((int) round(numElements_BRAHMS*probabilityValue_BRAHMS));
+				</xsl:if>
 			}
 			for (UINT32 srcIndex_BRAHMS = 0; srcIndex_BRAHMS &lt; numElementsIn_BRAHMS; ++srcIndex_BRAHMS) {
 				for (UINT32 dstIndex_BRAHMS = 0; dstIndex_BRAHMS &lt; numElements_BRAHMS; ++dstIndex_BRAHMS) {
 					if (UNI(&amp;this-&gt;rngData_BRAHMS) &lt; probabilityValue_BRAHMS) {
 						connectivityC2D.push_back(dstIndex_BRAHMS);
 						connectivityS2C[srcIndex_BRAHMS].push_back(connectivityC2D.size()-1);
+						<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+						connectivityC2S.push_back(srcIndex_BRAHMS);
+						connectivityD2C[dstIndex_BRAHMS].push_back(connectivityC2S.size()-1);
+						</xsl:if>
 					}
 
 				}
 				if (float(connectivityC2D.size()) > 0.9*float(connectivityC2D.capacity())) {
 					connectivityC2D.reserve(connectivityC2D.capacity()+numElements_BRAHMS);
+					<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+					connectivityC2S.reserve(connectivityC2S.capacity()+numElements_BRAHMS);
+					</xsl:if>
 				}
 			}
 
@@ -335,10 +373,20 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// assign the connectivity pattern into memory
 			connectivityS2C.resize(numElementsIn_BRAHMS);
 			connectivityC2D.resize(srcInds.size());
+			<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+			connectivityC2S.resize(srcInds.size());
+			connectivityD2C.resize(numElements_BRAHMS);			
+			</xsl:if>
+
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; srcInds.size(); ++i_BRAHMS) {
 				connectivityS2C[srcInds[i_BRAHMS]].push_back(i_BRAHMS);
 				connectivityC2D[i_BRAHMS] = dstInds[i_BRAHMS];
+				<xsl:if test="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@islearning">
+				connectivityD2C[dstInds[i_BRAHMS]].push_back(i_BRAHMS);
+				connectivityC2S[i_BRAHMS] = srcInds[i_BRAHMS];	
+				</xsl:if>
 			}
+
 			</xsl:if>
 
 			// get delay
@@ -445,9 +493,10 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// Log base name
 			baseNameForLogs_BRAHMS = "../log/" + nodeState.getField("logfileNameForComponent").getSTRING();
 			<!-- State variable names -->
-			<xsl:for-each select="WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable">
+			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable">
 				<xsl:value-of select="@name"/>_BINARY_FILE_NAME_OUT = "../model/" + nodeState.getField("<xsl:value-of select="@name"/>BIN_FILE_NAME").getSTRING();
 			</xsl:for-each>
+
 
 
 			// Logs

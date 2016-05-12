@@ -36,8 +36,8 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 <xsl:for-each select="//SMLLOWNL:Input">
 <xsl:variable name="dstPortRef" select="@dst_port"/>
 
-<xsl:variable name="target_name" select="../../../@dst_population"/>
-<xsl:variable name="source_name" select="../../../../SMLLOWNL:Neuron/@name"/>
+<xsl:variable name="target_name" select="../../@dst_population"/>
+<xsl:variable name="source_name" select="../../../SMLLOWNL:Neuron/@name"/>
 
 <!-- APPLY LESION -->
 <xsl:if test="count($expt_root//SMLEXPT:Lesion[@src_population=$source_name and @dst_population=$target_name])=0">
@@ -56,13 +56,13 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 <xsl:if test="local-name(.)='WeightUpdate'">
 	<!-- THIS IS REALLY COMPLICATED -->
         <xsl:if test="count(../SMLNL:OneToOneConnection)=1">
-                <xsl:variable name="ownerPopName" select="../../../../@dst_population"/>
-                <xsl:value-of select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[SMLNL:Name=$ownerPopName]/@size"/>
+                <xsl:variable name="ownerPopName" select="../../@dst_population"/>
+                <xsl:value-of select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[@name=$ownerPopName]/@size"/>
 	</xsl:if>
         <xsl:if test="count(../SMLNL:AllToAllConnection)=1">
-                <xsl:variable name="ownerPopName" select="../../../../@dst_population"/>
-                <xsl:variable name="dstPopSize" select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[SMLNL:Name=$ownerPopName]/@size"/>
-                <xsl:variable name="srcPopSize" select="../../../../../../SMLLOWNL:Neuron/@size"/>
+                <xsl:variable name="ownerPopName" select="../../@dst_population"/>
+                <xsl:variable name="dstPopSize" select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[@name=$ownerPopName]/@size"/>
+                <xsl:variable name="srcPopSize" select="../../../SMLLOWNL:Neuron/@size"/>
 		<xsl:value-of select="number($srcPopSize) * number($dstPopSize)"/>
 	</xsl:if>
         <xsl:if test="count(../SMLNL:ConnectionList)>0">
@@ -70,37 +70,43 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	</xsl:if>	
 </xsl:if>
 <xsl:if test="local-name(.)='PostSynapse'">
-        <xsl:variable name="ownerPopName" select="../../../../@dst_population"/>
-        <xsl:value-of select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[SMLNL:Name=$ownerPopName]/@size"/>
+        <xsl:variable name="ownerPopName" select="../../@dst_population"/>
+        <xsl:value-of select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[@name=$ownerPopName]/@size"/>
 </xsl:if>
 </xsl:for-each>
 </xsl:variable>
 
 <xsl:variable name="sizeOut">
 
+<xsl:variable name="dstportactual" select="document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef] | document(../@url)//SMLCL:AnalogReducePort[@name=$dstPortRef] | document(../@url)//SMLCL:AnalogReceivePort[@name=$dstPortRef] | document(../@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef]"/>
 <xsl:for-each select="..">
 <xsl:if test="local-name(.)='Neuron'">
         <xsl:value-of select="@size"/>
 </xsl:if>
 <xsl:if test="local-name(.)='WeightUpdate'">
 	<!-- THIS IS REALLY COMPLICATED -->
-        <xsl:if test="count(../SMLNL:Connection//SMLNL:OneToOneConnection)=1">
-                <xsl:variable name="ownerPopName" select="../../../../@dst_population"/>
-                <xsl:value-of select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[SMLNL:Name=$ownerPopName]/@size"/>
+  <xsl:if test="count(../SMLNL:OneToOneConnection)=1">
+                <xsl:variable name="ownerPopName" select="../../@dst_population"/>
+                <xsl:value-of select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[@name=$ownerPopName]/@size"/>
 	</xsl:if>
-        <xsl:if test="count(../SMLNL:Connection//SMLNL:AllToAllConnection)=1">
-                <xsl:variable name="ownerPopName" select="../../../../@dst_population"/>
-                <xsl:variable name="dstPopSize" select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[SMLNL:Name=$ownerPopName]/@size"/>
-                <xsl:variable name="srcPopSize" select="../../../../../../SMLLOWNL:Neuron/@size"/>
-		<xsl:value-of select="number($srcPopSize) * number($dstPopSize)"/>
+  <xsl:if test="count(../SMLNL:AllToAllConnection)=1">
+    <xsl:variable name="ownerPopName" select="../../@dst_population"/>
+    <xsl:variable name="dstPopSize" select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[@name=$ownerPopName]/@size"/>
+    <xsl:variable name="srcPopSize" select="../../../SMLLOWNL:Neuron/@size"/>
+    <xsl:if test="$dstportactual/@post">
+    <xsl:value-of select="number($dstPopSize)"/>
+    </xsl:if>
+    <xsl:if test="not($dstportactual/@post)">
+		<xsl:value-of select="number($srcPopSize)"/>
+		</xsl:if>
 	</xsl:if>
-        <xsl:if test="count(../SMLNL:Connection//SMLNL:Connection)>0">
+        <xsl:if test="count(../SMLNL:Connection)>0">
                 <xsl:value-of select="count(../SMLNL:Connection//SMLNL:Connection)"/>
 	</xsl:if>	
 </xsl:if>
 <xsl:if test="local-name(.)='PostSynapse'">
         <xsl:variable name="ownerPopName" select="../../@dst_population"/>
-        <xsl:value-of select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[SMLNL:Name=$ownerPopName]/@size"/>
+        <xsl:value-of select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[@name=$ownerPopName]/@size"/>
 </xsl:if>
 </xsl:for-each>
 </xsl:variable>

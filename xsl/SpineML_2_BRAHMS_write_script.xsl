@@ -15,11 +15,11 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
      as applicable. -->
 <xsl:variable name="compiler_flags">
     <xsl:if test="$hostos='Linux32' or $hostos='Linux64'">-fPIC -Werror -pthread -O3 -shared -D__GLN__</xsl:if>
-    <xsl:if test="$hostos='OSX'">-fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -O3 -dynamiclib -arch i386 -D__OSX__</xsl:if>
+    <xsl:if test="$hostos='OSX'">-undefined dynamic_lookup -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -fPIC -O3 -dynamiclib</xsl:if>
 </xsl:variable>
 
 <xsl:variable name="linker_flags">
-    <xsl:if test="$hostos='OSX'">-L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine</xsl:if>
+    <xsl:if test="$hostos='OSXNOT'">-L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine</xsl:if>
 </xsl:variable>
 
 <xsl:variable name="component_output_file">
@@ -50,7 +50,6 @@ XSL_SCRIPT_PATH=$8
 VERBOSE_BRAHMS=${9}
 NODES=${10} <!-- Number of machine nodes to use. If >1, then this assumes we're using Sun Grid Engine. -->
 NODEARCH=${11}
-BRAHMS_NOGUI=${12}
 
 echo "VERBOSE_BRAHMS: $VERBOSE_BRAHMS"
 echo "NODES: $NODES"
@@ -160,7 +159,9 @@ DBG_FLAG="-g"
 fi
 
 <!-- We have enough information at this point in the script to build our BRAHMS_CMD: -->
-BRAHMS_CMD="brahms $BRAHMS_NOGUI $VERBOSE_BRAHMS --par-ShowGUI=0 --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
+
+BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-ShowGUI=0 --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
+
 
 <!--
  If we're in "Sun Grid Engine mode", we can submit our brahms execution scripts
@@ -223,7 +224,7 @@ fi
 echo "Creating the Neuron populations..."
 
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
-# Also update time.txt for SpineCreator / other tools
+# Also update time.txt for SpineCreator / other tools 
 echo "*Compiling neuron <xsl:value-of select="position()"/> / <xsl:value-of select="count(/SMLLOWNL:SpineML/SMLLOWNL:Population)"/>" &gt; $MODEL_DIR/time.txt
 <xsl:choose>
 <xsl:when test="./SMLLOWNL:Neuron/@url = 'SpikeSource'">
@@ -274,7 +275,7 @@ fi # The check if component exists
 </xsl:for-each>
 echo "Creating the projections..."
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
-# Also update time.txt for SpineCreator / other tools
+# Also update time.txt for SpineCreator / other tools 
 echo "*Compiling projections <xsl:value-of select="position()"/> / <xsl:value-of select="count(/SMLLOWNL:SpineML/SMLLOWNL:Population//SMLLOWNL:Projection)"/>" &gt; $MODEL_DIR/time.txt
 
 <!-- Here we use the population number to determine which pop the projection belongs to -->
@@ -441,3 +442,5 @@ echo "ERROR: Unrecognised SpineML Network Layer file";
 </xsl:template>
 
 </xsl:stylesheet>
+
+
