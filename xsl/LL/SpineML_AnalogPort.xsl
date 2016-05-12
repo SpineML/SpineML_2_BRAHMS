@@ -128,9 +128,19 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 </xsl:template>
 
 <xsl:template match="SMLCL:AnalogSendPort" mode="createAnalogSendPorts">
+			<xsl:choose>
+      <xsl:when test="@post">
+        <!-- Handle non-postsynaptic output-->
+				PORT<xsl:value-of select="@name"/>.setName("<xsl:value-of select="@name"/>");
+				PORT<xsl:value-of select="@name"/>.create(hComponent);
+				PORT<xsl:value-of select="@name"/>.setStructure(TYPE_REAL | TYPE_DOUBLE, Dims(numConn_BRAHMS).cdims());
+      </xsl:when>
+      <xsl:otherwise>
 				PORT<xsl:value-of select="@name"/>.setName("<xsl:value-of select="@name"/>");
 				PORT<xsl:value-of select="@name"/>.create(hComponent);
 				PORT<xsl:value-of select="@name"/>.setStructure(TYPE_REAL | TYPE_DOUBLE, Dims(numElements_BRAHMS).cdims());
+			</xsl:otherwise>
+			</xsl:choose>
 </xsl:template>
 
 <xsl:template match="SMLCL:AnalogReceivePort" mode="createAnalogRecvPorts">
@@ -279,6 +289,12 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 </xsl:template>
 
 <xsl:template match="SMLCL:AnalogSendPort" mode="outputAnalogPortsRemap">
+			<xsl:choose>
+      <xsl:when test="@post">
+        <!-- Handle non-postsynaptic output-->
+				PORT<xsl:value-of select="@name"/>.setContent(&amp;<xsl:value-of select="@name"/>[0]);
+      </xsl:when>
+      <xsl:otherwise>
 			vector &lt; DOUBLE &gt; OUT<xsl:value-of select="@name"/>;
 			OUT<xsl:value-of select="@name"/>.resize(numElements_BRAHMS, 0);
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; numEl_BRAHMS; ++i_BRAHMS) {
@@ -287,6 +303,8 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 			}	
 
 			PORT<xsl:value-of select="@name"/>.setContent(&amp;OUT<xsl:value-of select="@name"/>[0]);
+			</xsl:otherwise>
+			</xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>

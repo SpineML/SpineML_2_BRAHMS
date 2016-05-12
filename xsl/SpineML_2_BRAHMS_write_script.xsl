@@ -15,11 +15,11 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
      as applicable. -->
 <xsl:variable name="compiler_flags">
     <xsl:if test="$hostos='Linux32' or $hostos='Linux64'">-fPIC -Werror -pthread -O3 -shared -D__GLN__</xsl:if>
-    <xsl:if test="$hostos='OSX'">-fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -O3 -dynamiclib -arch i386 -D__OSX__</xsl:if>
+    <xsl:if test="$hostos='OSX'">-undefined dynamic_lookup -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -fPIC -O3 -dynamiclib</xsl:if>
 </xsl:variable>
 
 <xsl:variable name="linker_flags">
-    <xsl:if test="$hostos='OSX'">-L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine</xsl:if>
+    <xsl:if test="$hostos='OSXNOT'">-L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine</xsl:if>
 </xsl:variable>
 
 <xsl:variable name="component_output_file">
@@ -50,15 +50,6 @@ XSL_SCRIPT_PATH=$8
 VERBOSE_BRAHMS=${9}
 NODES=${10} <!-- Number of machine nodes to use. If >1, then this assumes we're using Sun Grid Engine. -->
 NODEARCH=${11}
-BRAHMS_NOGUI=${12}
-<!--
-    Here's a variable that can be set to avoid the component testing
-    from going ahead. This may be useful when you are running your sim
-    many times and you don't want the component check to happen each
-    time; it may take a few seconds for large models. If you prefer
-    NOT to assume components are present, then set this blank.
-    -->
-ASSUME_COMPONENTS_PRESENT=${13}
 
 echo "VERBOSE_BRAHMS: $VERBOSE_BRAHMS"
 echo "NODES: $NODES"
@@ -168,7 +159,9 @@ DBG_FLAG="-g"
 fi
 
 <!-- We have enough information at this point in the script to build our BRAHMS_CMD: -->
-BRAHMS_CMD="brahms $BRAHMS_NOGUI $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
+
+BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-ShowGUI=0 --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
+
 
 <!--
  If we're in "Sun Grid Engine mode", we can submit our brahms execution scripts
@@ -228,19 +221,10 @@ echo "Removing existing components in advance of rebuilding..."
 # clean up the temporary dirs - we don't want old component versions lying around!
 rm -R "$SPINEML_2_BRAHMS_NS/dev/SpineML/temp"/* &amp;&gt; /dev/null
 fi
-
-if [ ! x"${ASSUME_COMPONENTS_PRESENT}" = "x" ]; then
-echo "DANGER:"
-echo "DANGER: output.script is ASSUMING that all SpineML components have been built!"
-echo "DANGER: (you would want to do this if running the model over and over with a batch script)"
-echo "DANGER:"
-fi
-
-if [ x"${ASSUME_COMPONENTS_PRESENT}" = "x" ]; then
-
 echo "Creating the Neuron populations..."
+
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
-# Also update time.txt for SpineCreator / other tools
+# Also update time.txt for SpineCreator / other tools 
 echo "*Compiling neuron <xsl:value-of select="position()"/> / <xsl:value-of select="count(/SMLLOWNL:SpineML/SMLLOWNL:Population)"/>" &gt; $MODEL_DIR/time.txt
 <xsl:choose>
 <xsl:when test="./SMLLOWNL:Neuron/@url = 'SpikeSource'">
@@ -276,7 +260,7 @@ cp &quot;$MODEL_DIR/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/>&quot; $SPINE
 cp &quot;$SPINEML_CODE_DIR/component$CODE_NUM.cpp&quot; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.cpp&quot;
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;&gt; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/release.xml&quot;
 
-echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$HOME/usr/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build&quot;
+echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build&quot;
 
 pushd &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/&quot;
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;&gt; ../../node.xml
@@ -284,18 +268,14 @@ chmod +x build
 echo "Compiling component binary"
 ./build
 popd &amp;&gt; /dev/null
-fi # The check if component code exists
+fi # The check if component exists
+
 </xsl:otherwise>
 </xsl:choose>
 </xsl:for-each>
-fi # The enclosing check if the user wants to skip component existence checking
-
-
-
-if [ x"${ASSUME_COMPONENTS_PRESENT}" = "x" ]; then
 echo "Creating the projections..."
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
-# Also update time.txt for SpineCreator / other tools
+# Also update time.txt for SpineCreator / other tools 
 echo "*Compiling projections <xsl:value-of select="position()"/> / <xsl:value-of select="count(/SMLLOWNL:SpineML/SMLLOWNL:Population//SMLLOWNL:Projection)"/>" &gt; $MODEL_DIR/time.txt
 
 <!-- Here we use the population number to determine which pop the projection belongs to -->
@@ -318,8 +298,7 @@ echo "&lt;Nums&gt;&lt;Number1&gt;<xsl:value-of select="$number1"/>&lt;/Number1&g
 DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/WU/<xsl:value-of select="local-name(SMLNL:ConnectionList)"/><xsl:value-of select="local-name(SMLNL:FixedProbabilityConnection)"/><xsl:value-of select="local-name(SMLNL:AllToAllConnection)"/><xsl:value-of select="local-name(SMLNL:OneToOneConnection)"/><xsl:value-of select="translate(document(SMLLOWNL:WeightUpdate/@url)//SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0&quot;
 CODE_NUM=$((CODE_NUM+1))
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="$wu_url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="$wu_url"/>&quot; &amp;&gt; /dev/null
-
-<!-- Check that the weight update component exists -->
+<!--if [ $? == 0 ] &amp;&amp; [ -f "$DIRNAME/component.cpp" ]; then-->
 if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
 <!-- The following echo will create a lot of output, but it's useful for debugging: -->
 #echo "Weight Update component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping ($DIRNAME/component.cpp)"
@@ -339,7 +318,7 @@ cp &quot;$MODEL_DIR/<xsl:value-of select="$wu_url"/>&quot; $SPINEML_2_BRAHMS_INC
 cp "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" "$DIRNAME/component.cpp"
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;&gt; "$DIRNAME/release.xml"
 
-echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$HOME/usr/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
+echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
 
 cd "$DIRNAME"
 
@@ -347,13 +326,12 @@ echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Conne
 chmod +x build
 ./build
 cd - &amp;&gt; /dev/null
-fi <!-- end check that the weight update component exists -->
+fi
 
 DIRNAME=&quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/PS/<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass"><xsl:value-of select="translate(@name,' -', 'oH')"/></xsl:for-each>/brahms/0&quot;
 CODE_NUM=$((CODE_NUM+1))
 diff -q &quot;$MODEL_DIR/<xsl:value-of select="$ps_url"/>&quot; &quot;$DIRNAME/<xsl:value-of select="$ps_url"/>&quot; &amp;&gt; /dev/null
-
-<!-- Check that the postsynapse component exists -->
+<!--if [ $? == 0 ] &amp;&amp; [ -f "$DIRNAME/component.cpp" ]; then-->
 if [ $? == 0 ] &amp;&amp; [ -f &quot;$DIRNAME/component.cpp&quot; ] &amp;&amp; [ -f &quot;$DIRNAME/<xsl:value-of select="$component_output_file"/>&quot; ]; then
 <!-- Lots of output, but useful for debugging: -->
 echo "Post-synapse component for population <xsl:value-of select="$number1"/>, projection <xsl:value-of select="$number2"/>, synapse <xsl:value-of select="$number3"/> exists, skipping ($DIRNAME/component.cpp)"
@@ -372,21 +350,19 @@ cp &quot;$MODEL_DIR/<xsl:value-of select="$ps_url"/>&quot; $SPINEML_2_BRAHMS_INC
 cp "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" "$DIRNAME/component.cpp"
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;&gt; "$DIRNAME/release.xml"
 
-echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$HOME/usr/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
+echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
 
 cd "$DIRNAME"
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;&gt; ../../node.xml
 chmod +x build
 ./build
 cd - &amp;&gt; /dev/null
-fi <!-- end check that the postsynapse component exists -->
-
+fi
 <!-- MORE HERE -->
-</xsl:for-each> <!-- synapse -->
-</xsl:for-each> <!-- proj -->
-</xsl:for-each> <!-- pop -->
 
-fi <!-- end "assume" test -->
+		</xsl:for-each>
+	</xsl:for-each>
+</xsl:for-each>
 
 if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f "$SPINEML_RUN_DIR/sys.xml" ] ; then
   echo "Building the SystemML system..."
@@ -466,3 +442,5 @@ echo "ERROR: Unrecognised SpineML Network Layer file";
 </xsl:template>
 
 </xsl:stylesheet>
+
+
