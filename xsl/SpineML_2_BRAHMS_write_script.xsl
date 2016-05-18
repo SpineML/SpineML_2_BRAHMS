@@ -18,8 +18,10 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
     <xsl:if test="$hostos='OSX'">-undefined dynamic_lookup -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -fPIC -O3 -dynamiclib</xsl:if>
 </xsl:variable>
 
+<!-- this could go - there's no longer a need to link against
+     libbrahms-engine on any platform -->
 <xsl:variable name="linker_flags">
-    <xsl:if test="$hostos='OSXNOT'">-L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine</xsl:if>
+    <!-- <xsl:if test="$hostos='OSX'">-L`brahms \-\-showlib`</xsl:if> -->
 </xsl:variable>
 
 <xsl:variable name="component_output_file">
@@ -28,7 +30,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 </xsl:variable>
 
 <xsl:variable name="platform_specific_includes">
-    <xsl:if test="$hostos='Linux32' or $hostos='Linux64'">-I/usr/include/brahms -I/var/lib/brahms/Namespace</xsl:if>
+    <xsl:if test="$hostos='Linux32' or $hostos='Linux64'">-I`brahms --showinclude` -I`brahms --shownamespace`</xsl:if>
 </xsl:variable>
 
 <!-- since we start in the experiment file we need to use for-each to get to the model file -->
@@ -52,6 +54,41 @@ NODES=${10} <!-- Number of machine nodes to use. If >1, then this assumes we're 
 NODEARCH=${11}
 
 echo "VERBOSE_BRAHMS: $VERBOSE_BRAHMS"
+
+<!-- Test brahms version -->
+BRAHMS_VERSION=`brahms --ver`
+VERSION_BRAHMS_MAJ=`echo $BRAHMS_VERSION | awk -F'.' '{print $1}'`
+VERSION_BRAHMS_MIN=`echo $BRAHMS_VERSION | awk -F'.' '{print $2}'`
+VERSION_BRAHMS_REL=`echo $BRAHMS_VERSION | awk -F'.' '{print $3}'`
+VERSION_BRAHMS_REV=`echo $BRAHMS_VERSION | awk -F'.' '{print $4}'`
+VERSION_TOO_OLD=0
+if [ $VERSION_BRAHMS_MAJ -ge 0 ]; then
+  echo "VERSION_BRAHMS_MAJ=$VERSION_BRAHMS_MAJ: ok"
+  if [ $VERSION_BRAHMS_MIN -ge 8 ]; then
+    echo "VERSION_BRAHMS_MIN=$VERSION_BRAHMS_MIN: ok"
+    if [ $VERSION_BRAHMS_REL -ge 0 ]; then
+      echo "VERSION_BRAHMS_REL=$VERSION_BRAHMS_REL: ok"
+      if [ $VERSION_BRAHMS_REV -ge 1 ]; then
+        echo "VERSION_BRAHMS_REV=$VERSION_BRAHMS_REV: ok"
+      else # 1
+        VERSION_TOO_OLD=1
+      fi
+    else # 2
+      VERSION_TOO_OLD=1
+    fi
+  else # 3
+    VERSION_TOO_OLD=1
+  fi
+else # 4
+  VERSION_TOO_OLD=1
+fi
+
+if [ x"$VERSION_TOO_OLD" = "x"1 ]; then
+  echo "This version of SpineML_2_BRAHMS requires BRAHMS version 0.8.0.1 or greater. Exiting."
+  exit 1
+fi
+<!-- Completed test of brahms version -->
+
 echo "NODES: $NODES"
 echo "NODEARCH: $NODEARCH"
 
@@ -224,7 +261,7 @@ fi
 echo "Creating the Neuron populations..."
 
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
-# Also update time.txt for SpineCreator / other tools 
+# Also update time.txt for SpineCreator / other tools
 echo "*Compiling neuron <xsl:value-of select="position()"/> / <xsl:value-of select="count(/SMLLOWNL:SpineML/SMLLOWNL:Population)"/>" &gt; $MODEL_DIR/time.txt
 <xsl:choose>
 <xsl:when test="./SMLLOWNL:Neuron/@url = 'SpikeSource'">
@@ -260,7 +297,7 @@ cp &quot;$MODEL_DIR/<xsl:value-of select="./SMLLOWNL:Neuron/@url"/>&quot; $SPINE
 cp &quot;$SPINEML_CODE_DIR/component$CODE_NUM.cpp&quot; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/component.cpp&quot;
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;&gt; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/release.xml&quot;
 
-echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build&quot;
+echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I`brahms --showinclude` -I`brahms --shownamespace` <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build&quot;
 
 pushd &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/&quot;
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;&gt; ../../node.xml
@@ -275,7 +312,7 @@ fi # The check if component exists
 </xsl:for-each>
 echo "Creating the projections..."
 <xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
-# Also update time.txt for SpineCreator / other tools 
+# Also update time.txt for SpineCreator / other tools
 echo "*Compiling projections <xsl:value-of select="position()"/> / <xsl:value-of select="count(/SMLLOWNL:SpineML/SMLLOWNL:Population//SMLLOWNL:Projection)"/>" &gt; $MODEL_DIR/time.txt
 
 <!-- Here we use the population number to determine which pop the projection belongs to -->
@@ -318,7 +355,7 @@ cp &quot;$MODEL_DIR/<xsl:value-of select="$wu_url"/>&quot; $SPINEML_2_BRAHMS_INC
 cp "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" "$DIRNAME/component.cpp"
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;&gt; "$DIRNAME/release.xml"
 
-echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
+echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I`brahms --showinclude` -I`brahms --shownamespace` <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
 
 cd "$DIRNAME"
 
@@ -350,7 +387,7 @@ cp &quot;$MODEL_DIR/<xsl:value-of select="$ps_url"/>&quot; $SPINEML_2_BRAHMS_INC
 cp "$SPINEML_CODE_DIR/component$CODE_NUM.cpp" "$DIRNAME/component.cpp"
 echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp;&gt; "$DIRNAME/release.xml"
 
-echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
+echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I`brahms --showinclude` -I`brahms --shownamespace` <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
 
 cd "$DIRNAME"
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;&gt; ../../node.xml
@@ -442,5 +479,3 @@ echo "ERROR: Unrecognised SpineML Network Layer file";
 </xsl:template>
 
 </xsl:stylesheet>
-
-
