@@ -5,8 +5,8 @@ add_library(allToAll SHARED component.cpp)
 
 set_target_properties(allToAll PROPERTIES OUTPUT_NAME "component" PREFIX "")
 if(APPLE)
-  # Anything special required for Apple?
-  #target_link_libraries(data_numeric brahms-engine brahms-engine-base)
+  # On MacOS, we need to inform clang that some symbols will not be available until runtime
+  set_target_properties (allToAll PROPERTIES LINK_FLAGS "-Wl,-undefined,dynamic_lookup")
 endif(APPLE)
 
 set(COMP_PATH ${LIB_DIR}/spineml-2-brahms/dev/SpineML/tools/allToAll)
