@@ -15,7 +15,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
      as applicable. -->
 <xsl:variable name="compiler_flags">
     <xsl:if test="$hostos='Linux32' or $hostos='Linux64'">-fPIC -Werror -pthread -O3 -shared -D__GLN__</xsl:if>
-    <xsl:if test="$hostos='OSX'">-fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -O3 -dynamiclib -arch i386 -D__OSX__</xsl:if>
+    <xsl:if test="$hostos='OSX'">-fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -O3 -dynamiclib -Wl,-undefined,dynamic_lookup -arch i386 -D__OSX__</xsl:if>
 </xsl:variable>
 
 <!-- this could go - there's no longer a need to link against
