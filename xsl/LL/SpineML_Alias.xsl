@@ -3,27 +3,26 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
 <xsl:template match="SMLCL:Alias" mode="doPortAssignmentsAllToAllFixedPreCompute">
-                                       // If all parameters and delays are fixed values, then sum all inputs applying Alias maths
-                                       <xsl:value-of select="@name"/>_SUM+=<xsl:call-template name="alias_replace">
-                                                        <xsl:with-param name="params" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Parameter | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReceivePort"/>
-                                                        <xsl:with-param name="aliases" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Alias"/>
-                                                        <xsl:with-param name="string" select="SMLCL:MathInline"/>
-                                       </xsl:call-template>;
+					// If all parameters and delays are fixed values, then sum all inputs applying Alias maths
+					<xsl:value-of select="@name"/>_SUM+=<xsl:call-template name="alias_replace">
+							<xsl:with-param name="params" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Parameter | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReceivePort"/>
+							<xsl:with-param name="aliases" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Alias"/>
+							<xsl:with-param name="string" select="SMLCL:MathInline"/>
+					</xsl:call-template>;
 </xsl:template>
 
 <xsl:template match="SMLCL:Alias" mode="doPortAssignmentsAllToAllFixedPostCompute">
-                                       // Now just send the same value to every '<xsl:value-of select="@name"/>' port
-                                       <xsl:value-of select="@name"/>[num_BRAHMS]=<xsl:value-of select="@name"/>_SUM;
+					// Now just send the same value to every '<xsl:value-of select="@name"/>' port
+					<xsl:value-of select="@name"/>[num_BRAHMS]=<xsl:value-of select="@name"/>_SUM;
 </xsl:template>
-
 
 <xsl:template match="SMLCL:Alias" mode="doPortAssignments">
 					//Alias assignment for ports
 					<xsl:if test="@name=//SMLCL:AnalogSendPort/@name or @name=//SMLCL:ImpulseSendPort/@name">
 					<xsl:value-of select="@name"/>[num_BRAHMS]=<xsl:call-template name="alias_replace">
-                                                        <xsl:with-param name="params" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Parameter | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReceivePort"/>
-                                                        <xsl:with-param name="aliases" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Alias"/>
-                                                        <xsl:with-param name="string" select="SMLCL:MathInline"/>
+							<xsl:with-param name="params" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Parameter | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:StateVariable | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | /SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReceivePort"/>
+							<xsl:with-param name="aliases" select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Alias"/>
+							<xsl:with-param name="string" select="SMLCL:MathInline"/>
 					</xsl:call-template>;
 					</xsl:if>
 </xsl:template>

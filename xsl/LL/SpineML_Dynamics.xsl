@@ -179,27 +179,26 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 
 <xsl:template match="SMLCL:Dynamics" mode="doAllToAllTrans">
 <!---->
-                       //bout &lt;&lt; "doAllToAllTrans..." &lt;&lt; D_INFO;
-                       <xsl:if test="count(//SMLCL:OnCondition) > 0">
-                               //Dynamics transitions
-                               for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
-                                       // switch on regime:
-                                       switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
-                                       <xsl:apply-templates select="SMLCL:Regime" mode="doTrans"/>
-                               }
-                       }
-                       </xsl:if>
+				//bout &lt;&lt; "doAllToAllTrans..." &lt;&lt; D_INFO;
+			<xsl:if test="count(//SMLCL:OnCondition) > 0">
+				//Dynamics transitions
+				for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
+					// switch on regime:
+					switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
+					<xsl:apply-templates select="SMLCL:Regime" mode="doTrans"/>
+				}
+			}
+			</xsl:if>
 <!---->
-                       <xsl:if test="count(SMLCL:Alias) > 0">
-                               <!-- Special-case code to compute the sum of inputs with each bit of Alias maths applied.  -->
-                               DOUBLE <xsl:value-of select="//SMLCL:AnalogSendPort/@name"/>_SUM = 0;
-                               for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
-                                       <xsl:apply-templates select="SMLCL:Alias[@name=//SMLCL:AnalogSendPort/@name]" mode="doPortAssignmentsAllToAllFixedPreCompute"/>
-                               }
-                               <xsl:value-of select="//SMLCL:AnalogSendPort/@name"/>.assign(numEl_BRAHMS, <xsl:value-of select="//SMLCL:AnalogSendPort/@name"/>_SUM);
-                       </xsl:if>
+			<xsl:if test="count(SMLCL:Alias) > 0">
+				<!-- Special-case code to compute the sum of inputs with each bit of Alias maths applied.  -->
+				DOUBLE <xsl:value-of select="//SMLCL:AnalogSendPort/@name"/>_SUM = 0;
+				for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
+					<xsl:apply-templates select="SMLCL:Alias[@name=//SMLCL:AnalogSendPort/@name]" mode="doPortAssignmentsAllToAllFixedPreCompute"/>
+				}
+				<xsl:value-of select="//SMLCL:AnalogSendPort/@name"/>.assign(numEl_BRAHMS, <xsl:value-of select="//SMLCL:AnalogSendPort/@name"/>_SUM);
+			</xsl:if>
 </xsl:template>
-
 
 <xsl:template match="SMLCL:Dynamics" mode="doTrans">
 			<xsl:if test="count(//SMLCL:OnCondition) > 0">
