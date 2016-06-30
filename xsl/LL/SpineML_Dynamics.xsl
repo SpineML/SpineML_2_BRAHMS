@@ -10,7 +10,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; COUNT<xsl:value-of select="@name"/>[in_BRAHMS]; ++i_BRAHMS) {
 				num_BRAHMS = DATA<xsl:value-of select="@name"/>[in_BRAHMS][i_BRAHMS];
 
-					switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
+					switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 						<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
 						//Regime
 						case <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@name"/>:
@@ -37,7 +37,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				// assign the impulse value
 				<xsl:value-of select="@name"/>[num_BRAHMS] = impulseValue__In;
 
-					switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
+					switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 						<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
 						//Regime
 						case <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@name"/>:
@@ -60,7 +60,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 					for (int i_BRAHMS = 0; i_BRAHMS &lt; DATA<xsl:value-of select="@name"/>[in_BRAHMS].size(); ++i_BRAHMS) {
 					num_BRAHMS = DATA<xsl:value-of select="@name"/>[in_BRAHMS][i_BRAHMS];
 
-						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
+						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 							<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
 							//Regime
 							case <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@name"/>:
@@ -76,7 +76,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 			if (delayBuffer.size()) {
 				for (int i_BRAHMS =0; i_BRAHMS &lt; delayBuffer[delayBufferIndex].size();++i_BRAHMS) {
 					num_BRAHMS = delayBuffer[delayBufferIndex][i_BRAHMS];
-						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
+						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 							<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
 							//Regime
 							case <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@name"/>:
@@ -91,7 +91,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 					for (int i_BRAHMS = 0; i_BRAHMS &lt; DATA<xsl:value-of select="@name"/>[in_BRAHMS].size(); ++i_BRAHMS) {
 					num_BRAHMS = DATA<xsl:value-of select="@name"/>[in_BRAHMS][i_BRAHMS];
 
-						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
+						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 							<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
 							//Regime
 							case <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@name"/>:
@@ -122,7 +122,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 					// assign the impulse value
 					<xsl:value-of select="@name"/>[num_BRAHMS] = impulseValue__In;
 
-						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
+						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 							<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
 							//Regime
 							case <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@name"/>:
@@ -139,7 +139,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				for (int i_BRAHMS=0; i_BRAHMS &lt; delayBuffer[delayBufferIndex].size();++i_BRAHMS) {
 					num_BRAHMS = delayBuffer[delayBufferIndex][i_BRAHMS];
 					<xsl:value-of select="@name"/>[num_BRAHMS] = delayedImpulseVals[delayBufferIndex][i_BRAHMS];
-						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
+						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 							<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
 							//Regime
 							case <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@name"/>:
@@ -161,7 +161,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 					// assign the impulse value
 					<xsl:value-of select="@name"/>[num_BRAHMS] = impulseValue__In;
 
-						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
+						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 							<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
 							//Regime
 							case <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@name"/>:
@@ -177,6 +177,29 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 			</xsl:for-each>
 </xsl:template>
 
+<xsl:template match="SMLCL:Dynamics" mode="doAllToAllTrans">
+<!---->
+				//bout &lt;&lt; "doAllToAllTrans..." &lt;&lt; D_INFO;
+			<xsl:if test="count(//SMLCL:OnCondition) > 0">
+				//Dynamics transitions
+				for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
+					// switch on regime:
+					switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
+					<xsl:apply-templates select="SMLCL:Regime" mode="doTrans"/>
+				}
+			}
+			</xsl:if>
+<!---->
+			<xsl:if test="count(SMLCL:Alias) > 0">
+				<!-- Special-case code to compute the sum of inputs with each bit of Alias maths applied.  -->
+				DOUBLE <xsl:value-of select="//SMLCL:AnalogSendPort/@name"/>_SUM = 0;
+				for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
+					<xsl:apply-templates select="SMLCL:Alias[@name=//SMLCL:AnalogSendPort/@name]" mode="doPortAssignmentsAllToAllFixedPreCompute"/>
+				}
+				<xsl:value-of select="//SMLCL:AnalogSendPort/@name"/>.assign(numEl_BRAHMS, <xsl:value-of select="//SMLCL:AnalogSendPort/@name"/>_SUM);
+			</xsl:if>
+</xsl:template>
+
 <xsl:template match="SMLCL:Dynamics" mode="doTrans">
 			<xsl:if test="count(//SMLCL:OnCondition) > 0">
 			//Dynamics transitions
@@ -184,7 +207,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 
 
 				// switch on regime:
-				switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
+				switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 	<xsl:apply-templates select="SMLCL:Regime" mode="doTrans"/>
 				}
 			}
@@ -205,7 +228,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 			for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
 
 				// switch on regime:
-				switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) { 
+				switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 	<xsl:apply-templates select="SMLCL:Regime" mode="doIter"/>
 				}
 			}
