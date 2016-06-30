@@ -115,7 +115,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				string fileName = nodeState.getField("_bin_file_name").getSTRING();
 				int _num_conn = (int) nodeState.getField("_bin_num_conn").getDOUBLE();
-				//bool _has_delay = (bool) nodeState.getField("_bin_has_delay").getDOUBLE();
+				bool _has_delay = (bool) nodeState.getField("_bin_has_delay").getDOUBLE();
 
 				// open the file for reading
 				FILE * binfile;
@@ -134,8 +134,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				srcInds.resize(_num_conn);
 				dstInds.resize(_num_conn);
-				/*if (_has_delay)
-					delayForConnTemp.resize(_num_conn);*/
+				if (_has_delay)
+					delayForConnTemp.resize(_num_conn);
 				for (int i_BRAHMS = 0; i_BRAHMS < _num_conn; ++i_BRAHMS) {
                                     size_t v = fread(&srcInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
 				    if (v == 0) {
@@ -149,8 +149,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					berr << "Error reading destinations"; 
 				      }
 				    }
-					/*if (_has_delay)
-						fread(&delayForConnTemp[i_BRAHMS], sizeof(unsigned int), 1, binfile);*/
+					if (_has_delay)
+						fread(&delayForConnTemp[i_BRAHMS], sizeof(unsigned int), 1, binfile);
 				}
 			} else {
 				srcInds = nodeState.getField("src").getArrayINT32();
@@ -172,6 +172,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			}
 
+			if (_has_delay) {
+				bout << "Delays in Generic inputs are currently not supported" << D_WARN;
+			}
 
 			spikesIn = false;
 			impulseIn = false;
