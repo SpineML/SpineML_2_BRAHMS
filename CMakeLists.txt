@@ -49,6 +49,7 @@ else()
 endif(WARNINGS_ARE_ERRORS)
 
 # brahms headers, libs and namespace locations
+# FIXME: Can now get these from brahms --showinclude and brahms --shownamespace
 set(BRAHMS_INCLUDE_DIR "/usr/include"
   CACHE STRING "Location of the BRAHMS headers (brahms-1199.h etc).")
 message(STATUS "BRAHMS include directory (for brahms-1199.h etc) set to ${BRAHMS_INCLUDE_DIR}")

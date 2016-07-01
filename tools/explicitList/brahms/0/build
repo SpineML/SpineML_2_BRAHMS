@@ -1,8 +1,13 @@
 #!/bin/bash
 
+# These require brahms 0.8.0.1 or greater.
+BRAHMS_INCLUDE=`brahms --showinclude`
+BRAHMS_LIB=`brahms --showlib`
+BRAHMS_NAMESPACE=`brahms --shownamespace`
+
 if [ $(uname) == 'Linux' ]; then
 echo "Compiling for Linux"
-g++ -fPIC -Werror -pthread -O3 -ffast-math -shared -D__GLN__ component.cpp -o component.so -I"/usr/include/brahms" -I"/var/lib/brahms/Namespace" -I"../../../../include" -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin"
+g++ -fPIC -Werror -pthread -O3 -ffast-math -shared -D__GLN__ component.cpp -o component.so -I"$BRAHMS_INCLUDE" -I"$BRAHMS_NAMESPACE" -I"../../../../include" -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin"
 else
 echo "Compiling for OSX"
 g++ -fvisibility=hidden -fvisibility-inlines-hidden -arch x86_64 -D__OSX__ -DARCH_BITS=32 -fPIC -O3 -ffast-math -dynamiclib -fno-strict-aliasing -arch i386 -D__OSX__ component.cpp -o component.dylib -I"$SYSTEMML_INSTALL_PATH/BRAHMS/include" -I"../../../../include" -I"$SYSTEMML_INSTALL_PATH/Namespace" -L"$SYSTEMML_INSTALL_PATH/BRAHMS/bin" -lbrahms-engine
