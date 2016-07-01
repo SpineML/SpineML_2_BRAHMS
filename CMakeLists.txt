@@ -11,6 +11,11 @@ set(MAN_DIR ${CMAKE_INSTALL_PREFIX}/share/man)
 set(BIN_DIR ${CMAKE_INSTALL_PREFIX}/bin)
 set(LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 
+# Probably need to consider a "STANDALONE_INSTALL" scheme analogous to
+# the one in BRAHMS, then we can have:
+# set(SPINEML_STANDALONE_PREFIX "" CACHE PATH "Install path for SpineML_2_BRAHMS")
+# So that the cmake build can build and install the components.
+
 # From CMAKE_SYSTEM work out which of __OSX__, __GLN__, __NIX__ or
 # __WIN__ are required
 message(STATUS "Operating system: " ${CMAKE_SYSTEM})

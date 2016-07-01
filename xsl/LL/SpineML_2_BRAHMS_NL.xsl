@@ -98,8 +98,8 @@ description).
 <!-- SEE FILE SpineML_ExternalOutput_NL.xsl -->
 <xsl:call-template name="networkLayerExternalOutputs"/>
 
-<!-- SEE FILE Saccsim_Oculomotor.xsl -->
-<xsl:call-template name="saccsimOculomotor">
+<!-- SEE FILE eyeless.xsl -->
+<xsl:call-template name="eyeless">
 	<xsl:with-param name="spineml_model_dir" select="$spineml_model_dir"/>
 </xsl:call-template>
 
@@ -123,6 +123,6 @@ description).
 
 <!-- This is the additional code to splice in the Patra bio-mechanical
      Oculomotor model -->
-<xsl:include href="Saccsim_Oculomotor.xsl"/>
+<xsl:include href="eyeless.xsl"/>
 
 </xsl:stylesheet>
