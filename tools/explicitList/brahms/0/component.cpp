@@ -138,8 +138,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				srcInds.resize(_num_conn);
 				dstInds.resize(_num_conn);
-				if (_has_delay)
+				if (_has_delay) {
 					delayForConnTemp.resize(_num_conn);
+                                }
 				for (int i_BRAHMS = 0; i_BRAHMS < _num_conn; ++i_BRAHMS) {
                                     size_t v = fread(&srcInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
 				    if (v == 0) {
@@ -154,9 +155,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				      }
 				    }
                                     if (_has_delay) {
-                                        int frtn = fread(&delayForConnTemp[i_BRAHMS], sizeof(unsigned int), 1, binfile);
-                                        if (frtn != sizeof(unsigned int)) {
-                                            berr << "Failed to read " << sizeof(unsigned int) << " chars from " << fileName;
+                                        v = fread(&delayForConnTemp[i_BRAHMS], sizeof(unsigned int), 1, binfile);
+                                        if (v != sizeof(unsigned int)) {
+                                            berr << "Failed to read " << sizeof(unsigned int) << " chars from " << fileName << " for delayForConnTemp[" << i_BRAHMS << "]";
                                         }
                                     }
 				}
