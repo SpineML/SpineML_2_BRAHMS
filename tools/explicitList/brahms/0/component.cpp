@@ -110,12 +110,14 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			string binpath = nodeState.getField("binpath").getSTRING();
 
+                        bool _has_delay = false;
+
 			// get the connectivity
 			if (nodeState.hasField("_bin_file_name")) {
 
 				string fileName = nodeState.getField("_bin_file_name").getSTRING();
 				int _num_conn = (int) nodeState.getField("_bin_num_conn").getDOUBLE();
-				bool _has_delay = (bool) nodeState.getField("_bin_has_delay").getDOUBLE();
+				_has_delay = (bool) nodeState.getField("_bin_has_delay").getDOUBLE();
 
 				// open the file for reading
 				FILE * binfile;
