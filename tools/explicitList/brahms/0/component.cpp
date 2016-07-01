@@ -158,7 +158,14 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				    }
                                     if (_has_delay) {
                                         v = fread(&delayForConnTemp[i_BRAHMS], sizeof(unsigned int), 1, binfile);
+                                        bout << "Read " << v << " bytes from binfile for delayForConnTemp" << D_INFO;
                                         if (v != sizeof(unsigned int)) {
+                                            if (ferror(binfile)) {
+                                                bout << "...ferror is set" << D_INFO;
+                                            }
+                                            if (feof(binfile)) {
+                                                bout << "...feof is set" << D_INFO;
+                                            }
                                             berr << "Failed to read " << sizeof(unsigned int) << " chars from " << fileName << " for delayForConnTemp[" << i_BRAHMS << "]";
                                         }
                                     }
