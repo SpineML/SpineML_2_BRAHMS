@@ -132,6 +132,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					}
 				}
 
+                                VDOUBLE delayForConnTemp;
+
 				srcInds.resize(_num_conn);
 				dstInds.resize(_num_conn);
 				if (_has_delay)
@@ -146,7 +148,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
                                     v = fread(&dstInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
 				    if (v == 0) {
 				      if (ferror(binfile)) {
-					berr << "Error reading destinations"; 
+					berr << "Error reading destinations";
 				      }
 				    }
 					if (_has_delay)
@@ -320,5 +322,3 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 //	include the second part of the overlay (it knows you've included it once already)
 #include "brahms-1199.h"
-
-
