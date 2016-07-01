@@ -153,8 +153,12 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					berr << "Error reading destinations";
 				      }
 				    }
-					if (_has_delay)
-						fread(&delayForConnTemp[i_BRAHMS], sizeof(unsigned int), 1, binfile);
+                                    if (_has_delay) {
+                                        int frtn = fread(&delayForConnTemp[i_BRAHMS], sizeof(unsigned int), 1, binfile);
+                                        if (frtn != sizeof(unsigned int)) {
+                                            berr << "Failed to read " << sizeof(unsigned int) << " chars from " << fileName;
+                                        }
+                                    }
 				}
 			} else {
 				srcInds = nodeState.getField("src").getArrayINT32();
