@@ -40,7 +40,7 @@ Options are:
                working directory, \$HOME/SpineML_2_BRAHMS (if it already exists)
                or to \$HOME/spineml-2-brahms.
 
-  -s           DON'T rebuild sys.xml and sys-exe.xml (The BRAHMS SystemML 
+  -s           DON'T rebuild sys.xml and sys-exe.xml (The BRAHMS SystemML
                description of the SpineML model). This prevents the calls to
                xsltproc which create temp/sys(-exe).xml, as long as
                temp/sys(-exe).xml exists. Added to speed up development when
@@ -377,7 +377,7 @@ if [ -d /usr/lib/spineml-2-brahms ]; then
     mkdir -p "$SPINEML_2_BRAHMS_DIR/Namespace"
     cp -Ra /usr/lib/spineml-2-brahms/* "$SPINEML_2_BRAHMS_DIR/Namespace/"
     set +e
-else 
+else
     # Check whether we need to build the spineml-2-brahms namespace
     set -e # This tells bash to exit on any unsuccessful command (reverse with set +e)
     if [ "x$(cat current_os)" = "x$OS" ]; then
@@ -443,11 +443,37 @@ if [ "x$XSLTPROC_BIN" = "x" ]; then
     echo "Couldn't find the xsltproc binary, exiting." >&2
     exit -1
 fi
+# Check we have xmllint
+XMLLINT_BIN=`which xmllint`
+if [ "x$XMLLINT_BIN" = "x" ]; then
+    echo "Couldn't find the xmllint binary, exiting." >&2
+    exit -1
+fi
 
 # Clean up any old reports (MOVE?)
 rm "$OUTPUT_DIR/rep*xml*" >/dev/null 2>&1
 rm "$OUTPUT_DIR/sys*" >/dev/null 2>&1
 rm "$OUTPUT_DIR/output_script" >/dev/null 2>&1
+
+# Run a process here to see if the model is highlevel or lowlevel. If
+# it's highlevel, then check it for validity, then convert it into
+# lowlevel prior to applying SpineML_2_BRAHMS_write_script.xsl
+
+# The check could be a feature of SpineML_PreFlight, but much better
+# is to xmllint the XML with either high or low level specs
+
+# Note: Bring the spineml into SpineML_2_BRAHMS as a git sub-project
+
+# for each component:
+xmllint --noout --noblanks --schema ../../schemas/SpineMLComponentLayer.xsd Brette_Benchmark_Network.xml
+
+# The requested experiment:
+xmllint --noout --noblanks --schema ../../schemas/SpineMLExperimentLayer.xsd Brette_Benchmark_Network.xml
+
+# High or low level:
+
+
+# The conversion should be an xsl script called by xsltproc
 
 # create the output script using an xsl translation and the experiment.xml file
 echo xsltproc -o "$OUTPUT_DIR/output.script" --stringparam hostos "$OS" \
