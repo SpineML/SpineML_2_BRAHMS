@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLNetworkLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Population>
+    <Neuron name="Excitatory" size="3200" url="LIF.xml">
+      <Property name="tau_refractory" dimension="mS">
+        <FixedValue value="5"/>
+      </Property>
+      <Property name="v_thresh" dimension="?">
+        <FixedValue value="-50"/>
+      </Property>
+      <Property name="v_rest" dimension="?">
+        <FixedValue value="-49"/>
+      </Property>
+      <Property name="v_reset" dimension="?">
+        <FixedValue value="-60"/>
+      </Property>
+      <Property name="tau_m" dimension="mS">
+        <FixedValue value="20"/>
+      </Property>
+      <Property name="cm" dimension="?">
+        <FixedValue value="0.2"/>
+      </Property>
+      <Property name="i_offset" dimension="?">
+        <FixedValue value="0"/>
+      </Property>
+      <Property name="v" dimension="?">
+        <UniformDistribution minimum="-60" maximum="-50"/>
+      </Property>
+      <Property name="t_spike" dimension="?">
+        <FixedValue value="0"/>
+      </Property>
+    </Neuron>
+    <Projection dst_population="Inhibitory">
+      <Synapse>
+        <FixedProbabilityConnection probability="0.02" seed="123">
+          <Delay>
+            <FixedValue value="0.1"/>
+          </Delay>
+        </FixedProbabilityConnection>
+        <WeightUpdate name="E_to_I_syn" url="FixedWeight.xml" input_src_port="spike" input_dst_port="spike">
+          <Property name="w" dimension="?">
+            <FixedValue value="0.004"/>
+          </Property>
+        </WeightUpdate>
+        <PostSynapse name="E_to_I_ps" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_Syn">
+          <Property name="tau_syn" dimension="mS">
+            <FixedValue value="5"/>
+          </Property>
+
+          <Property name="I_Syn" dimension="?">
+            <FixedValue value="0"/>
+          </Property>
+        </PostSynapse>
+      </Synapse>
+    </Projection>
+    <Projection dst_population="Excitatory">
+      <Synapse>
+        <FixedProbabilityConnection probability="0.02" seed="123">
+          <Delay>
+            <FixedValue value="0.1"/>
+          </Delay>
+        </FixedProbabilityConnection>
+        <WeightUpdate name="E_to_E_syn" url="FixedWeight.xml" input_src_port="spike" input_dst_port="spike">
+          <Property name="w" dimension="?">
+            <FixedValue value="0.004"/>
+          </Property>
+        </WeightUpdate>
+        <PostSynapse name="E_to_E_ps" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_Syn">
+          <Property name="tau_syn" dimension="?">
+            <FixedValue value="5"/>
+          </Property>
+
+          <Property name="I_Syn" dimension="?">
+            <FixedValue value="0"/>
+          </Property>
+        </PostSynapse>
+      </Synapse>
+    </Projection>
+  </Population>
+  <Population>
+    <Neuron name="Inhibitory" size="800" url="LIF.xml">
+      <Property name="tau_refractory" dimension="mS">
+        <FixedValue value="5"/>
+      </Property>
+      <Property name="v_thresh" dimension="?">
+        <FixedValue value="-50"/>
+      </Property>
+      <Property name="v_rest" dimension="?">
+        <FixedValue value="-49"/>
+      </Property>
+      <Property name="v_reset" dimension="?">
+        <FixedValue value="-60"/>
+      </Property>
+      <Property name="tau_m" dimension="mS">
+        <FixedValue value="20"/>
+      </Property>
+      <Property name="cm" dimension="?">
+        <FixedValue value="0.2"/>
+      </Property>
+      <Property name="i_offset" dimension="?">
+        <FixedValue value="0"/>
+      </Property>
+      <Property name="v" dimension="?">
+        <UniformDistribution minimum="-60" maximum="-50"/>
+      </Property>
+      <Property name="t_spike" dimension="?">
+        <FixedValue value="0"/>
+      </Property>
+    </Neuron>
+    <Projection dst_population="Excitatory">
+      <Synapse>
+        <FixedProbabilityConnection probability="0.02" seed="123">
+          <Delay>
+            <FixedValue value="0.1"/>
+          </Delay>
+        </FixedProbabilityConnection>
+        <WeightUpdate name="I_to_E_syn" url="FixedWeight.xml" input_src_port="spike" input_dst_port="spike">
+          <Property name="w" dimension="?">
+            <FixedValue value="-0.051"/>
+          </Property>
+        </WeightUpdate>
+        <PostSynapse name="I_to_E_ps" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_Syn">
+          <Property name="tau_syn" dimension="mS">
+            <FixedValue value="5"/>
+          </Property>
+
+          <Property name="I_Syn" dimension="?">
+            <FixedValue value="0"/>
+          </Property>
+        </PostSynapse>
+      </Synapse>
+    </Projection>
+    <Projection dst_population="Inhibitory">
+      <Synapse>
+        <FixedProbabilityConnection probability="0.02" seed="123">
+          <Delay>
+            <FixedValue value="0.1"/>
+          </Delay>
+        </FixedProbabilityConnection>
+        <WeightUpdate name="I_to_I_syn" url="FixedWeight.xml" input_src_port="spike" input_dst_port="spike">
+          <Property name="w" dimension="?">
+            <FixedValue value="-0.051"/>
+          </Property>
+        </WeightUpdate>
+        <PostSynapse name="I_to_I_ps" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_Syn">
+          <Property name="tau_syn" dimension="mS">
+            <FixedValue value="5"/>
+          </Property>
+
+          <Property name="I_Syn" dimension="?">
+            <FixedValue value="0"/>
+          </Property>
+        </PostSynapse>
+      </Synapse>
+    </Projection>
+  </Population>
+</SpineML>

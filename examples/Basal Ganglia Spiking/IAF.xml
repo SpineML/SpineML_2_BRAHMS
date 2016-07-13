@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="neuron_body" name="IAF">
+  <Dynamics initial_regime="integrating">
+   <Regime name="integrating">
+    <TimeDerivative variable="v">
+     <MathInline>(((i_offset + I_syn) / C_m) + (v_rest - v)) / tau_m</MathInline>
+    </TimeDerivative>
+    <OnCondition target_regime="refractory">
+     <StateAssignment variable="v">
+      <MathInline>v_reset</MathInline>
+     </StateAssignment>
+     <StateAssignment variable="t_spike">
+      <MathInline>t</MathInline>
+     </StateAssignment>
+     <EventOut port="spike"/>
+     <Trigger>
+      <MathInline>v > v_thresh</MathInline>
+     </Trigger>
+    </OnCondition>
+   </Regime>
+   <Regime name="refractory">
+    <OnCondition target_regime="integrating">
+     <Trigger>
+      <MathInline>t > (t_spike + t_refrac)</MathInline>
+     </Trigger>
+    </OnCondition>
+   </Regime>
+   <StateVariable dimension="mV" name="v"/>
+   <StateVariable dimension="ms" name="t_spike"/>
+  </Dynamics>
+  <AnalogReducePort dimension="nA" name="I_syn" reduce_op="+"/>
+  <AnalogSendPort name="v"/>
+  <EventSendPort name="spike"/>
+  <Parameter dimension="pF" name="C_m"/>
+  <Parameter dimension="nA" name="i_offset"/>
+  <Parameter dimension="mV" name="v_thresh"/>
+  <Parameter dimension="mV" name="v_rest"/>
+  <Parameter dimension="mV" name="v_reset"/>
+  <Parameter dimension="ms" name="tau_m"/>
+  <Parameter dimension="ms" name="t_refrac"/>
+ </ComponentClass>
+</SpineML>

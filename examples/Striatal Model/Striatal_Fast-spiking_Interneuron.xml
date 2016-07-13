@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="neuron_body" name="Striatal Fast-spiking Interneuron">
+  <Dynamics initial_regime="low_voltage">
+   <Regime name="low_voltage">
+    <TimeDerivative variable="v">
+     <MathInline>(k*(v-v_r*(1-nu*phi_1))*(v-v_t)-u+I_final)/C</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="u">
+     <MathInline>-a*u</MathInline>
+    </TimeDerivative>
+    <OnCondition target_regime="high_voltage">
+     <Trigger>
+      <MathInline>v>=v_b</MathInline>
+     </Trigger>
+    </OnCondition>
+    <OnCondition target_regime="low_voltage">
+     <StateAssignment variable="v">
+      <MathInline>c</MathInline>
+     </StateAssignment>
+     <StateAssignment variable="u">
+      <MathInline>u+d</MathInline>
+     </StateAssignment>
+     <EventOut port="spike"/>
+     <Trigger>
+      <MathInline>v>v_peak</MathInline>
+     </Trigger>
+    </OnCondition>
+   </Regime>
+   <Regime name="high_voltage">
+    <TimeDerivative variable="v">
+     <MathInline>(k*(v-v_r*(1-nu*phi_1))*(v-v_t)-u+I_final)/C</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="u">
+     <MathInline>a*(b*(v-v_b)*(v-v_b)*(v-v_b)-u)</MathInline>
+    </TimeDerivative>
+    <OnCondition target_regime="low_voltage">
+     <Trigger>
+      <MathInline>v&lt;v_b</MathInline>
+     </Trigger>
+    </OnCondition>
+    <OnCondition target_regime="high_voltage">
+     <StateAssignment variable="v">
+      <MathInline>c</MathInline>
+     </StateAssignment>
+     <StateAssignment variable="u">
+      <MathInline>u+d</MathInline>
+     </StateAssignment>
+     <EventOut port="spike"/>
+     <Trigger>
+      <MathInline>v>v_peak</MathInline>
+     </Trigger>
+    </OnCondition>
+   </Regime>
+   <Alias dimension="g" name="I_final">
+    <MathInline>I_AMPA+I_GABA*(1-epsilon*phi_2)+I_gap</MathInline>
+   </Alias>
+   <StateVariable dimension="pA" name="u"/>
+   <StateVariable dimension="mV" name="v"/>
+  </Dynamics>
+  <AnalogReducePort dimension="pA" name="I_AMPA" reduce_op="+"/>
+  <AnalogReducePort dimension="pA" name="I_GABA" reduce_op="+"/>
+  <AnalogReducePort dimension="pA" name="I_gap" reduce_op="+"/>
+  <AnalogSendPort name="v"/>
+  <EventSendPort name="spike"/>
+  <Parameter dimension="mV" name="v_t"/>
+  <Parameter dimension="mV" name="v_r"/>
+  <Parameter dimension="?" name="k"/>
+  <Parameter dimension="pF" name="C"/>
+  <Parameter dimension="ms" name="a"/>
+  <Parameter dimension="nS" name="b"/>
+  <Parameter dimension="mV" name="c"/>
+  <Parameter dimension="pA" name="d"/>
+  <Parameter dimension="mV" name="v_b"/>
+  <Parameter dimension="mV" name="v_peak"/>
+  <Parameter dimension="?" name="phi_1"/>
+  <Parameter dimension="?" name="phi_2"/>
+  <Parameter dimension="?" name="nu"/>
+  <Parameter dimension="?" name="epsilon"/>
+ </ComponentClass>
+</SpineML>

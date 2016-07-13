@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE SpineML>
+<SpineML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.shef.ac.uk/SpineMLComponentLayer">
+ <ComponentClass type="postsynapse" name="PyNN_PostSynapse">
+  <Dynamics initial_regime="passthrough">
+   <Regime name="passthrough">
+    <OnImpulse target_regime="passthrough" src_port="w_in">
+     <StateAssignment variable="w_out">
+      <MathInline>w_in</MathInline>
+     </StateAssignment>
+     <ImpulseOut port="w_out"/>
+    </OnImpulse>
+   </Regime>
+   <StateVariable dimension="?" name="w_out"/>
+  </Dynamics>
+  <ImpulseReceivePort dimension="?" name="w_in"/>
+  <ImpulseSendPort name="w_out"/>
+ </ComponentClass>
+</SpineML>

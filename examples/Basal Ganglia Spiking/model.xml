@@ -1,0 +1,863 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LL:SpineML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.shef.ac.uk/SpineMLNetworkLayer" xmlns:LL="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer" name="BG">
+    <LL:Population>
+        <LL:Annotation>
+            <SpineCreator>
+                <xPos value="-1.95972"/>
+                <yPos value="0.966574"/>
+                <animSpeed value="0.2"/>
+                <aspectRatio value="1.66667"/>
+                <colour red="249" green="0" blue="14"/>
+                <size value="1"/>
+                <tag value="1"/>
+                <x3D value="-6"/>
+                <y3D value="0"/>
+                <z3D value="3"/>
+                <is_visualised value="1"/>
+            </SpineCreator>
+        </LL:Annotation>
+        <LL:Neuron name="D1" size="42" url="IAFdopa.xml">
+            <Property name="C_m" dimension="pF">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="i_offset" dimension="nA">
+                <FixedValue value="-0.2"/>
+            </Property>
+            <Property name="v_thresh" dimension="mV">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="v_rest" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="v_reset" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="tau_m" dimension="ms">
+                <UniformDistribution minimum="20" maximum="30" seed="123"/>
+            </Property>
+            <Property name="t_refrac" dimension="ms">
+                <FixedValue value="5"/>
+            </Property>
+            <Property name="dopamine" dimension="?">
+                <FixedValue value="0.2"/>
+            </Property>
+            <Property name="v" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="t_spike" dimension="ms">
+                <FixedValue value="0"/>
+            </Property>
+        </LL:Neuron>
+        <Layout url="Grid.xml" seed="123" minimum_distance="0">
+            <Property name="numNeurons" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="rowLength" dimension="?">
+                <FixedValue value="7"/>
+            </Property>
+            <Property name="x" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="y" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="z" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="t" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+        </Layout>
+        <LL:Projection dst_population="GPi">
+            <LL:Annotation>
+                <SpineCreator>
+                    <DrawOptions style="4" showlabel="0"/>
+                    <start x="-1.96549" y="0.466574"/>
+                    <curves>
+                        <curve>
+                            <C1 xpos="-1.96549" ypos="-1.89671"/>
+                            <C2 xpos="-1.99299" ypos="-1.9254"/>
+                            <end xpos="-1.99299" ypos="-3.50184"/>
+                        </curve>
+                    </curves>
+                </SpineCreator>
+            </LL:Annotation>
+            <LL:Synapse>
+                <ConnectionList>
+                    <Annotation>
+                        <SpineCreator>
+                            <Script text="#!/usr/bin/python&#10;&#10;#PARNAME=direction #LOC=1,1&#10;&#10;def connectionFunc( srclocs, dstlocs, direction ):&#10;&#10;&#9;import math&#10;&#10;&#9;i = 0&#10;&#9;out = []&#10;&#9;for srcloc in srclocs:&#10;&#9;&#9;j = 0&#10;&#9;&#9;for dstloc in dstlocs:&#10;&#9;&#9;&#9;x_dist = round(srcloc[0] - dstloc[0])&#10;&#9;&#9;&#9;y_dist = round(srcloc[1] - dstloc[1])&#10;&#9;&#9;&#9;if y_dist == 0 and direction == 0:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;if x_dist == 0 and direction == 1:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;j = j + 1&#10;&#9;&#9;i = i + 1&#10;&#9;return out" name="rowWise" direction="1"/>
+                            <Config/>
+                        </SpineCreator>
+                    </Annotation>
+                    <Delay dimension="ms">
+                        <FixedValue value="0"/>
+                    </Delay>
+                    <BinaryFile file_name="connection2.bin" num_connections="294" explicit_delay_flag="0" packed_data="true"/>
+                </ConnectionList>
+                <LL:WeightUpdate name="D1 to GPi Synapse 0 weight_update" url="FixedWeight.xml" input_src_port="spike" input_dst_port="spike">
+                    <Property name="w" dimension="?">
+                        <FixedValue value="-1.4"/>
+                    </Property>
+                </LL:WeightUpdate>
+                <LL:PostSynapse name="D1 to GPi Synapse 0 postsynapse" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_syn">
+                    <Property name="tau_syn" dimension="?">
+                        <FixedValue value="4"/>
+                    </Property>
+                    <Property name="I_Syn" dimension="nA">
+                        <FixedValue value="0"/>
+                    </Property>
+                </LL:PostSynapse>
+            </LL:Synapse>
+        </LL:Projection>
+    </LL:Population>
+    <LL:Population>
+        <LL:Annotation>
+            <SpineCreator>
+                <xPos value="2"/>
+                <yPos value="0.999998"/>
+                <animSpeed value="0.2"/>
+                <aspectRatio value="1.66667"/>
+                <colour red="249" green="64" blue="2"/>
+                <size value="1"/>
+                <tag value="2"/>
+                <x3D value="6"/>
+                <y3D value="0"/>
+                <z3D value="3"/>
+                <is_visualised value="1"/>
+            </SpineCreator>
+        </LL:Annotation>
+        <LL:Neuron name="D2" size="42" url="IAFdopa.xml">
+            <Property name="C_m" dimension="pF">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="i_offset" dimension="nA">
+                <FixedValue value="-0.2"/>
+            </Property>
+            <Property name="v_thresh" dimension="mV">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="v_rest" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="v_reset" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="tau_m" dimension="ms">
+                <UniformDistribution minimum="20" maximum="30" seed="124"/>
+            </Property>
+            <Property name="t_refrac" dimension="ms">
+                <FixedValue value="5"/>
+            </Property>
+            <Property name="dopamine" dimension="?">
+                <FixedValue value="-0.18"/>
+            </Property>
+            <Property name="v" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="t_spike" dimension="ms">
+                <FixedValue value="0"/>
+            </Property>
+        </LL:Neuron>
+        <Layout url="Grid.xml" seed="123" minimum_distance="0">
+            <Property name="numNeurons" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="rowLength" dimension="?">
+                <FixedValue value="7"/>
+            </Property>
+            <Property name="x" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="y" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="z" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="t" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+        </Layout>
+        <LL:Projection dst_population="GPe">
+            <LL:Annotation>
+                <SpineCreator>
+                    <DrawOptions style="4" showlabel="0"/>
+                    <start x="2.02263" y="0.500045"/>
+                    <curves>
+                        <curve>
+                            <C1 xpos="2.02263" ypos="-1.60996"/>
+                            <C2 xpos="2.00229" ypos="-1.60892"/>
+                            <end xpos="2.00229" ypos="-3.49892"/>
+                        </curve>
+                    </curves>
+                </SpineCreator>
+            </LL:Annotation>
+            <LL:Synapse>
+                <ConnectionList>
+                    <Annotation>
+                        <SpineCreator>
+                            <Script text="#!/usr/bin/python&#10;&#10;#PARNAME=direction #LOC=1,1&#10;&#10;def connectionFunc( srclocs, dstlocs, direction ):&#10;&#10;&#9;import math&#10;&#10;&#9;i = 0&#10;&#9;out = []&#10;&#9;for srcloc in srclocs:&#10;&#9;&#9;j = 0&#10;&#9;&#9;for dstloc in dstlocs:&#10;&#9;&#9;&#9;x_dist = round(srcloc[0] - dstloc[0])&#10;&#9;&#9;&#9;y_dist = round(srcloc[1] - dstloc[1])&#10;&#9;&#9;&#9;if y_dist == 0 and direction == 0:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;if x_dist == 0 and direction == 1:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;j = j + 1&#10;&#9;&#9;i = i + 1&#10;&#9;return out" name="rowWise" direction="1"/>
+                            <Config/>
+                        </SpineCreator>
+                    </Annotation>
+                    <Delay dimension="ms">
+                        <FixedValue value="0"/>
+                    </Delay>
+                    <BinaryFile file_name="connection3.bin" num_connections="294" explicit_delay_flag="0" packed_data="true"/>
+                </ConnectionList>
+                <LL:WeightUpdate name="D2 to GPe Synapse 0 weight_update" url="FixedWeight.xml" input_src_port="spike" input_dst_port="spike">
+                    <Property name="w" dimension="?">
+                        <FixedValue value="-1.4"/>
+                    </Property>
+                </LL:WeightUpdate>
+                <LL:PostSynapse name="D2 to GPe Synapse 0 postsynapse" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_syn">
+                    <Property name="tau_syn" dimension="?">
+                        <FixedValue value="4"/>
+                    </Property>
+                    <Property name="I_Syn" dimension="nA">
+                        <FixedValue value="0"/>
+                    </Property>
+                </LL:PostSynapse>
+            </LL:Synapse>
+        </LL:Projection>
+    </LL:Population>
+    <LL:Population>
+        <LL:Annotation>
+            <SpineCreator>
+                <xPos value="0.02"/>
+                <yPos value="-1.5"/>
+                <animSpeed value="0.2"/>
+                <aspectRatio value="1.66667"/>
+                <colour red="49" green="255" blue="9"/>
+                <size value="1"/>
+                <tag value="3"/>
+                <x3D value="0"/>
+                <y3D value="0"/>
+                <z3D value="0"/>
+                <is_visualised value="1"/>
+            </SpineCreator>
+        </LL:Annotation>
+        <LL:Neuron name="STN" size="42" url="IAF.xml">
+            <Property name="C_m" dimension="pF">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="i_offset" dimension="nA">
+                <FixedValue value="0.25"/>
+            </Property>
+            <Property name="v_thresh" dimension="mV">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="v_rest" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="v_reset" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="tau_m" dimension="ms">
+                <UniformDistribution minimum="20" maximum="30" seed="125"/>
+            </Property>
+            <Property name="t_refrac" dimension="ms">
+                <FixedValue value="5"/>
+            </Property>
+            <Property name="v" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="t_spike" dimension="ms">
+                <FixedValue value="0"/>
+            </Property>
+        </LL:Neuron>
+        <Layout url="Grid.xml" seed="123" minimum_distance="0">
+            <Property name="numNeurons" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="rowLength" dimension="?">
+                <FixedValue value="7"/>
+            </Property>
+            <Property name="x" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="y" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="z" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="t" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+        </Layout>
+        <LL:Projection dst_population="GPi">
+            <LL:Annotation>
+                <SpineCreator>
+                    <DrawOptions style="4" showlabel="0"/>
+                    <start x="-0.470291" y="-1.99982"/>
+                    <curves>
+                        <curve>
+                            <C1 xpos="-0.470291" ypos="-2.77982"/>
+                            <C2 xpos="-1.60735" ypos="-2.80868"/>
+                            <end xpos="-1.60735" ypos="-3.50184"/>
+                        </curve>
+                    </curves>
+                </SpineCreator>
+            </LL:Annotation>
+            <LL:Synapse>
+                <AllToAllConnection>
+                    <Delay dimension="ms">
+                        <FixedValue value="0"/>
+                    </Delay>
+                </AllToAllConnection>
+                <LL:WeightUpdate name="STN to GPi Synapse 0 weight_update" url="FixedWeight.xml" input_src_port="spike" input_dst_port="spike">
+                    <Property name="w" dimension="?">
+                        <FixedValue value="1.28"/>
+                    </Property>
+                </LL:WeightUpdate>
+                <LL:PostSynapse name="STN to GPi Synapse 0 postsynapse" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_syn">
+                    <Property name="tau_syn" dimension="?">
+                        <FixedValue value="4"/>
+                    </Property>
+                    <Property name="I_Syn" dimension="nA">
+                        <FixedValue value="0"/>
+                    </Property>
+                </LL:PostSynapse>
+            </LL:Synapse>
+        </LL:Projection>
+        <LL:Projection dst_population="GPe">
+            <LL:Annotation>
+                <SpineCreator>
+                    <DrawOptions style="4" showlabel="0"/>
+                    <start x="0.353333" y="-1.99982"/>
+                    <curves>
+                        <curve>
+                            <C1 xpos="0.38" ypos="-2.83982"/>
+                            <C2 xpos="0.45047" ypos="-3.65892"/>
+                            <end xpos="1.16675" ypos="-3.74109"/>
+                        </curve>
+                    </curves>
+                </SpineCreator>
+            </LL:Annotation>
+            <LL:Synapse>
+                <AllToAllConnection>
+                    <Delay dimension="ms">
+                        <FixedValue value="0.1"/>
+                    </Delay>
+                </AllToAllConnection>
+                <LL:WeightUpdate name="STN to GPe Synapse 0 weight_update" url="FixedWeight.xml" input_src_port="spike" input_dst_port="spike">
+                    <Property name="w" dimension="?">
+                        <FixedValue value="1.28"/>
+                    </Property>
+                </LL:WeightUpdate>
+                <LL:PostSynapse name="STN to GPe Synapse 0 postsynapse" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_syn">
+                    <Property name="tau_syn" dimension="?">
+                        <FixedValue value="4"/>
+                    </Property>
+                    <Property name="I_Syn" dimension="nA">
+                        <FixedValue value="0"/>
+                    </Property>
+                </LL:PostSynapse>
+            </LL:Synapse>
+        </LL:Projection>
+    </LL:Population>
+    <LL:Population>
+        <LL:Annotation>
+            <SpineCreator>
+                <xPos value="-2"/>
+                <yPos value="-4"/>
+                <animSpeed value="0.2"/>
+                <aspectRatio value="1.66667"/>
+                <colour red="89" green="2" blue="255"/>
+                <size value="1"/>
+                <tag value="4"/>
+                <x3D value="-6"/>
+                <y3D value="0"/>
+                <z3D value="-5"/>
+                <is_visualised value="1"/>
+            </SpineCreator>
+        </LL:Annotation>
+        <LL:Neuron name="GPi" size="42" url="IAF.xml">
+            <Property name="C_m" dimension="pF">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="i_offset" dimension="nA">
+                <FixedValue value="2"/>
+            </Property>
+            <Property name="v_thresh" dimension="mV">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="v_rest" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="v_reset" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="tau_m" dimension="ms">
+                <UniformDistribution minimum="20" maximum="30" seed="127"/>
+            </Property>
+            <Property name="t_refrac" dimension="ms">
+                <FixedValue value="5"/>
+            </Property>
+            <Property name="v" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="t_spike" dimension="ms">
+                <FixedValue value="0"/>
+            </Property>
+        </LL:Neuron>
+        <Layout url="Grid.xml" seed="123" minimum_distance="0">
+            <Property name="numNeurons" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="rowLength" dimension="?">
+                <FixedValue value="7"/>
+            </Property>
+            <Property name="x" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="y" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="z" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="t" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+        </Layout>
+    </LL:Population>
+    <LL:Population>
+        <LL:Annotation>
+            <SpineCreator>
+                <xPos value="2.00009"/>
+                <yPos value="-3.99994"/>
+                <animSpeed value="0.2"/>
+                <aspectRatio value="1.66667"/>
+                <colour red="12" green="24" blue="255"/>
+                <size value="1"/>
+                <tag value="5"/>
+                <x3D value="6"/>
+                <y3D value="0"/>
+                <z3D value="-3"/>
+                <is_visualised value="1"/>
+            </SpineCreator>
+        </LL:Annotation>
+        <LL:Neuron name="GPe" size="42" url="IAF.xml">
+            <Property name="C_m" dimension="pF">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="i_offset" dimension="nA">
+                <FixedValue value="2"/>
+            </Property>
+            <Property name="v_thresh" dimension="mV">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="v_rest" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="v_reset" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="tau_m" dimension="ms">
+                <UniformDistribution minimum="20" maximum="30" seed="128"/>
+            </Property>
+            <Property name="t_refrac" dimension="ms">
+                <FixedValue value="5"/>
+            </Property>
+            <Property name="v" dimension="mV">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="t_spike" dimension="ms">
+                <FixedValue value="0"/>
+            </Property>
+        </LL:Neuron>
+        <Layout url="Grid.xml" seed="123" minimum_distance="0">
+            <Property name="numNeurons" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="rowLength" dimension="?">
+                <FixedValue value="7"/>
+            </Property>
+            <Property name="x" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="y" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="z" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="t" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+        </Layout>
+        <LL:Projection dst_population="GPi">
+            <LL:Annotation>
+                <SpineCreator>
+                    <DrawOptions style="4" showlabel="0"/>
+                    <start x="1.16675" y="-4.03235"/>
+                    <curves>
+                        <curve>
+                            <C1 xpos="-0.161388" ypos="-4.03235"/>
+                            <C2 xpos="-0.117153" ypos="-4.04073"/>
+                            <end xpos="-1.16505" ypos="-4.01906"/>
+                        </curve>
+                    </curves>
+                </SpineCreator>
+            </LL:Annotation>
+            <LL:Synapse>
+                <ConnectionList>
+                    <Annotation>
+                        <SpineCreator>
+                            <Script text="#!/usr/bin/python&#10;&#10;#PARNAME=direction #LOC=1,1&#10;&#10;def connectionFunc( srclocs, dstlocs, direction ):&#10;&#10;&#9;import math&#10;&#10;&#9;i = 0&#10;&#9;out = []&#10;&#9;for srcloc in srclocs:&#10;&#9;&#9;j = 0&#10;&#9;&#9;for dstloc in dstlocs:&#10;&#9;&#9;&#9;x_dist = round(srcloc[0] - dstloc[0])&#10;&#9;&#9;&#9;y_dist = round(srcloc[1] - dstloc[1])&#10;&#9;&#9;&#9;if y_dist == 0 and direction == 0:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;if x_dist == 0 and direction == 1:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;j = j + 1&#10;&#9;&#9;i = i + 1&#10;&#9;return out" name="rowWise" direction="1"/>
+                            <Config/>
+                        </SpineCreator>
+                    </Annotation>
+                    <Delay dimension="ms">
+                        <FixedValue value="0"/>
+                    </Delay>
+                    <BinaryFile file_name="connection4.bin" num_connections="294" explicit_delay_flag="0" packed_data="true"/>
+                </ConnectionList>
+                <LL:WeightUpdate name="GPe to GPi Synapse 0 weight_update" url="FixedWeight.xml" input_src_port="spike" input_dst_port="spike">
+                    <Property name="w" dimension="?">
+                        <FixedValue value="-0.57"/>
+                    </Property>
+                </LL:WeightUpdate>
+                <LL:PostSynapse name="GPe to GPi Synapse 0 postsynapse" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_syn">
+                    <Property name="tau_syn" dimension="?">
+                        <FixedValue value="4"/>
+                    </Property>
+                    <Property name="I_Syn" dimension="nA">
+                        <FixedValue value="0"/>
+                    </Property>
+                </LL:PostSynapse>
+            </LL:Synapse>
+        </LL:Projection>
+        <LL:Projection dst_population="STN">
+            <LL:Annotation>
+                <SpineCreator>
+                    <DrawOptions style="4" showlabel="0"/>
+                    <start x="1.66756" y="-3.49892"/>
+                    <curves>
+                        <curve>
+                            <C1 xpos="1.66756" ypos="-2.59892"/>
+                            <C2 xpos="1.46" ypos="-1.71982"/>
+                            <end xpos="0.853335" ypos="-1.7271"/>
+                        </curve>
+                    </curves>
+                </SpineCreator>
+            </LL:Annotation>
+            <LL:Synapse>
+                <ConnectionList>
+                    <Annotation>
+                        <SpineCreator>
+                            <Script text="#!/usr/bin/python&#10;&#10;#PARNAME=direction #LOC=1,1&#10;&#10;def connectionFunc( srclocs, dstlocs, direction ):&#10;&#10;&#9;import math&#10;&#10;&#9;i = 0&#10;&#9;out = []&#10;&#9;for srcloc in srclocs:&#10;&#9;&#9;j = 0&#10;&#9;&#9;for dstloc in dstlocs:&#10;&#9;&#9;&#9;x_dist = round(srcloc[0] - dstloc[0])&#10;&#9;&#9;&#9;y_dist = round(srcloc[1] - dstloc[1])&#10;&#9;&#9;&#9;if y_dist == 0 and direction == 0:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;if x_dist == 0 and direction == 1:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;j = j + 1&#10;&#9;&#9;i = i + 1&#10;&#9;return out" name="rowWise" direction="1"/>
+                            <Config/>
+                        </SpineCreator>
+                    </Annotation>
+                    <Delay dimension="ms">
+                        <FixedValue value="0"/>
+                    </Delay>
+                    <BinaryFile file_name="connection5.bin" num_connections="294" explicit_delay_flag="0" packed_data="true"/>
+                </ConnectionList>
+                <LL:WeightUpdate name="GPe to STN Synapse 0 weight_update" url="FixedWeight.xml" input_src_port="spike" input_dst_port="spike">
+                    <Property name="w" dimension="?">
+                        <FixedValue value="-1.4"/>
+                    </Property>
+                </LL:WeightUpdate>
+                <LL:PostSynapse name="GPe to STN Synapse 0 postsynapse" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_syn">
+                    <Property name="tau_syn" dimension="?">
+                        <FixedValue value="4"/>
+                    </Property>
+                    <Property name="I_Syn" dimension="nA">
+                        <FixedValue value="0"/>
+                    </Property>
+                </LL:PostSynapse>
+            </LL:Synapse>
+        </LL:Projection>
+    </LL:Population>
+    <LL:Population>
+        <LL:Annotation>
+            <SpineCreator>
+                <xPos value="2.8026e-45"/>
+                <yPos value="3.5"/>
+                <animSpeed value="0.2"/>
+                <aspectRatio value="1.66667"/>
+                <colour red="0" green="0" blue="0"/>
+                <size value="1"/>
+                <tag value="6"/>
+                <x3D value="0"/>
+                <y3D value="0"/>
+                <z3D value="6"/>
+                <is_visualised value="1"/>
+            </SpineCreator>
+        </LL:Annotation>
+        <LL:Neuron name="Cortex" size="6" url="spikePass.xml"/>
+        <Layout url="Grid.xml" seed="123" minimum_distance="0">
+            <Property name="numNeurons" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="rowLength" dimension="?">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="x" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="y" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="z" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="t" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+        </Layout>
+        <LL:Projection dst_population="D1">
+            <LL:Annotation>
+                <SpineCreator>
+                    <DrawOptions style="4" showlabel="0"/>
+                    <start x="-0.336134" y="3"/>
+                    <curves>
+                        <curve>
+                            <C1 xpos="-0.336134" ypos="2.06"/>
+                            <C2 xpos="-1.5605" ypos="2.06"/>
+                            <end xpos="-1.5605" ypos="1.46657"/>
+                        </curve>
+                    </curves>
+                </SpineCreator>
+            </LL:Annotation>
+            <LL:Synapse>
+                <ConnectionList>
+                    <Annotation>
+                        <SpineCreator>
+                            <Script text="#!/usr/bin/python&#10;&#10;#PARNAME=direction #LOC=1,1&#10;&#10;def connectionFunc( srclocs, dstlocs, direction ):&#10;&#10;&#9;import math&#10;&#10;&#9;i = 0&#10;&#9;out = []&#10;&#9;for srcloc in srclocs:&#10;&#9;&#9;j = 0&#10;&#9;&#9;for dstloc in dstlocs:&#10;&#9;&#9;&#9;x_dist = round(srcloc[0] - dstloc[0])&#10;&#9;&#9;&#9;y_dist = round(srcloc[1] - dstloc[1])&#10;&#9;&#9;&#9;if y_dist == 0 and direction == 0:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;if x_dist == 0 and direction == 1:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;j = j + 1&#10;&#9;&#9;i = i + 1&#10;&#9;return out" name="rowWise" direction="1"/>
+                            <Config/>
+                        </SpineCreator>
+                    </Annotation>
+                    <Delay dimension="ms">
+                        <FixedValue value="0"/>
+                    </Delay>
+                    <BinaryFile file_name="connection6.bin" num_connections="42" explicit_delay_flag="0" packed_data="true"/>
+                </ConnectionList>
+                <LL:WeightUpdate name="Cortex to D1 Synapse 0 weight_update" url="FixedWeight.xml" input_src_port="spikeOut" input_dst_port="spike">
+                    <Property name="w" dimension="?">
+                        <FixedValue value="10"/>
+                    </Property>
+                </LL:WeightUpdate>
+                <LL:PostSynapse name="Cortex to D1 Synapse 0 postsynapse" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_syn">
+                    <Property name="tau_syn" dimension="?">
+                        <FixedValue value="4"/>
+                    </Property>
+                    <Property name="I_Syn" dimension="nA">
+                        <FixedValue value="0"/>
+                    </Property>
+                </LL:PostSynapse>
+            </LL:Synapse>
+        </LL:Projection>
+        <LL:Projection dst_population="D2">
+            <LL:Annotation>
+                <SpineCreator>
+                    <DrawOptions style="4" showlabel="0"/>
+                    <start x="0.459459" y="3"/>
+                    <curves>
+                        <curve>
+                            <C1 xpos="0.459459" ypos="2.14"/>
+                            <C2 xpos="1.6082" ypos="2.14004"/>
+                            <end xpos="1.6082" ypos="1.50004"/>
+                        </curve>
+                    </curves>
+                </SpineCreator>
+            </LL:Annotation>
+            <LL:Synapse>
+                <ConnectionList>
+                    <Annotation>
+                        <SpineCreator>
+                            <Script text="#!/usr/bin/python&#10;&#10;#PARNAME=direction #LOC=1,1&#10;&#10;def connectionFunc( srclocs, dstlocs, direction ):&#10;&#10;&#9;import math&#10;&#10;&#9;i = 0&#10;&#9;out = []&#10;&#9;for srcloc in srclocs:&#10;&#9;&#9;j = 0&#10;&#9;&#9;for dstloc in dstlocs:&#10;&#9;&#9;&#9;x_dist = round(srcloc[0] - dstloc[0])&#10;&#9;&#9;&#9;y_dist = round(srcloc[1] - dstloc[1])&#10;&#9;&#9;&#9;if y_dist == 0 and direction == 0:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;if x_dist == 0 and direction == 1:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;j = j + 1&#10;&#9;&#9;i = i + 1&#10;&#9;return out" name="rowWise" direction="1"/>
+                            <Config/>
+                        </SpineCreator>
+                    </Annotation>
+                    <Delay dimension="ms">
+                        <FixedValue value="0"/>
+                    </Delay>
+                    <BinaryFile file_name="connection7.bin" num_connections="42" explicit_delay_flag="0" packed_data="true"/>
+                </ConnectionList>
+                <LL:WeightUpdate name="Cortex to D2 Synapse 0 weight_update" url="FixedWeight.xml" input_src_port="spikeOut" input_dst_port="spike">
+                    <Property name="w" dimension="?">
+                        <FixedValue value="10"/>
+                    </Property>
+                </LL:WeightUpdate>
+                <LL:PostSynapse name="Cortex to D2 Synapse 0 postsynapse" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_syn">
+                    <Property name="tau_syn" dimension="?">
+                        <FixedValue value="4"/>
+                    </Property>
+                    <Property name="I_Syn" dimension="nA">
+                        <FixedValue value="0"/>
+                    </Property>
+                </LL:PostSynapse>
+            </LL:Synapse>
+        </LL:Projection>
+        <LL:Projection dst_population="STN">
+            <LL:Annotation>
+                <SpineCreator>
+                    <DrawOptions style="4" showlabel="0"/>
+                    <start x="0.0021645" y="3"/>
+                    <curves>
+                        <curve>
+                            <C1 xpos="0.0021645" ypos="0.94"/>
+                            <C2 xpos="0.0180183" ypos="0.940177"/>
+                            <end xpos="0.0180183" ypos="-0.999823"/>
+                        </curve>
+                    </curves>
+                </SpineCreator>
+            </LL:Annotation>
+            <LL:Synapse>
+                <ConnectionList>
+                    <Annotation>
+                        <SpineCreator>
+                            <Script text="#!/usr/bin/python&#10;&#10;#PARNAME=direction #LOC=1,1&#10;&#10;def connectionFunc( srclocs, dstlocs, direction ):&#10;&#10;&#9;import math&#10;&#10;&#9;i = 0&#10;&#9;out = []&#10;&#9;for srcloc in srclocs:&#10;&#9;&#9;j = 0&#10;&#9;&#9;for dstloc in dstlocs:&#10;&#9;&#9;&#9;x_dist = round(srcloc[0] - dstloc[0])&#10;&#9;&#9;&#9;y_dist = round(srcloc[1] - dstloc[1])&#10;&#9;&#9;&#9;if y_dist == 0 and direction == 0:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;if x_dist == 0 and direction == 1:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;j = j + 1&#10;&#9;&#9;i = i + 1&#10;&#9;return out" name="rowWise" direction="1"/>
+                            <Config/>
+                        </SpineCreator>
+                    </Annotation>
+                    <Delay dimension="ms">
+                        <FixedValue value="0"/>
+                    </Delay>
+                    <BinaryFile file_name="connection8.bin" num_connections="42" explicit_delay_flag="0" packed_data="true"/>
+                </ConnectionList>
+                <LL:WeightUpdate name="Cortex to STN Synapse 0 weight_update" url="FixedWeight.xml" input_src_port="spikeOut" input_dst_port="spike">
+                    <Property name="w" dimension="?">
+                        <FixedValue value="10"/>
+                    </Property>
+                </LL:WeightUpdate>
+                <LL:PostSynapse name="Cortex to STN Synapse 0 postsynapse" url="Curr_exp.xml" input_src_port="w" input_dst_port="I" output_src_port="I_Syn" output_dst_port="I_syn">
+                    <Property name="tau_syn" dimension="?">
+                        <FixedValue value="4"/>
+                    </Property>
+                    <Property name="I_Syn" dimension="nA">
+                        <FixedValue value="0"/>
+                    </Property>
+                </LL:PostSynapse>
+            </LL:Synapse>
+        </LL:Projection>
+    </LL:Population>
+    <LL:Population>
+        <LL:Annotation>
+            <SpineCreator>
+                <xPos value="-2.8026e-45"/>
+                <yPos value="6"/>
+                <animSpeed value="0.2"/>
+                <aspectRatio value="1.66667"/>
+                <colour red="0" green="0" blue="0"/>
+                <size value="1"/>
+                <tag value="1"/>
+                <x3D value="0"/>
+                <y3D value="0"/>
+                <z3D value="11"/>
+                <is_visualised value="1"/>
+            </SpineCreator>
+        </LL:Annotation>
+        <LL:Neuron name="Spike Source" size="6" url="SpikeSource"/>
+        <Layout url="none.xml" seed="123" minimum_distance="0"/>
+        <LL:Projection dst_population="Cortex">
+            <LL:Annotation>
+                <SpineCreator>
+                    <DrawOptions style="4" showlabel="0"/>
+                    <start x="0.0352155" y="5.50183"/>
+                    <curves>
+                        <curve>
+                            <C1 xpos="0.0352155" ypos="4.63226"/>
+                            <C2 xpos="0.00880283" ypos="4.63067"/>
+                            <end xpos="0.00880283" ypos="4"/>
+                        </curve>
+                    </curves>
+                </SpineCreator>
+            </LL:Annotation>
+            <LL:Synapse>
+                <ConnectionList>
+                    <Annotation>
+                        <SpineCreator>
+                            <Script text="#!/usr/bin/python&#10;&#10;#PARNAME=direction #LOC=1,1&#10;&#10;def connectionFunc( srclocs, dstlocs, direction ):&#10;&#10;&#9;import math&#10;&#10;&#9;i = 0&#10;&#9;out = []&#10;&#9;for srcloc in srclocs:&#10;&#9;&#9;j = 0&#10;&#9;&#9;for dstloc in dstlocs:&#10;&#9;&#9;&#9;x_dist = round(srcloc[0] - dstloc[0])&#10;&#9;&#9;&#9;y_dist = round(srcloc[1] - dstloc[1])&#10;&#9;&#9;&#9;if y_dist == 0 and direction == 0:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;if x_dist == 0 and direction == 1:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;j = j + 1&#10;&#9;&#9;i = i + 1&#10;&#9;return out" name="rowWise" direction="1"/>
+                            <Config/>
+                        </SpineCreator>
+                    </Annotation>
+                    <Delay dimension="ms">
+                        <FixedValue value="0"/>
+                    </Delay>
+                    <Connection src_neuron="0" dst_neuron="0"/>
+                    <Connection src_neuron="1" dst_neuron="1"/>
+                    <Connection src_neuron="2" dst_neuron="2"/>
+                    <Connection src_neuron="3" dst_neuron="3"/>
+                    <Connection src_neuron="4" dst_neuron="4"/>
+                    <Connection src_neuron="5" dst_neuron="5"/>
+                </ConnectionList>
+                <LL:WeightUpdate name="Spike Source to Cortex Synapse 0 weight_update" url="spikePass1.xml" input_src_port="spike" input_dst_port="spikeIn"/>
+                <LL:PostSynapse name="Spike Source to Cortex Synapse 0 postsynapse" url="spikePass2.xml" input_src_port="spikeOut" input_dst_port="spikeIn" output_src_port="spikeOut" output_dst_port="spikeIn"/>
+            </LL:Synapse>
+        </LL:Projection>
+    </LL:Population>
+    <LL:Population>
+        <LL:Annotation>
+            <SpineCreator>
+                <xPos value="-2"/>
+                <yPos value="-6.5"/>
+                <animSpeed value="0.2"/>
+                <aspectRatio value="1.66667"/>
+                <colour red="0" green="0" blue="0"/>
+                <size value="1"/>
+                <tag value="1"/>
+                <x3D value="-6"/>
+                <y3D value="0"/>
+                <z3D value="-7"/>
+                <is_visualised value="1"/>
+            </SpineCreator>
+        </LL:Annotation>
+        <LL:Neuron name="output" size="6" url="countspikes1.xml">
+            <Property name="tau" dimension="?">
+                <FixedValue value="50"/>
+            </Property>
+            <Property name="t_start" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="tau_in" dimension="?">
+                <FixedValue value="50"/>
+            </Property>
+            <Property name="max" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="spike_weight" dimension="?">
+                <FixedValue value="1"/>
+            </Property>
+            <Property name="value" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <Property name="input" dimension="?">
+                <FixedValue value="0"/>
+            </Property>
+            <LL:Input src="GPi" src_port="spike" dst_port="spikesIn">
+                <LL:Annotation>
+                    <SpineCreator>
+                        <start x="-2" y="-4.5002"/>
+                        <curves>
+                            <curve>
+                                <C1 xpos="-2" ypos="-5.2502"/>
+                                <C2 xpos="-2.00017" ypos="-5.25066"/>
+                                <end xpos="-2.00017" ypos="-6.00066"/>
+                            </curve>
+                        </curves>
+                    </SpineCreator>
+                </LL:Annotation>
+                <ConnectionList>
+                    <Annotation>
+                        <SpineCreator>
+                            <Script text="#!/usr/bin/python&#10;&#10;#PARNAME=direction #LOC=1,1&#10;&#10;def connectionFunc( srclocs, dstlocs, direction ):&#10;&#10;&#9;import math&#10;&#10;&#9;i = 0&#10;&#9;out = []&#10;&#9;for srcloc in srclocs:&#10;&#9;&#9;j = 0&#10;&#9;&#9;for dstloc in dstlocs:&#10;&#9;&#9;&#9;x_dist = round(srcloc[0] - dstloc[0])&#10;&#9;&#9;&#9;y_dist = round(srcloc[1] - dstloc[1])&#10;&#9;&#9;&#9;if y_dist == 0 and direction == 0:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;if x_dist == 0 and direction == 1:&#10;&#9;&#9;&#9;&#9;conn = (i,j,0,0)&#10;&#9;&#9;&#9;&#9;out.append(conn)&#10;&#9;&#9;&#9;j = j + 1&#10;&#9;&#9;i = i + 1&#10;&#9;return out" name="rowWise" direction="1"/>
+                            <Config/>
+                        </SpineCreator>
+                    </Annotation>
+                    <Delay dimension="ms">
+                        <FixedValue value="0"/>
+                    </Delay>
+                    <BinaryFile file_name="connection10.bin" num_connections="42" explicit_delay_flag="0" packed_data="true"/>
+                </ConnectionList>
+            </LL:Input>
+        </LL:Neuron>
+        <Layout url="none.xml" seed="123" minimum_distance="0"/>
+    </LL:Population>
+</LL:SpineML>

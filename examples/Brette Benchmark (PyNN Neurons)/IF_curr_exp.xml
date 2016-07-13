@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!DOCTYPE SpineML>
+<SpineML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.shef.ac.uk/SpineMLComponentLayer">
+ <ComponentClass type="neuron_body" name="IF_curr_exp">
+  <Dynamics initial_regime="integrating">
+   <Regime name="integrating">
+    <TimeDerivative variable="v">
+     <MathInline>((i_offset + I_external + I_Syn_I + I_Syn_E) /cm)+(v_rest-v)/tau_m</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="I_Syn_I">
+     <MathInline>-(I_Syn_I)/tau_syn_I</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="I_Syn_E">
+     <MathInline>-(I_Syn_E)/tau_syn_E</MathInline>
+    </TimeDerivative>
+    <OnCondition target_regime="refractory">
+     <StateAssignment variable="v">
+      <MathInline>v_reset</MathInline>
+     </StateAssignment>
+     <StateAssignment variable="t_spike">
+      <MathInline>t</MathInline>
+     </StateAssignment>
+     <EventOut port="spike"/>
+     <Trigger>
+      <MathInline>v > v_thresh</MathInline>
+     </Trigger>
+    </OnCondition>
+    <OnImpulse target_regime="integrating" src_port="w_E">
+     <StateAssignment variable="I_Syn_E">
+      <MathInline>I_Syn_E + w_E</MathInline>
+     </StateAssignment>
+    </OnImpulse>
+    <OnImpulse target_regime="integrating" src_port="w_I">
+     <StateAssignment variable="I_Syn_I">
+      <MathInline>I_Syn_I + w_I</MathInline>
+     </StateAssignment>
+    </OnImpulse>
+   </Regime>
+   <Regime name="refractory">
+    <TimeDerivative variable="I_Syn_I">
+     <MathInline>-(I_Syn_I)/tau_syn_I</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="I_Syn_E">
+     <MathInline>-(I_Syn_E)/tau_syn_E</MathInline>
+    </TimeDerivative>
+    <OnCondition target_regime="integrating">
+     <Trigger>
+      <MathInline>t > (t_spike+tau_refrac)</MathInline>
+     </Trigger>
+    </OnCondition>
+    <OnImpulse target_regime="refractory" src_port="w_E">
+     <StateAssignment variable="I_Syn_E">
+      <MathInline>I_Syn_E + w_E</MathInline>
+     </StateAssignment>
+    </OnImpulse>
+    <OnImpulse target_regime="refractory" src_port="w_I">
+     <StateAssignment variable="I_Syn_I">
+      <MathInline>I_Syn_I + w_I</MathInline>
+     </StateAssignment>
+    </OnImpulse>
+   </Regime>
+   <StateVariable dimension="?" name="v"/>
+   <StateVariable dimension="?" name="t_spike"/>
+   <StateVariable dimension="?" name="I_Syn_I"/>
+   <StateVariable dimension="?" name="I_Syn_E"/>
+  </Dynamics>
+  <AnalogReducePort dimension="?" reduce_op="+" name="I_external"/>
+  <AnalogSendPort name="v"/>
+  <EventSendPort name="spike"/>
+  <ImpulseReceivePort dimension="?" name="w_I"/>
+  <ImpulseReceivePort dimension="?" name="w_E"/>
+  <Parameter dimension="?" name="cm"/>
+  <Parameter dimension="?" name="i_offset"/>
+  <Parameter dimension="?" name="tau_syn_E"/>
+  <Parameter dimension="?" name="tau_syn_I"/>
+  <Parameter dimension="?" name="v_init"/>
+  <Parameter dimension="?" name="tau_refrac"/>
+  <Parameter dimension="?" name="v_thresh"/>
+  <Parameter dimension="?" name="tau_m"/>
+  <Parameter dimension="?" name="v_rest"/>
+  <Parameter dimension="?" name="v_reset"/>
+ </ComponentClass>
+</SpineML>

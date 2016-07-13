@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SpineML xmlns:UL="http://www.shef.ac.uk/SpineMLNetworkLayer"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.shef.ac.uk/SpineMLExperimentLayer">
+  <Experiment name="Brette Experiment"
+    description="add a description for the experiment here">
+    <Model network_layer_url="Brette_Benchmark_PyNN_Network.xml" />
+    <Simulation duration="1" preferred_simulator="PyNN">
+      <EulerIntegration dt="0.1" />
+    </Simulation>
+    <LogOutput name="spike_I" target="Inhibitory" port="spike"
+      start_time="0"/>
+    <LogOutput name="spike_E" target="Excitatory" port="spike"
+      start_time="0"/>
+    <LogOutput name="v_I" target="Inhibitory" port="v" indices="0"
+      start_time="0"/>
+    <LogOutput name="v_E" target="Excitatory" port="v" indices="0"
+      start_time="0"/>
+  </Experiment>
+</SpineML>

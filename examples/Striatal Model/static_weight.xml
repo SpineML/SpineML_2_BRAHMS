@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="weight_update" name="static weight">
+  <Dynamics initial_regime="default">
+   <Regime name="default">
+    <OnEvent target_regime="default" src_port="spike">
+     <ImpulseOut port="g"/>
+    </OnEvent>
+   </Regime>
+  </Dynamics>
+  <EventReceivePort name="spike"/>
+  <ImpulseSendPort name="g"/>
+  <Parameter dimension="nS" name="g"/>
+ </ComponentClass>
+</SpineML>

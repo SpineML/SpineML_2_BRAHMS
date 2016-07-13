@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="neuron_body" name="countspikes1">
+  <Dynamics initial_regime="start">
+   <Regime name="count">
+    <TimeDerivative variable="value">
+     <MathInline>(input-value)/tau</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="input">
+     <MathInline>-input/tau_in</MathInline>
+    </TimeDerivative>
+    <OnEvent target_regime="count" src_port="spikesIn">
+     <StateAssignment variable="input">
+      <MathInline>input+spike_weight</MathInline>
+     </StateAssignment>
+    </OnEvent>
+    <OnCondition target_regime="count">
+     <StateAssignment variable="max">
+      <MathInline>value</MathInline>
+     </StateAssignment>
+     <Trigger>
+      <MathInline>value > max</MathInline>
+     </Trigger>
+    </OnCondition>
+   </Regime>
+   <Regime name="start">
+    <OnCondition target_regime="count">
+     <Trigger>
+      <MathInline>t > t_start</MathInline>
+     </Trigger>
+    </OnCondition>
+   </Regime>
+   <StateVariable dimension="?" name="max"/>
+   <StateVariable dimension="?" name="spike_weight"/>
+   <StateVariable dimension="?" name="value"/>
+   <StateVariable dimension="?" name="input"/>
+  </Dynamics>
+  <AnalogSendPort name="max"/>
+  <AnalogSendPort name="value"/>
+  <EventReceivePort name="spikesIn"/>
+  <Parameter dimension="?" name="tau"/>
+  <Parameter dimension="?" name="t_start"/>
+  <Parameter dimension="?" name="tau_in"/>
+ </ComponentClass>
+</SpineML>

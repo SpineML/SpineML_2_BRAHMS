@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="neuron_body" name="Striatal D1 Medium Spiny">
+  <Dynamics initial_regime="main">
+   <Regime name="main">
+    <TimeDerivative variable="v">
+     <MathInline>(k*(v-v_reset*(1+K*phi_1))*(v-v_threshold)-u+I_final)/capacitance</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="u">
+     <MathInline>a*(b*(v-v_reset*(1+K*phi_1))-u)</MathInline>
+    </TimeDerivative>
+    <OnCondition target_regime="main">
+     <StateAssignment variable="v">
+      <MathInline>c</MathInline>
+     </StateAssignment>
+     <StateAssignment variable="u">
+      <MathInline>u+d*(1-L*phi_1)</MathInline>
+     </StateAssignment>
+     <EventOut port="spike"/>
+     <Trigger>
+      <MathInline>v>v_peak</MathInline>
+     </Trigger>
+    </OnCondition>
+   </Regime>
+   <Alias dimension="g" name="I_AMPA">
+    <MathInline>I_sum</MathInline>
+   </Alias>
+   <Alias dimension="g" name="I_final">
+    <MathInline>I_sum+I_NMDA_D1*(1+beta_1*phi_1)</MathInline>
+   </Alias>
+   <StateVariable dimension="?" name="u"/>
+   <StateVariable dimension="mV" name="v"/>
+  </Dynamics>
+  <AnalogReducePort dimension="pA" name="I_sum" reduce_op="+"/>
+  <AnalogReducePort dimension="pA" name="I_NMDA_D1" reduce_op="+"/>
+  <AnalogSendPort name="v"/>
+  <AnalogSendPort name="I_AMPA"/>
+  <EventSendPort name="spike"/>
+  <Parameter dimension="?" name="k"/>
+  <Parameter dimension="?" name="a"/>
+  <Parameter dimension="?" name="b"/>
+  <Parameter dimension="?" name="c"/>
+  <Parameter dimension="?" name="d"/>
+  <Parameter dimension="?" name="v_reset"/>
+  <Parameter dimension="?" name="v_threshold"/>
+  <Parameter dimension="?" name="v_peak"/>
+  <Parameter dimension="?" name="capacitance"/>
+  <Parameter dimension="?" name="K"/>
+  <Parameter dimension="?" name="L"/>
+  <Parameter dimension="?" name="phi_1"/>
+  <Parameter dimension="?" name="beta_1"/>
+ </ComponentClass>
+</SpineML>

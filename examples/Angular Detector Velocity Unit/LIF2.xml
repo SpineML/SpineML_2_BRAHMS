@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="neuron_body" name="LIF2">
+  <Dynamics initial_regime="integration">
+   <Regime name="integration">
+    <TimeDerivative variable="a">
+     <MathInline>(-a-adap+in)/tau</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="adap">
+     <MathInline>(in-adap)/tau_adap</MathInline>
+    </TimeDerivative>
+   </Regime>
+   <Alias dimension="?" name="out">
+    <MathInline>m*a+c</MathInline>
+   </Alias>
+   <StateVariable dimension="V" name="a"/>
+   <StateVariable dimension="?" name="adap"/>
+  </Dynamics>
+  <AnalogSendPort name="out"/>
+  <AnalogReducePort dimension="?" name="in" reduce_op="+"/>
+  <Parameter dimension="s" name="tau"/>
+  <Parameter dimension="?" name="m"/>
+  <Parameter dimension="?" name="c"/>
+  <Parameter dimension="?" name="tau_adap"/>
+ </ComponentClass>
+</SpineML>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="neuron_body" name="Gap junction compartment">
+  <Dynamics initial_regime="New_Regime_1">
+   <Regime name="New_Regime_1">
+    <TimeDerivative variable="v_comp">
+     <MathInline>((v_a-v_comp)+(v_b-v_comp))/tau</MathInline>
+    </TimeDerivative>
+   </Regime>
+   <Alias dimension="pA" name="I_a">
+    <MathInline>g*(v_comp-v_a)</MathInline>
+   </Alias>
+   <Alias dimension="pA" name="I_b">
+    <MathInline>g*(v_comp-v_b)</MathInline>
+   </Alias>
+   <StateVariable dimension="mV" name="v_comp"/>
+  </Dynamics>
+  <AnalogSendPort name="I_a"/>
+  <AnalogSendPort name="I_b"/>
+  <AnalogReceivePort dimension="mV" name="v_a"/>
+  <AnalogReceivePort dimension="mV" name="v_b"/>
+  <Parameter dimension="ms" name="tau"/>
+  <Parameter dimension="nS" name="g"/>
+ </ComponentClass>
+</SpineML>
