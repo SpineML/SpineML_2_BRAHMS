@@ -1,0 +1,254 @@
+<modelMetaData>
+ <population name="D1">
+  <xPos value="-1.95972"/>
+  <yPos value="0.966574"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="14" green="0" red="249"/>
+  <size value="1"/>
+  <tag value="1"/>
+  <x3D value="-6"/>
+  <y3D value="0"/>
+  <z3D value="3"/>
+  <is_visualised value="1"/>
+ </population>
+ <projection destination="GPi" source="D1" style="4">
+  <start x="-1.965486645698547" y="0.4665740132331848"/>
+  <curves>
+   <curve>
+    <C1 xpos="-1.965486645698547" ypos="-1.896713137626648"/>
+    <C2 xpos="-1.992989301681519" ypos="-1.925397773524146"/>
+    <end xpos="-1.992989301681519" ypos="-3.501835008402686"/>
+   </curve>
+  </curves>
+  <synapseConnection visualised="0" name="D1 to GPi Synapse 0 weight_update">
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=direction #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, direction ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;j = 0&#xa;&#x9;&#x9;for dstloc in dstlocs:&#xa;&#x9;&#x9;&#x9;x_dist = round(srcloc[0] - dstloc[0])&#xa;&#x9;&#x9;&#x9;y_dist = round(srcloc[1] - dstloc[1])&#xa;&#x9;&#x9;&#x9;if y_dist == 0 and direction == 0:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;if x_dist == 0 and direction == 1:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;j = j + 1&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" direction="1" name="rowWise"/>
+   <Config/>
+  </synapseConnection>
+ </projection>
+ <population name="D2">
+  <xPos value="2"/>
+  <yPos value="0.999998"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="2" green="64" red="249"/>
+  <size value="1"/>
+  <tag value="2"/>
+  <x3D value="6"/>
+  <y3D value="0"/>
+  <z3D value="3"/>
+  <is_visualised value="1"/>
+ </population>
+ <projection destination="GPe" source="D2" style="4">
+  <start x="2.022625922468571" y="0.5000446104413356"/>
+  <curves>
+   <curve>
+    <C1 xpos="2.022625922468571" ypos="-1.609955463468424"/>
+    <C2 xpos="2.002290725426064" ypos="-1.60892200514354"/>
+    <end xpos="2.002290725426064" ypos="-3.498922110047715"/>
+   </curve>
+  </curves>
+  <synapseConnection visualised="0" name="D2 to GPe Synapse 0 weight_update">
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=direction #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, direction ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;j = 0&#xa;&#x9;&#x9;for dstloc in dstlocs:&#xa;&#x9;&#x9;&#x9;x_dist = round(srcloc[0] - dstloc[0])&#xa;&#x9;&#x9;&#x9;y_dist = round(srcloc[1] - dstloc[1])&#xa;&#x9;&#x9;&#x9;if y_dist == 0 and direction == 0:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;if x_dist == 0 and direction == 1:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;j = j + 1&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" direction="1" name="rowWise"/>
+   <Config/>
+  </synapseConnection>
+ </projection>
+ <population name="STN">
+  <xPos value="0.02"/>
+  <yPos value="-1.5"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="9" green="255" red="49"/>
+  <size value="1"/>
+  <tag value="3"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="0"/>
+  <is_visualised value="1"/>
+ </population>
+ <projection destination="GPi" source="STN" style="4">
+  <start x="-0.4702912867069244" y="-1.999822974205017"/>
+  <curves>
+   <curve>
+    <C1 xpos="-0.4702912867069244" ypos="-2.779822826385498"/>
+    <C2 xpos="-1.607354640960693" ypos="-2.808684726496558"/>
+    <end xpos="-1.607354640960693" ypos="-3.501835008402686"/>
+   </curve>
+  </curves>
+  <synapseConnection visualised="0" name="STN to GPi Synapse 0 weight_update"/>
+ </projection>
+ <projection destination="GPe" source="STN" style="4">
+  <start x="0.3533333241939545" y="-1.999822974205017"/>
+  <curves>
+   <curve>
+    <C1 xpos="0.3800000250339508" ypos="-2.839822769165039"/>
+    <C2 xpos="0.4504697320026025" ypos="-3.658922195878404"/>
+    <end xpos="1.166754722313271" ypos="-3.741088629212754"/>
+   </curve>
+  </curves>
+  <synapseConnection visualised="0" name="STN to GPe Synapse 0 weight_update"/>
+ </projection>
+ <population name="GPi">
+  <xPos value="-2"/>
+  <yPos value="-4"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="255" green="2" red="89"/>
+  <size value="1"/>
+  <tag value="4"/>
+  <x3D value="-6"/>
+  <y3D value="0"/>
+  <z3D value="-5"/>
+  <is_visualised value="1"/>
+ </population>
+ <population name="GPe">
+  <xPos value="2.00009"/>
+  <yPos value="-3.99994"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="255" green="24" red="12"/>
+  <size value="1"/>
+  <tag value="5"/>
+  <x3D value="6"/>
+  <y3D value="0"/>
+  <z3D value="-3"/>
+  <is_visualised value="1"/>
+ </population>
+ <projection destination="GPi" source="GPe" style="4">
+  <start x="1.166754722313271" y="-4.032354355302232"/>
+  <curves>
+   <curve>
+    <C1 xpos="-0.1613878014522925" ypos="-4.032354355302232"/>
+    <C2 xpos="-0.1171531230211258" ypos="-4.040728469630103"/>
+    <end xpos="-1.165053725242615" ypos="-4.019063373347144"/>
+   </curve>
+  </curves>
+  <synapseConnection visualised="0" name="GPe to GPi Synapse 0 weight_update">
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=direction #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, direction ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;j = 0&#xa;&#x9;&#x9;for dstloc in dstlocs:&#xa;&#x9;&#x9;&#x9;x_dist = round(srcloc[0] - dstloc[0])&#xa;&#x9;&#x9;&#x9;y_dist = round(srcloc[1] - dstloc[1])&#xa;&#x9;&#x9;&#x9;if y_dist == 0 and direction == 0:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;if x_dist == 0 and direction == 1:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;j = j + 1&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" direction="1" name="rowWise"/>
+   <Config/>
+  </synapseConnection>
+ </projection>
+ <projection destination="STN" source="GPe" style="4">
+  <start x="1.667563557342874" y="-3.498922110047715"/>
+  <curves>
+   <curve>
+    <C1 xpos="1.667563557342874" ypos="-2.598922014680284"/>
+    <C2 xpos="1.460000038146973" ypos="-1.719823002815247"/>
+    <end xpos="0.8533349633216858" ypos="-1.727096080780029"/>
+   </curve>
+  </curves>
+  <synapseConnection visualised="0" name="GPe to STN Synapse 0 weight_update">
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=direction #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, direction ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;j = 0&#xa;&#x9;&#x9;for dstloc in dstlocs:&#xa;&#x9;&#x9;&#x9;x_dist = round(srcloc[0] - dstloc[0])&#xa;&#x9;&#x9;&#x9;y_dist = round(srcloc[1] - dstloc[1])&#xa;&#x9;&#x9;&#x9;if y_dist == 0 and direction == 0:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;if x_dist == 0 and direction == 1:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;j = j + 1&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" direction="1" name="rowWise"/>
+   <Config/>
+  </synapseConnection>
+ </projection>
+ <population name="Cortex">
+  <xPos value="2.8026e-45"/>
+  <yPos value="3.5"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="0"/>
+  <size value="1"/>
+  <tag value="6"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="6"/>
+  <is_visualised value="1"/>
+ </population>
+ <projection destination="D1" source="Cortex" style="4">
+  <start x="-0.3361344635486603" y="3"/>
+  <curves>
+   <curve>
+    <C1 xpos="-0.3361344635486603" ypos="2.059999942779541"/>
+    <C2 xpos="-1.560495853424072" ypos="2.059999942779541"/>
+    <end xpos="-1.560495853424072" ypos="1.46657395362854"/>
+   </curve>
+  </curves>
+  <synapseConnection visualised="0" name="Cortex to D1 Synapse 0 weight_update">
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=direction #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, direction ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;j = 0&#xa;&#x9;&#x9;for dstloc in dstlocs:&#xa;&#x9;&#x9;&#x9;x_dist = round(srcloc[0] - dstloc[0])&#xa;&#x9;&#x9;&#x9;y_dist = round(srcloc[1] - dstloc[1])&#xa;&#x9;&#x9;&#x9;if y_dist == 0 and direction == 0:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;if x_dist == 0 and direction == 1:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;j = j + 1&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" direction="1" name="rowWise"/>
+   <Config/>
+  </synapseConnection>
+ </projection>
+ <projection destination="D2" source="Cortex" style="4">
+  <start x="0.4594594538211823" y="3"/>
+  <curves>
+   <curve>
+    <C1 xpos="0.4594594538211823" ypos="2.139999866485596"/>
+    <C2 xpos="1.608198761251835" ypos="2.140044417322287"/>
+    <end xpos="1.608198761251835" ypos="1.500044550836691"/>
+   </curve>
+  </curves>
+  <synapseConnection visualised="0" name="Cortex to D2 Synapse 0 weight_update">
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=direction #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, direction ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;j = 0&#xa;&#x9;&#x9;for dstloc in dstlocs:&#xa;&#x9;&#x9;&#x9;x_dist = round(srcloc[0] - dstloc[0])&#xa;&#x9;&#x9;&#x9;y_dist = round(srcloc[1] - dstloc[1])&#xa;&#x9;&#x9;&#x9;if y_dist == 0 and direction == 0:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;if x_dist == 0 and direction == 1:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;j = j + 1&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" direction="1" name="rowWise"/>
+   <Config/>
+  </synapseConnection>
+ </projection>
+ <projection destination="STN" source="Cortex" style="4">
+  <start x="0.002164502162486315" y="3"/>
+  <curves>
+   <curve>
+    <C1 xpos="0.002164502162486315" ypos="0.9399999976158142"/>
+    <C2 xpos="0.01801827736198902" ypos="0.9401770234107971"/>
+    <end xpos="0.01801827736198902" ypos="-0.9998229742050171"/>
+   </curve>
+  </curves>
+  <synapseConnection visualised="0" name="Cortex to STN Synapse 0 weight_update">
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=direction #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, direction ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;j = 0&#xa;&#x9;&#x9;for dstloc in dstlocs:&#xa;&#x9;&#x9;&#x9;x_dist = round(srcloc[0] - dstloc[0])&#xa;&#x9;&#x9;&#x9;y_dist = round(srcloc[1] - dstloc[1])&#xa;&#x9;&#x9;&#x9;if y_dist == 0 and direction == 0:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;if x_dist == 0 and direction == 1:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;j = j + 1&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" direction="1" name="rowWise"/>
+   <Config/>
+  </synapseConnection>
+ </projection>
+ <population name="Spike Source">
+  <xPos value="-2.8026e-45"/>
+  <yPos value="6"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="0"/>
+  <size value="1"/>
+  <tag value="1"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="11"/>
+  <is_visualised value="1"/>
+ </population>
+ <projection destination="Cortex" source="Spike Source" style="4">
+  <start x="0.03521552309393883" y="5.501830101013184"/>
+  <curves>
+   <curve>
+    <C1 xpos="0.03521552309393883" ypos="4.632258892059326"/>
+    <C2 xpos="0.008802831172943115" ypos="4.630666732788086"/>
+    <end xpos="0.008802831172943115" ypos="4"/>
+   </curve>
+  </curves>
+  <synapseConnection visualised="0" name="Spike Source to Cortex Synapse 0 weight_update">
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=direction #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, direction ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;j = 0&#xa;&#x9;&#x9;for dstloc in dstlocs:&#xa;&#x9;&#x9;&#x9;x_dist = round(srcloc[0] - dstloc[0])&#xa;&#x9;&#x9;&#x9;y_dist = round(srcloc[1] - dstloc[1])&#xa;&#x9;&#x9;&#x9;if y_dist == 0 and direction == 0:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;if x_dist == 0 and direction == 1:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;j = j + 1&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" direction="1" name="rowWise"/>
+   <Config/>
+  </synapseConnection>
+ </projection>
+ <population name="output">
+  <xPos value="-2"/>
+  <yPos value="-6.5"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="0"/>
+  <size value="1"/>
+  <tag value="1"/>
+  <x3D value="-6"/>
+  <y3D value="0"/>
+  <z3D value="-7"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="output" srcPort="spike" source="GPi" dstPort="spikesIn">
+  <start x="-2" y="-4.500201602717262"/>
+  <curves>
+   <curve>
+    <C1 xpos="-2" ypos="-5.250201602717262"/>
+    <C2 xpos="-2.000165462493896" ypos="-5.250661849975586"/>
+    <end xpos="-2.000165462493896" ypos="-6.00066089630127"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=direction #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, direction ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;j = 0&#xa;&#x9;&#x9;for dstloc in dstlocs:&#xa;&#x9;&#x9;&#x9;x_dist = round(srcloc[0] - dstloc[0])&#xa;&#x9;&#x9;&#x9;y_dist = round(srcloc[1] - dstloc[1])&#xa;&#x9;&#x9;&#x9;if y_dist == 0 and direction == 0:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;if x_dist == 0 and direction == 1:&#xa;&#x9;&#x9;&#x9;&#x9;conn = (i,j,0,0)&#xa;&#x9;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;&#x9;j = j + 1&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" direction="1" name="rowWise"/>
+   <Config/>
+  </connection>
+ </genericInput>
+</modelMetaData>

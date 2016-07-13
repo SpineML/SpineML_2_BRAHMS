@@ -1,0 +1,703 @@
+<modelMetaData>
+ <population name="source">
+  <xPos value="0.0142273"/>
+  <yPos value="-0.374063"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="127" green="255" red="255"/>
+  <size value="1"/>
+  <tag value="1"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="0"/>
+  <is_visualised value="1"/>
+ </population>
+ <population name="diff_r">
+  <xPos value="4.5"/>
+  <yPos value="2.5"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="255"/>
+  <size value="1"/>
+  <tag value="2"/>
+  <x3D value="0"/>
+  <y3D value="-4"/>
+  <z3D value="5"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="diff_r" srcPort="out" source="right" dstPort="in_a">
+  <start x="5.16624116897583" y="0.6396323442459106"/>
+  <curves>
+   <curve>
+    <C1 xpos="4.766761302947998" ypos="0.7065945267677307"/>
+    <C2 xpos="4.383745670318604" ypos="1.108638048171997"/>
+    <end xpos="4.283171653747559" ypos="2"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=shiftN0E1W2S3 #LOC=1,1&#xa;#PARNAME=rowlen #LOC=2,1&#xa;#PARNAME=collen #LOC=3,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, shift, rowlen, collen ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;col=i%int(rowlen)&#xa;&#x9;&#x9;row=math.floor(i/rowlen)&#xa;&#x9;&#x9;if shift==0:&#xa;&#x9;&#x9;&#x9;row=row+1&#xa;&#x9;&#x9;if shift==1:&#xa;&#x9;&#x9;&#x9;col=col+1&#xa;&#x9;&#x9;if shift==2:&#xa;&#x9;&#x9;&#x9;col=col-1&#xa;&#x9;&#x9;if shift==3:&#xa;&#x9;&#x9;&#x9;row=row-1&#xa;&#x9;&#x9;if col>=0 and col&lt;rowlen and row>=0 and row&lt;collen:&#xa;&#x9;&#x9;&#x9;ind = row*rowlen+col&#xa;&#x9;&#x9;&#x9;conn = (i,ind,0,0)&#xa;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" shiftN0E1W2S3="1" name="shiftNEWS" collen="6" rowlen="12"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <genericInput destination="diff_r" srcPort="out" source="right" dstPort="in_b">
+  <start x="5.624554634094238" y="0.9999444484710693"/>
+  <curves>
+   <curve>
+    <C1 xpos="5.249554634094238" ypos="1.49994432926178"/>
+    <C2 xpos="5.25" ypos="1.5"/>
+    <end xpos="4.875" ypos="2"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <population name="diff_r_neg">
+  <xPos value="7.52"/>
+  <yPos value="2.47921"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="255"/>
+  <size value="1"/>
+  <tag value="3"/>
+  <x3D value="0"/>
+  <y3D value="4"/>
+  <z3D value="5"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="diff_r_neg" srcPort="out" source="right" dstPort="in_a">
+  <start x="6.832932472229004" y="0.5905658006668091"/>
+  <curves>
+   <curve>
+    <C1 xpos="7.240039825439453" ypos="0.6348342895507812"/>
+    <C2 xpos="7.816037654876709" ypos="1.33411717414856"/>
+    <end xpos="7.838255405426025" ypos="1.979209899902344"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <genericInput destination="diff_r_neg" srcPort="out" source="right" dstPort="in_b">
+  <start x="6.383575439453125" y="0.9999480843544006"/>
+  <curves>
+   <curve>
+    <C1 xpos="6.759583950042725" ypos="1.489552974700928"/>
+    <C2 xpos="6.760000228881836" ypos="1.489604949951172"/>
+    <end xpos="7.136008262634277" ypos="1.979209899902344"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=shiftN0E1W2S3 #LOC=1,1&#xa;#PARNAME=rowlen #LOC=2,1&#xa;#PARNAME=collen #LOC=3,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, shift, rowlen, collen ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;col=i%int(rowlen)&#xa;&#x9;&#x9;row=math.floor(i/rowlen)&#xa;&#x9;&#x9;if shift==0:&#xa;&#x9;&#x9;&#x9;row=row+1&#xa;&#x9;&#x9;if shift==1:&#xa;&#x9;&#x9;&#x9;col=col+1&#xa;&#x9;&#x9;if shift==2:&#xa;&#x9;&#x9;&#x9;col=col-1&#xa;&#x9;&#x9;if shift==3:&#xa;&#x9;&#x9;&#x9;row=row-1&#xa;&#x9;&#x9;if col>=0 and col&lt;rowlen and row>=0 and row&lt;collen:&#xa;&#x9;&#x9;&#x9;ind = row*rowlen+col&#xa;&#x9;&#x9;&#x9;conn = (i,ind,0,0)&#xa;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" shiftN0E1W2S3="1" name="shiftNEWS" collen="6" rowlen="12"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <population name="result_r">
+  <xPos value="6"/>
+  <yPos value="4.5"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="170"/>
+  <size value="1"/>
+  <tag value="4"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="9"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="result_r" srcPort="out" source="diff_r" dstPort="in">
+  <start x="4.939554691314697" y="2.998143672943115"/>
+  <curves>
+   <curve>
+    <C1 xpos="4.617999076843262" ypos="3.740143060684204"/>
+    <C2 xpos="5.14688777923584" ypos="3.336888074874878"/>
+    <end xpos="5.55063533782959" ypos="3.995591640472412"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <genericInput destination="result_r" srcPort="out" source="diff_r_neg" dstPort="in_neg">
+  <start x="7.112386226654053" y="2.981011390686035"/>
+  <curves>
+   <curve>
+    <C1 xpos="7.381767272949219" ypos="3.659060955047607"/>
+    <C2 xpos="6.849999904632568" ypos="3.339999914169312"/>
+    <end xpos="6.409314632415771" ypos="3.995689868927002"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <genericInput destination="result_r" srcPort="out_slow" source="diff_r" dstPort="in_slow">
+  <start x="4.876639366149902" y="3.00014328956604"/>
+  <curves>
+   <curve>
+    <C1 xpos="5.277998447418213" ypos="3.530143260955811"/>
+    <C2 xpos="5.21999979019165" ypos="3.470000028610229"/>
+    <end xpos="5.621359348297119" ypos="4"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <genericInput destination="result_r" srcPort="out_slow" source="diff_r_neg" dstPort="in_neg_slow">
+  <start x="7.146766662597656" y="2.979061126708984"/>
+  <curves>
+   <curve>
+    <C1 xpos="6.771766662597656" ypos="3.479061126708984"/>
+    <C2 xpos="6.75" ypos="3.5"/>
+    <end xpos="6.375" ypos="4"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <population name="result_c">
+  <xPos value="2.8026e-45"/>
+  <yPos value="4.5"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="255" green="85" red="85"/>
+  <size value="1"/>
+  <tag value="5"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="9"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="result_c" srcPort="out" source="diff_c" dstPort="in">
+  <start x="-1.124619364738464" y="2.999239921569824"/>
+  <curves>
+   <curve>
+    <C1 xpos="-1.357264399528503" ypos="3.808632612228394"/>
+    <C2 xpos="-0.75" ypos="3.498478651046753"/>
+    <end xpos="-0.3749992847442627" ypos="3.998479604721069"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <genericInput destination="result_c" srcPort="out" source="diff_c_neg" dstPort="in_neg">
+  <start x="1.112975239753723" y="3.000750303268433"/>
+  <curves>
+   <curve>
+    <C1 xpos="1.530393123626709" ypos="3.785053730010986"/>
+    <C2 xpos="0.75" ypos="3.498498439788818"/>
+    <end xpos="0.3749992847442627" ypos="3.998499393463135"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <genericInput destination="result_c" srcPort="out_slow" source="diff_c" dstPort="in_slow">
+  <start x="-1.125" y="3"/>
+  <curves>
+   <curve>
+    <C1 xpos="-0.75" ypos="3.5"/>
+    <C2 xpos="-0.75" ypos="3.5"/>
+    <end xpos="-0.375" ypos="4"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <genericInput destination="result_c" srcPort="out_slow" source="diff_c_neg" dstPort="in_neg_slow">
+  <start x="1.100681185722351" y="3"/>
+  <curves>
+   <curve>
+    <C1 xpos="0.7138916254043579" ypos="3.5"/>
+    <C2 xpos="0.773578941822052" ypos="3.5"/>
+    <end xpos="0.386789470911026" ypos="4"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <population name="diff_c">
+  <xPos value="-1.5"/>
+  <yPos value="2.5"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="255" green="170" red="0"/>
+  <size value="1"/>
+  <tag value="6"/>
+  <x3D value="0"/>
+  <y3D value="-4"/>
+  <z3D value="5"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="diff_c" srcPort="out" source="centre" dstPort="in_b">
+  <start x="-0.8333333134651184" y="0.9837853908538818"/>
+  <curves>
+   <curve>
+    <C1 xpos="-1.060459613800049" ypos="0.9793546199798584"/>
+    <C2 xpos="-1.5052170753479" ypos="1.439352631568909"/>
+    <end xpos="-1.502459406852722" ypos="2"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=shiftN0E1W2S3 #LOC=1,1&#xa;#PARNAME=rowlen #LOC=2,1&#xa;#PARNAME=collen #LOC=3,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, shift, rowlen, collen ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;col=i%int(rowlen)&#xa;&#x9;&#x9;row=math.floor(i/rowlen)&#xa;&#x9;&#x9;if shift==0:&#xa;&#x9;&#x9;&#x9;row=row+1&#xa;&#x9;&#x9;if shift==1:&#xa;&#x9;&#x9;&#x9;col=col+1&#xa;&#x9;&#x9;if shift==2:&#xa;&#x9;&#x9;&#x9;col=col-1&#xa;&#x9;&#x9;if shift==3:&#xa;&#x9;&#x9;&#x9;row=row-1&#xa;&#x9;&#x9;if col>=0 and col&lt;rowlen and row>=0 and row&lt;collen:&#xa;&#x9;&#x9;&#x9;ind = row*rowlen+col&#xa;&#x9;&#x9;&#x9;conn = (i,ind,0,0)&#xa;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" shiftN0E1W2S3="3" name="shiftNEWS" collen="6" rowlen="6"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <genericInput destination="diff_c" srcPort="out" source="centre" dstPort="in_a">
+  <start x="-0.4999998807907104" y="1.500044226646423"/>
+  <curves>
+   <curve>
+    <C1 xpos="-0.75" ypos="1.750044345855713"/>
+    <C2 xpos="-0.75" ypos="1.75"/>
+    <end xpos="-1" ypos="2"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <population name="diff_c_neg">
+  <xPos value="1.48716"/>
+  <yPos value="2.5"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="255" green="170" red="0"/>
+  <size value="1"/>
+  <tag value="7"/>
+  <x3D value="0"/>
+  <y3D value="4"/>
+  <z3D value="5"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="diff_c_neg" srcPort="out" source="centre" dstPort="in_b">
+  <start x="0.8333333134651184" y="1.007418632507324"/>
+  <curves>
+   <curve>
+    <C1 xpos="1.056089878082275" ypos="1.009391188621521"/>
+    <C2 xpos="1.518889904022217" ypos="1.44434642791748"/>
+    <end xpos="1.502188563346863" ypos="2"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <genericInput destination="diff_c_neg" srcPort="out" source="centre" dstPort="in_a">
+  <start x="0.4957198798656464" y="1.500041127204895"/>
+  <curves>
+   <curve>
+    <C1 xpos="0.7435799837112427" ypos="1.750041246414185"/>
+    <C2 xpos="0.7435799837112427" ypos="1.75"/>
+    <end xpos="0.9914399981498718" ypos="2"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=shiftN0E1W2S3 #LOC=1,1&#xa;#PARNAME=rowlen #LOC=2,1&#xa;#PARNAME=collen #LOC=3,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, shift, rowlen, collen ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;col=i%int(rowlen)&#xa;&#x9;&#x9;row=math.floor(i/rowlen)&#xa;&#x9;&#x9;if shift==0:&#xa;&#x9;&#x9;&#x9;row=row+1&#xa;&#x9;&#x9;if shift==1:&#xa;&#x9;&#x9;&#x9;col=col+1&#xa;&#x9;&#x9;if shift==2:&#xa;&#x9;&#x9;&#x9;col=col-1&#xa;&#x9;&#x9;if shift==3:&#xa;&#x9;&#x9;&#x9;row=row-1&#xa;&#x9;&#x9;if col>=0 and col&lt;rowlen and row>=0 and row&lt;collen:&#xa;&#x9;&#x9;&#x9;ind = row*rowlen+col&#xa;&#x9;&#x9;&#x9;conn = (i,ind,0,0)&#xa;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" shiftN0E1W2S3="3" name="shiftNEWS" collen="6" rowlen="6"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <population name="diff_l_neg">
+  <xPos value="-4.5"/>
+  <yPos value="2.5"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="255" red="0"/>
+  <size value="1"/>
+  <tag value="8"/>
+  <x3D value="0"/>
+  <y3D value="4"/>
+  <z3D value="5"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="diff_l_neg" srcPort="out" source="left" dstPort="in_b">
+  <start x="-5.167125701904297" y="0.6422217488288879"/>
+  <curves>
+   <curve>
+    <C1 xpos="-4.768287181854248" ypos="0.7102758884429932"/>
+    <C2 xpos="-4.284671306610107" ypos="1.258957505226135"/>
+    <end xpos="-4.272972583770752" ypos="2"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=shiftN0E1W2S3 #LOC=1,1&#xa;#PARNAME=rowlen #LOC=2,1&#xa;#PARNAME=collen #LOC=3,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, shift, rowlen, collen ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;col=i%int(rowlen)&#xa;&#x9;&#x9;row=math.floor(i/rowlen)&#xa;&#x9;&#x9;if shift==0:&#xa;&#x9;&#x9;&#x9;row=row+1&#xa;&#x9;&#x9;if shift==1:&#xa;&#x9;&#x9;&#x9;col=col+1&#xa;&#x9;&#x9;if shift==2:&#xa;&#x9;&#x9;&#x9;col=col-1&#xa;&#x9;&#x9;if shift==3:&#xa;&#x9;&#x9;&#x9;row=row-1&#xa;&#x9;&#x9;if col>=0 and col&lt;rowlen and row>=0 and row&lt;collen:&#xa;&#x9;&#x9;&#x9;ind = row*rowlen+col&#xa;&#x9;&#x9;&#x9;conn = (i,ind,0,0)&#xa;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" shiftN0E1W2S3="2" name="shiftNEWS" collen="6" rowlen="12"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <genericInput destination="diff_l_neg" srcPort="out" source="left" dstPort="in_a">
+  <start x="-5.62548828125" y="1.000030517578125"/>
+  <curves>
+   <curve>
+    <C1 xpos="-5.25048828125" ypos="1.500030517578125"/>
+    <C2 xpos="-5.25" ypos="1.5"/>
+    <end xpos="-4.875" ypos="2"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <population name="diff_l">
+  <xPos value="-7.42"/>
+  <yPos value="2.52"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="255" red="0"/>
+  <size value="1"/>
+  <tag value="9"/>
+  <x3D value="0"/>
+  <y3D value="-4"/>
+  <z3D value="5"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="diff_l" srcPort="out" source="left" dstPort="in_a">
+  <start x="-6.833838939666748" y="0.5175536870956421"/>
+  <curves>
+   <curve>
+    <C1 xpos="-7.234830856323242" ypos="0.525985062122345"/>
+    <C2 xpos="-7.691910266876221" ypos="0.7077863812446594"/>
+    <end xpos="-7.786830425262451" ypos="2.019999980926514"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=shiftN0E1W2S3 #LOC=1,1&#xa;#PARNAME=rowlen #LOC=2,1&#xa;#PARNAME=collen #LOC=3,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, shift, rowlen, collen ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;col=i%int(rowlen)&#xa;&#x9;&#x9;row=math.floor(i/rowlen)&#xa;&#x9;&#x9;if shift==0:&#xa;&#x9;&#x9;&#x9;row=row+1&#xa;&#x9;&#x9;if shift==1:&#xa;&#x9;&#x9;&#x9;col=col+1&#xa;&#x9;&#x9;if shift==2:&#xa;&#x9;&#x9;&#x9;col=col-1&#xa;&#x9;&#x9;if shift==3:&#xa;&#x9;&#x9;&#x9;row=row-1&#xa;&#x9;&#x9;if col>=0 and col&lt;rowlen and row>=0 and row&lt;collen:&#xa;&#x9;&#x9;&#x9;ind = row*rowlen+col&#xa;&#x9;&#x9;&#x9;conn = (i,ind,0,0)&#xa;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" shiftN0E1W2S3="2" name="shiftNEWS" collen="6" rowlen="12"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <genericInput destination="diff_l" srcPort="out" source="left" dstPort="in_b">
+  <start x="-6.352006435394287" y="1.000032544136047"/>
+  <curves>
+   <curve>
+    <C1 xpos="-6.710521221160889" ypos="1.510032534599304"/>
+    <C2 xpos="-6.710000038146973" ypos="1.509999990463257"/>
+    <end xpos="-7.068514823913574" ypos="2.019999980926514"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <population name="result_l">
+  <xPos value="-6"/>
+  <yPos value="4.54"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="170" red="0"/>
+  <size value="1"/>
+  <tag value="10"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="9"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="result_l" srcPort="out" source="diff_l" dstPort="in">
+  <start x="-7.04343843460083" y="3.020200490951538"/>
+  <curves>
+   <curve>
+    <C1 xpos="-7.53819465637207" ypos="3.72007942199707"/>
+    <C2 xpos="-6.749756813049316" ypos="3.540679693222046"/>
+    <end xpos="-6.374755859375" ypos="4.040680408477783"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <genericInput destination="result_l" srcPort="out" source="diff_l_neg" dstPort="in_neg">
+  <start x="-4.875" y="3"/>
+  <curves>
+   <curve>
+    <C1 xpos="-4.239999771118164" ypos="4"/>
+    <C2 xpos="-5.25" ypos="3.540923118591309"/>
+    <end xpos="-5.625" ypos="4.040923118591309"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <genericInput destination="result_l" srcPort="out_slow" source="diff_l" dstPort="in_slow">
+  <start x="-7.043194770812988" y="3.020079374313354"/>
+  <curves>
+   <curve>
+    <C1 xpos="-6.668194770812988" ypos="3.520079374313354"/>
+    <C2 xpos="-6.75" ypos="3.540923118591309"/>
+    <end xpos="-6.375" ypos="4.040923118591309"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <genericInput destination="result_l" srcPort="out_slow" source="diff_l_neg" dstPort="in_neg_slow">
+  <start x="-4.875" y="3"/>
+  <curves>
+   <curve>
+    <C1 xpos="-5.25" ypos="3.5"/>
+    <C2 xpos="-5.25" ypos="3.540923118591309"/>
+    <end xpos="-5.625" ypos="4.040923118591309"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <population name="sums">
+  <xPos value="2.8026e-45"/>
+  <yPos value="7.6"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="246" green="181" red="255"/>
+  <size value="1"/>
+  <tag value="11"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="0"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="sums" srcPort="out" source="result_l" dstPort="in">
+  <start x="-5.166665077209473" y="4.957590579986572"/>
+  <curves>
+   <curve>
+    <C1 xpos="-3.619999885559082" ypos="7.480922698974609"/>
+    <C2 xpos="-3" ypos="6.102478981018066"/>
+    <end xpos="-0.8333331942558289" ypos="7.185812473297119"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=index #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, index ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;conn = (i,index,0)&#xa;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" index="2" name="sum_to_index"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <genericInput destination="sums" srcPort="out" source="result_r" dstPort="in">
+  <start x="5.166665077209473" y="4.916667461395264"/>
+  <curves>
+   <curve>
+    <C1 xpos="4.260000228881836" ypos="7.139999866485596"/>
+    <C2 xpos="3" ypos="6.102443695068359"/>
+    <end xpos="0.833333432674408" ypos="7.185777187347412"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=index #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, index ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;conn = (i,index,0)&#xa;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" index="0" name="sum_to_index"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <genericInput destination="sums" srcPort="out" source="result_c" dstPort="in">
+  <start x="-0.1667747348546982" y="5"/>
+  <curves>
+   <curve>
+    <C1 xpos="-0.3669477999210358" ypos="6.213687419891357"/>
+    <C2 xpos="-0.4715740978717804" ypos="6.178608894348145"/>
+    <end xpos="-0.165884718298912" ypos="7.099999904632568"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=index #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, index ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;conn = (i,index,0)&#xa;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" index="1" name="sum_to_index"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <genericInput destination="sums" srcPort="a_slow" source="result_l" dstPort="in_slow">
+  <start x="-5.166665077209473" y="4.957590579986572"/>
+  <curves>
+   <curve>
+    <C1 xpos="-3" ypos="6.040923118591309"/>
+    <C2 xpos="-3" ypos="6.101946353912354"/>
+    <end xpos="-0.8333349823951721" ypos="7.18527889251709"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=index #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, index ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;conn = (i,index,0)&#xa;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" index="2" name="sum_to_index"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <genericInput destination="sums" srcPort="a_slow" source="result_r" dstPort="in_slow">
+  <start x="5.166665077209473" y="4.916667461395264"/>
+  <curves>
+   <curve>
+    <C1 xpos="3" ypos="6"/>
+    <C2 xpos="3" ypos="6.101946353912354"/>
+    <end xpos="0.8333349823951721" ypos="7.18527889251709"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=index #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, index ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;conn = (i,index,0)&#xa;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" index="0" name="sum_to_index"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <genericInput destination="sums" srcPort="a_slow" source="result_c" dstPort="in_slow">
+  <start x="0.08440367877483368" y="5"/>
+  <curves>
+   <curve>
+    <C1 xpos="0.2945408523082733" ypos="6.244834423065186"/>
+    <C2 xpos="0.2932632863521576" ypos="6.237266063690186"/>
+    <end xpos="2.802596928649634e-45" ypos="7.099999904632568"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=index #LOC=1,1&#xa;&#xa;def connectionFunc( srclocs, dstlocs, index ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;conn = (i,index,0)&#xa;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" index="1" name="sum_to_index"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <population name="changes for batch">
+  <xPos value="-5.791"/>
+  <yPos value="7.61091"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="0"/>
+  <size value="1"/>
+  <tag value="2"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="0"/>
+  <is_visualised value="1"/>
+ </population>
+ <population name="av">
+  <xPos value="-3.30894"/>
+  <yPos value="9.55365"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="0"/>
+  <size value="1"/>
+  <tag value="1"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="0"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="av" srcPort="ratio" source="sums" dstPort="in">
+  <start x="-0.8333349823951721" y="8.092014312744141"/>
+  <curves>
+   <curve>
+    <C1 xpos="-1.654470801353455" ypos="8.576826095581055"/>
+    <C2 xpos="-1.654470801353455" ypos="8.576826095581055"/>
+    <end xpos="-2.475608348846436" ypos="9.061638832092285"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <population name="changes pos wall">
+  <xPos value="-7.25993"/>
+  <yPos value="9.59569"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="0"/>
+  <size value="1"/>
+  <tag value="1"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="0"/>
+  <is_visualised value="1"/>
+ </population>
+ <population name="changes neg wall">
+  <xPos value="-6.61077"/>
+  <yPos value="11.0507"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="0"/>
+  <size value="1"/>
+  <tag value="2"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="0"/>
+  <is_visualised value="1"/>
+ </population>
+ <population name="av2">
+  <xPos value="-0.59663"/>
+  <yPos value="10.3651"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="0"/>
+  <size value="1"/>
+  <tag value="1"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="0"/>
+  <is_visualised value="0"/>
+ </population>
+ <genericInput destination="av2" srcPort="ratio" source="sums" dstPort="in">
+  <start x="-0.1078840047121048" y="8.100000381469727"/>
+  <curves>
+   <curve>
+    <C1 xpos="-0.2983151078224182" ypos="8.982573509216309"/>
+    <C2 xpos="-0.2983151078224182" ypos="8.982573509216309"/>
+    <end xpos="-0.4887461960315704" ypos="9.865146636962891"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <population name="av3">
+  <xPos value="2.68437"/>
+  <yPos value="10.0228"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="0" green="0" red="0"/>
+  <size value="1"/>
+  <tag value="2"/>
+  <x3D value="0"/>
+  <y3D value="0"/>
+  <z3D value="0"/>
+  <is_visualised value="0"/>
+ </population>
+ <genericInput destination="av3" srcPort="ratio" source="sums" dstPort="in">
+  <start x="0.5539847016334534" y="8.100000381469727"/>
+  <curves>
+   <curve>
+    <C1 xpos="1.342183828353882" ypos="8.81139087677002"/>
+    <C2 xpos="1.342183828353882" ypos="8.81139087677002"/>
+    <end xpos="2.130383014678955" ypos="9.522781372070312"/>
+   </curve>
+  </curves>
+  <connection/>
+ </genericInput>
+ <population name="left">
+  <xPos value="-6"/>
+  <yPos value="0.5"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="141" green="255" red="144"/>
+  <size value="1"/>
+  <tag value="1"/>
+  <x3D value="20"/>
+  <y3D value="15"/>
+  <z3D value="2"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="left" srcPort="out" source="source" dstPort="in">
+  <start x="-0.8191076517105103" y="-0.2532315254211426"/>
+  <curves>
+   <curve>
+    <C1 xpos="-2.999835968017578" ypos="0.06296850740909576"/>
+    <C2 xpos="-2.986530065536499" ypos="0.06300559639930725"/>
+    <end xpos="-5.167259216308594" ypos="0.3792057633399963"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=start #LOC=1,1&#xa;#PARNAME=end #LOC=2,1&#xa;#PARNAME=row_length #LOC=3,1&#xa;#PARNAME=offset #LOC=4,1&#xa;#PARNAME=min #LOC=5,1&#xa;#PARNAME=max #LOC=6,1&#xa;&#xa;&#xa;def connectionFunc( srclocs, dstlocs, start, end, rowlen, offset, min, max ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;new_size=end-start&#xa;&#x9;size_diff = rowlen-new_size&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;if i%rowlen >= start and i%rowlen &lt; end and i>=min and i&lt;max:&#xa;&#x9;&#x9;&#x9;conn = (i,i-min+offset-math.floor((i-min)/rowlen)*size_diff,0)&#xa;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" start="20" row_length="32" end="32" name="indicesRowMax" offset="0" min="596" max="768"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <population name="right">
+  <xPos value="6"/>
+  <yPos value="0.5"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="129" green="143" red="255"/>
+  <size value="1"/>
+  <tag value="2"/>
+  <x3D value="0"/>
+  <y3D value="15"/>
+  <z3D value="2"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="right" srcPort="out" source="source" dstPort="in">
+  <start x="0.847562313079834" y="-0.2520933449268341"/>
+  <curves>
+   <curve>
+    <C1 xpos="3.000164031982422" ypos="0.06296850740909576"/>
+    <C2 xpos="3.013471126556396" ypos="0.06289450079202652"/>
+    <end xpos="5.166075229644775" ypos="0.3779567182064056"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=start #LOC=1,1&#xa;#PARNAME=end #LOC=2,1&#xa;#PARNAME=row_length #LOC=3,1&#xa;#PARNAME=offset #LOC=4,1&#xa;#PARNAME=min #LOC=5,1&#xa;#PARNAME=max #LOC=6,1&#xa;&#xa;&#xa;def connectionFunc( srclocs, dstlocs, start, end, rowlen, offset, min, max ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;new_size=end-start&#xa;&#x9;size_diff = rowlen-new_size&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;if i%rowlen >= start and i%rowlen &lt; end and i>=min and i&lt;max:&#xa;&#x9;&#x9;&#x9;conn = (i,i-min+offset-math.floor((i-min)/rowlen)*size_diff,0)&#xa;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" start="0" row_length="32" end="12" name="indicesRowMax" offset="0" min="576" max="768"/>
+   <Config/>
+  </connection>
+ </genericInput>
+ <population name="centre">
+  <xPos value="-2.8026e-45"/>
+  <yPos value="1"/>
+  <animSpeed value="0.2"/>
+  <aspectRatio value="1.66667"/>
+  <colour blue="255" green="192" red="150"/>
+  <size value="1"/>
+  <tag value="3"/>
+  <x3D value="13"/>
+  <y3D value="22"/>
+  <z3D value="2"/>
+  <is_visualised value="1"/>
+ </population>
+ <genericInput destination="centre" srcPort="out" source="source" dstPort="in">
+  <start x="0.003992543090134859" y="0.1259369850158691"/>
+  <curves>
+   <curve>
+    <C1 xpos="0.0001640996342757717" ypos="0.312968522310257"/>
+    <C2 xpos="0.01406320556998253" ypos="0.3130426406860352"/>
+    <end xpos="0.01023477409034967" ypos="0.5000735521316528"/>
+   </curve>
+  </curves>
+  <connection>
+   <Script text="#!/usr/bin/python&#xa;&#xa;#PARNAME=start #LOC=1,1&#xa;#PARNAME=end #LOC=2,1&#xa;#PARNAME=row_length #LOC=3,1&#xa;#PARNAME=offset #LOC=4,1&#xa;#PARNAME=min #LOC=5,1&#xa;#PARNAME=max #LOC=6,1&#xa;&#xa;&#xa;def connectionFunc( srclocs, dstlocs, start, end, rowlen, offset, min, max ):&#xa;&#xa;&#x9;import math&#xa;&#xa;&#x9;i = 0&#xa;&#x9;out = []&#xa;&#x9;new_size=end-start&#xa;&#x9;size_diff = rowlen-new_size&#xa;&#x9;for srcloc in srclocs:&#xa;&#x9;&#x9;if i%rowlen >= start and i%rowlen &lt; end and i>=min and i&lt;max:&#xa;&#x9;&#x9;&#x9;conn = (i,i-min+offset-math.floor((i-min)/rowlen)*size_diff,0)&#xa;&#x9;&#x9;&#x9;out.append(conn)&#xa;&#x9;&#x9;i = i + 1&#xa;&#x9;return out" start="12" row_length="32" end="18" name="indicesRowMax" offset="0" min="12" max="192"/>
+   <Config/>
+  </connection>
+ </genericInput>
+</modelMetaData>

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://nineml.org/9ML/0.1">
+ <LayoutClass name="hexagonal">
+  <Parameter dimension="?" name="numNeurons"/>
+  <Parameter dimension="?" name="length"/>
+  <Spatial>
+   <Regime name="">
+    <Transform dimension="??" type="translate" variable="x" order="1">
+     <MathInline>t - floor(t/length)*length+ (t/(2.0*length) - floor(t/(2.0*length)))</MathInline>
+    </Transform>
+    <Transform dimension="??" type="translate" variable="y" order="2">
+     <MathInline>floor(t/length)*0.87</MathInline>
+    </Transform>
+    <Transform dimension="??" type="translate" variable="t" order="3">
+     <MathInline>t+1</MathInline>
+    </Transform>
+   </Regime>
+   <StateVariable dimension="?" name="x"/>
+   <StateVariable dimension="?" name="y"/>
+   <StateVariable dimension="?" name="z"/>
+   <StateVariable dimension="?" name="t"/>
+  </Spatial>
+ </LayoutClass>
+</SpineML>

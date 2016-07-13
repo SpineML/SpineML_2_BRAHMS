@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="postsynapse" name="Curr exp">
+  <Dynamics initial_regime="decaying">
+   <Regime name="decaying">
+    <TimeDerivative variable="I_Syn">
+     <MathInline>- I_Syn / tau_syn</MathInline>
+    </TimeDerivative>
+    <OnImpulse target_regime="decaying" src_port="I">
+     <StateAssignment variable="I_Syn">
+      <MathInline>I_Syn+I</MathInline>
+     </StateAssignment>
+    </OnImpulse>
+   </Regime>
+   <StateVariable dimension="nA" name="I_Syn"/>
+  </Dynamics>
+  <AnalogSendPort name="I_Syn"/>
+  <ImpulseReceivePort dimension="?" name="I"/>
+  <Parameter dimension="?" name="tau_syn"/>
+ </ComponentClass>
+</SpineML>

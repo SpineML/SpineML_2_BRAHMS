@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema id="SpineMLLowLevelNetworkLayer" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer"
+  xmlns="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer" xmlns:LNET="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer"
+  xmlns:NET="http://www.shef.ac.uk/SpineMLNetworkLayer"
+
+  elementFormDefault="qualified">
+
+  <xs:import namespace="http://www.shef.ac.uk/SpineMLNetworkLayer"
+    schemaLocation="SpineMLNetworkLayer.xsd">
+  </xs:import>
+
+  <!-- Element Definitions -->
+  <xs:element name="SpineML" type="SpineMLType">
+    <!-- Keyrefs for general Component name referencing -->
+    <xs:key name="input_source_key">
+      <xs:selector xpath=".//LNET:Group|.//LNET:Population/LNET:Neuron|.//LNET:Population/LNET:Projection/LNET:Synapse/LNET:WeightUpdate|.//LNET:Population/LNET:Projection/LNET:Synapse/LNET:PostSynapse"></xs:selector>
+      <xs:field xpath="@name"></xs:field>
+    </xs:key>
+    <xs:keyref name="component_input_source" refer="input_source_key">
+      <xs:selector xpath=".//LNET:Group/LNET:Input"></xs:selector>
+      <xs:field xpath="@src"></xs:field>
+    </xs:keyref>
+    <xs:keyref name="neuron_Input_source" refer="input_source_key">
+      <xs:selector xpath=".//LNET:Population/LNET:Neuron/LNET:Input"></xs:selector>
+      <xs:field xpath="@src"></xs:field>
+    </xs:keyref>
+    <xs:keyref name="synapse_input_source" refer="input_source_key">
+      <xs:selector
+        xpath=".//LNET:Population/LNET:Projection/LNET:Synapse/LNET:WeightUpdate/LNET:Input"></xs:selector>
+      <xs:field xpath="@src"></xs:field>
+    </xs:keyref>
+    <xs:keyref name="postsynapse_input_source" refer="input_source_key">
+      <xs:selector
+        xpath=".//LNET:Population/LNET:Projection/LNET:Synapse/LNET:PostSynapse/LNET:Input"></xs:selector>
+      <xs:field xpath="@src"></xs:field>
+    </xs:keyref>
+    <!-- Keyrefs for specific Population name referencing -->
+    <xs:key name="population_name_key">
+      <xs:selector xpath=".//LNET:Population/LNET:Neuron"></xs:selector>
+      <xs:field xpath="@name"></xs:field>
+    </xs:key>
+    <xs:keyref name="population_destination" refer="population_name_key">
+      <xs:selector xpath=".//LNET:Population/LNET:Projection"></xs:selector>
+      <xs:field xpath="@dst_population"></xs:field>
+    </xs:keyref>
+  </xs:element>
+
+  <xs:element name="Group" type="GroupType"></xs:element>
+  <xs:element name="Input" type="InputType"></xs:element>
+  <xs:element name="Neuron" type="NeuronType"></xs:element>
+  <xs:element name="WeightUpdate" type="WeightUpdateType"></xs:element>
+  <xs:element name="PostSynapse" type="PostSynapseType"></xs:element>
+  <xs:element name="Population" type="PopulationType"></xs:element>
+  <xs:element name="Projection" type="ProjectionType"></xs:element>
+  <xs:element name="Synapse" type="SynapseType"></xs:element>
+  <xs:element name="Annotation" type="AnnotationType" ></xs:element>
+
+
+  <!-- Re-Usable type definitions -->
+
+  <xs:complexType name="SpineMLType">
+    <xs:sequence>
+      <xs:element ref="Annotation" minOccurs="0"></xs:element>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="Group"></xs:element>
+        <xs:element ref="Population"></xs:element>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+  </xs:complexType>
+
+
+  <xs:complexType name="GroupType">
+    <xs:complexContent>
+      <xs:extension base="NET:ComponentType">
+        <xs:sequence>
+          <xs:element ref="Input" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="NET:Layout" minOccurs="0"></xs:element>
+        </xs:sequence>
+        <xs:attribute name="size" type="xs:int" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
+  <xs:complexType name="InputType">
+    <xs:sequence>
+      <xs:element ref="Annotation" minOccurs="0"></xs:element>
+      <xs:element ref="NET:AbstractConnection" minOccurs="0" />	<!-- No Remapping implies one to one connectivity if size are equal -->
+    </xs:sequence>
+    <xs:attribute name="src_port" type="xs:string" use="required"/>
+    <xs:attribute name="dst_port" type="xs:string" use="required"/>
+    <xs:attribute name="src" type="xs:string" use="required"/> <!-- Must reference a Population name or compononentInstance name -->
+  </xs:complexType>
+
+  <xs:complexType name="AbstractConnectionType" abstract="true">
+  </xs:complexType>
+
+
+  <xs:complexType name="NeuronType">
+    <xs:complexContent>
+      <xs:extension base="NET:ComponentType">
+        <xs:sequence>
+          <xs:element ref="Input" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:sequence>
+
+        <xs:attribute name="size" type="xs:int" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
+  <xs:complexType name="WeightUpdateType">
+    <xs:complexContent>
+      <xs:extension base="NET:ComponentType">
+        <xs:sequence>
+          <xs:element ref="Input" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:sequence>
+        <xs:attribute name="input_src_port" type="xs:string" use="required"/>
+        <xs:attribute name="input_dst_port" type="xs:string" use="required"/>
+        <xs:attribute name="feedback_src_port" type="xs:string"/> <!-- Feedback channel from post synaptic neuron body for learning -->
+        <xs:attribute name="feedback_dst_port" type="xs:string"/> <!-- Feedback channel from post synaptic neuron body for learning -->
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="PostSynapseType">
+    <xs:complexContent>
+      <xs:extension base="NET:ComponentType">
+        <xs:sequence>
+          <xs:element ref="Input" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:sequence>
+        <xs:attribute name="input_src_port" type="xs:string" use="required"/>
+        <xs:attribute name="input_dst_port" type="xs:string" use="required"/>
+        <xs:attribute name="output_src_port" type="xs:string" use="required"/>
+        <xs:attribute name="output_dst_port" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="PopulationType">
+    <xs:sequence>
+      <xs:element ref="Annotation" minOccurs="0"></xs:element>
+      <xs:element ref="Neuron"></xs:element>
+      <xs:element ref="NET:Layout" minOccurs="0"></xs:element>
+      <xs:element ref="Projection" minOccurs="0" maxOccurs="unbounded"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ProjectionType">
+    <xs:sequence>
+      <xs:element ref="Annotation" minOccurs="0"></xs:element>
+      <xs:element ref="Synapse" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="dst_population" type="xs:string" use="required"/> <!-- Must reference a Population (Neuron) name -->
+  </xs:complexType>
+
+
+  <xs:complexType name="SynapseType">
+    <xs:sequence>
+      <xs:element ref="NET:AbstractConnection"></xs:element>
+      <xs:element ref="WeightUpdate"></xs:element>
+      <xs:element ref="PostSynapse"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AnnotationType">
+    <!-- Annotations can have any elements or attrbutes -->
+    <xs:sequence>
+      <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##any" processContents="lax"/>
+    </xs:sequence>
+    <xs:anyAttribute/>
+  </xs:complexType>
+
+
+</xs:schema>

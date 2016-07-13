@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="postsynapse" name="Conductance exp synapse">
+  <Dynamics initial_regime="regime">
+   <Regime name="regime">
+    <TimeDerivative variable="gh">
+     <MathInline>-gh/tau_synapse</MathInline>
+    </TimeDerivative>
+    <OnImpulse target_regime="regime" src_port="g">
+     <StateAssignment variable="gh">
+      <MathInline>gh+g</MathInline>
+     </StateAssignment>
+    </OnImpulse>
+   </Regime>
+   <Alias dimension="pA" name="Isyn">
+    <MathInline>gh*(E-v)</MathInline>
+   </Alias>
+   <StateVariable dimension="nS" name="gh"/>
+  </Dynamics>
+  <AnalogSendPort name="Isyn"/>
+  <AnalogReceivePort dimension="mV" name="v"/>
+  <ImpulseReceivePort dimension="nS" name="g"/>
+  <Parameter dimension="ms" name="tau_synapse"/>
+  <Parameter dimension="mV" name="E"/>
+ </ComponentClass>
+</SpineML>

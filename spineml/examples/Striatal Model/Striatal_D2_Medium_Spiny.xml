@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="neuron_body" name="Striatal D2 Medium Spiny">
+  <Dynamics initial_regime="main">
+   <Regime name="main">
+    <TimeDerivative variable="v">
+     <MathInline>(k*(1-alpha*phi_2)*(v-v_reset)*(v-v_threshold)-u+I_final)/capacitance</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="u">
+     <MathInline>a*(b*(v-v_reset)-u)</MathInline>
+    </TimeDerivative>
+    <OnCondition target_regime="main">
+     <StateAssignment variable="v">
+      <MathInline>c</MathInline>
+     </StateAssignment>
+     <StateAssignment variable="u">
+      <MathInline>u+d</MathInline>
+     </StateAssignment>
+     <EventOut port="spike"/>
+     <Trigger>
+      <MathInline>v>v_peak</MathInline>
+     </Trigger>
+    </OnCondition>
+   </Regime>
+   <Alias dimension="g" name="I_final">
+    <MathInline>I_sum+I_AMPA_D2*(1-beta_2*phi_2)</MathInline>
+   </Alias>
+   <StateVariable dimension="?" name="u"/>
+   <StateVariable dimension="mV" name="v"/>
+  </Dynamics>
+  <AnalogReducePort dimension="pA" name="I_sum" reduce_op="+"/>
+  <AnalogReducePort dimension="pA" name="I_AMPA_D2" reduce_op="+"/>
+  <AnalogSendPort name="v"/>
+  <EventSendPort name="spike"/>
+  <Parameter dimension="?" name="k"/>
+  <Parameter dimension="?" name="a"/>
+  <Parameter dimension="?" name="b"/>
+  <Parameter dimension="?" name="c"/>
+  <Parameter dimension="?" name="d"/>
+  <Parameter dimension="?" name="v_reset"/>
+  <Parameter dimension="?" name="v_threshold"/>
+  <Parameter dimension="?" name="v_peak"/>
+  <Parameter dimension="?" name="capacitance"/>
+  <Parameter dimension="?" name="phi_2"/>
+  <Parameter dimension="?" name="beta_2"/>
+  <Parameter dimension="?" name="alpha"/>
+ </ComponentClass>
+</SpineML>

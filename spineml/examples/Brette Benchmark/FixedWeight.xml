@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE SpineML>
+<SpineML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.shef.ac.uk/SpineMLComponentLayer">
+ <ComponentClass type="weight_update" name="FixedWeight">
+  <Dynamics initial_regime="integrating">
+   <Regime name="integrating">
+    <OnEvent target_regime="integrating" src_port="spike">
+     <ImpulseOut port="w"/>
+    </OnEvent>
+   </Regime>
+  </Dynamics>
+  <EventReceivePort name="spike"/>
+  <ImpulseSendPort name="w"/>
+  <Parameter dimension="?" name="w"/>
+ </ComponentClass>
+</SpineML>

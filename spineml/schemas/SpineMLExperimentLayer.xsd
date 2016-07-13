@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+	This schema describes a SpineML Experiment Layer.
+ -->
+
+<xs:schema id="SpineMLExperimentLayer" 
+xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+targetNamespace="http://www.shef.ac.uk/SpineMLExperimentLayer" 
+xmlns="http://www.shef.ac.uk/SpineMLExperimentLayer" 
+xmlns:NML="http://www.shef.ac.uk/SpineMLExperimentLayer" 
+xmlns:UL="http://www.shef.ac.uk/SpineMLNetworkLayer"
+elementFormDefault="qualified">
+
+	<xs:import namespace="http://www.shef.ac.uk/SpineMLNetworkLayer" schemaLocation="SpineMLNetworkLayer.xsd"/>
+
+	<xs:element name="SpineML" type="SpineMLType"></xs:element>
+	<xs:element name="Experiment" type="ExperimentType"></xs:element>
+	<xs:element name="Model" type="ModelType"></xs:element>
+	<xs:element name="Simulation" type="SimulationType"></xs:element>
+	
+	<xs:element name="AbstractIntegrationMethod" type="AbstractIntegrationMethodType"></xs:element>
+	<xs:element name="EulerIntegration" type="EulerIntegrationType" substitutionGroup="AbstractIntegrationMethod"></xs:element>
+	<xs:element name="RungeKuttaIntegration" type="EulerIntegrationType" substitutionGroup="AbstractIntegrationMethod"></xs:element>
+
+	<xs:element name="Lesion" type="LesionType"></xs:element>
+	<xs:element name="Configuration" type="ConfigurationType"></xs:element>
+	    
+   	<xs:element name="AbstractInput" type="AbstractInputType"></xs:element>
+   	<xs:element name="TimeVaryingInput" type="TimeVaryingInputType" substitutionGroup="AbstractInput"></xs:element>
+   	<xs:element name="TimeVaryingArrayInput" type="TimeVaryingArrayInputType" substitutionGroup="AbstractInput"></xs:element>
+   	<xs:element name="ConstantInput" type="ConstantInputType" substitutionGroup="AbstractInput"></xs:element>
+   	<xs:element name="ConstantArrayInput" type="ConstantArrayInputType" substitutionGroup="AbstractInput"></xs:element>
+   	<xs:element name="ExternalInput" type="ExternalInputType" substitutionGroup="AbstractInput"></xs:element>
+   	<xs:element name="ExternalArrayInput" type="ExternalArrayInputType" substitutionGroup="AbstractInput"></xs:element>
+   	<xs:element name="TimePointValue" type="TimePointValueType"></xs:element>
+   	<xs:element name="TimePointArrayValue" type="TimePointArrayValueType"></xs:element>
+   	
+   	<xs:element name="AbstractOutput" type="AbstractOutputType"></xs:element>
+   	
+   	<xs:element name="ExternalOutput" type="ExternalOutputType" substitutionGroup="AbstractOutput"></xs:element>
+   	<xs:element name="LogOutput" type="LogOutputType" substitutionGroup="AbstractOutput"></xs:element>
+
+	
+       
+	<!-- Re-Usable type definitions -->
+
+	<xs:simpleType name="runge_kutta_order">
+		<xs:restriction base="xs:int">
+			<xs:minInclusive value="2"></xs:minInclusive>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="distribution">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="regular"></xs:enumeration>
+			<xs:enumeration value="poisson"></xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="double_array">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(([-]?)([0-9]+)((.[0-9]+)?))(,\s*([-]?)([0-9]+)((.[0-9]+)?))*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="uint_array">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([0-9]+)(,\s*([0-9]+))*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="SpineMLType">
+    	<xs:sequence>
+   			<xs:element ref="Experiment" maxOccurs="unbounded"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="ExperimentType">
+    	<xs:sequence>
+   			<xs:element ref="Model"></xs:element>
+   			<xs:element ref="Simulation"></xs:element>
+   			<xs:choice minOccurs="0" maxOccurs="unbounded">
+	   			<xs:element ref="AbstractInput"></xs:element>
+	   			<xs:element ref="AbstractOutput"></xs:element>
+   			</xs:choice>
+    	</xs:sequence>
+		<xs:attribute name="name" type="xs:string"  use="required"></xs:attribute>
+    <xs:attribute name="description" type="xs:string"></xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="ModelType">
+    	<xs:sequence>
+   			<xs:choice maxOccurs="unbounded" minOccurs="0">
+	   			<xs:element ref="Lesion"></xs:element>
+	   			<xs:element ref="Configuration"></xs:element>
+   			</xs:choice>
+    	</xs:sequence>
+		<xs:attribute name="network_layer_url" type="xs:string"  use="required"></xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="SimulationType">
+    	<xs:sequence>
+	   			<xs:element ref="AbstractIntegrationMethod"></xs:element>
+    	</xs:sequence>
+		<xs:attribute name="preferred_simulator" type="xs:string" use="optional"></xs:attribute>
+		<xs:attribute name="duration" type="xs:double" use="required"></xs:attribute>
+    </xs:complexType>
+    
+	<xs:complexType name="AbstractIntegrationMethodType" abstract="true">
+		<xs:attribute name="dt" type="xs:string" use="required"></xs:attribute>
+	</xs:complexType>
+	
+	<xs:complexType name="EulerIntegrationType">
+		<xs:complexContent>
+			<xs:extension base="AbstractIntegrationMethodType"></xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="RungeKuttaIntegrationType">
+		<xs:complexContent>
+			<xs:extension base="AbstractIntegrationMethodType">
+			<xs:attribute name="order" type="runge_kutta_order" use="required"></xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+    	
+    <xs:complexType name="LesionType">
+		<xs:attribute name="src_population" type="xs:string" use="required"></xs:attribute>
+		<xs:attribute name="dst_population" type="xs:string" use="required"></xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="ConfigurationType">
+    	<xs:sequence>
+	   			<xs:element ref="UL:Property" maxOccurs="unbounded"></xs:element>
+    	</xs:sequence>
+		<xs:attribute name="target" type="xs:string" use="required"></xs:attribute>	<!-- Must be a neuron, synapse, postsynapse or component_instance name from the UL-->
+    </xs:complexType>
+        
+    <xs:complexType name="AbstractInputType" abstract="true">
+		<xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+		<xs:attribute name="target" type="xs:string" use="required"></xs:attribute> <!-- Must be a neuron, synapse, postsynapse or component_instance name from the UL-->
+		<xs:attribute name="target_indices" type="uint_array"></xs:attribute>
+		<xs:attribute name="port" type="xs:string" use="required"></xs:attribute>
+		<xs:attribute name="start_time" type="xs:double"></xs:attribute>
+		<xs:attribute name="duration" type="xs:double"></xs:attribute>
+		<xs:attribute name="rate_based_distribution" type="distribution"></xs:attribute> <!-- If specified input is event based otherwise it is analog -->		
+    </xs:complexType>
+    
+    <xs:complexType name="TimeVaryingInputType">
+		<xs:complexContent>
+			<xs:extension base="AbstractInputType">
+				<xs:sequence>
+					<xs:element ref="TimePointValue" maxOccurs="unbounded"></xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="TimeVaryingArrayInputType">
+		<xs:complexContent>
+			<xs:extension base="AbstractInputType">
+				<xs:sequence>
+					<xs:element ref="TimePointArrayValue" maxOccurs="unbounded"></xs:element>
+				</xs:sequence>
+				<xs:attribute name="array_size" type="xs:int" use="required"></xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="ConstantInputType">
+		<xs:complexContent>
+			<xs:extension base="AbstractInputType">
+				<xs:attribute name="value" type="xs:double"></xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="ConstantArrayInputType">
+		<xs:complexContent>
+			<xs:extension base="AbstractInputType">
+				<xs:attribute name="array_value" type="double_array" use="required"></xs:attribute>
+				<xs:attribute name="array_size" type="xs:int" use="required"></xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="ExternalInputType">
+		<xs:complexContent>
+			<xs:extension base="AbstractInputType">
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="ExternalArrayInputType">
+		<xs:complexContent>
+			<xs:extension base="AbstractInputType">
+				<xs:attribute name="array_size" type="xs:int" use="required"></xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="TimePointValueType">
+		<xs:attribute name="time" type="xs:double" use="required"></xs:attribute>
+		<xs:attribute name="value" type="xs:double"></xs:attribute> <!-- ignored for event inputs -->
+    </xs:complexType>
+    
+    <xs:complexType name="TimePointArrayValueType">
+    	<xs:attribute name="index" type="xs:int" use="required"></xs:attribute>
+		<xs:attribute name="array_time" type="double_array" use="required"></xs:attribute>
+		<xs:attribute name="array_value" type="double_array"></xs:attribute> <!-- ignored for event inputs -->
+    </xs:complexType>
+    	
+	<xs:complexType name="AbstractOutputType" abstract="true">
+		<xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+		<xs:attribute name="target" type="xs:string" use="required"></xs:attribute> <!-- Must be a neuron, synapse, postsynapse or component_instance name from the UL-->
+		<xs:attribute name="port" type="xs:string" use="required"></xs:attribute>
+		<xs:attribute name="start_time" type="xs:double"></xs:attribute>
+		<xs:attribute name="duration" type="xs:double"></xs:attribute>
+		<xs:attribute name="indices" type="uint_array"></xs:attribute> <!-- If not specified then all are ussumed -->		
+    </xs:complexType>
+    
+    <xs:complexType name="LogOutputType">
+		<xs:complexContent>
+			<xs:extension base="AbstractOutputType">
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+    
+    <xs:complexType name="ExternalOutputType">
+		<xs:complexContent>
+			<xs:extension base="AbstractOutputType">
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="neuron_body" name="LIF det1">
+  <Dynamics initial_regime="integration">
+   <Regime name="integration">
+    <TimeDerivative variable="a">
+     <MathInline>(-a+in_a)/tau</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="b">
+     <MathInline>(-b+in_b)/tau_b</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="a_slow">
+     <MathInline>(-a_slow+in_a)/tau</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="b_slow">
+     <MathInline>(-b_slow+in_b)/tau_b_slow</MathInline>
+    </TimeDerivative>
+   </Regime>
+   <Alias dimension="?" name="out">
+    <MathInline>(a*b)</MathInline>
+   </Alias>
+   <Alias dimension="?" name="out_slow">
+    <MathInline>a_slow*b_slow</MathInline>
+   </Alias>
+   <StateVariable dimension="?" name="a"/>
+   <StateVariable dimension="?" name="b"/>
+   <StateVariable dimension="?" name="a_slow"/>
+   <StateVariable dimension="?" name="b_slow"/>
+  </Dynamics>
+  <AnalogSendPort name="out"/>
+  <AnalogReducePort dimension="?" name="in_a" reduce_op="+"/>
+  <AnalogReducePort dimension="?" name="in_b" reduce_op="+"/>
+  <AnalogSendPort name="a"/>
+  <AnalogSendPort name="b"/>
+  <AnalogSendPort name="out_slow"/>
+  <Parameter dimension="s" name="tau"/>
+  <Parameter dimension="?" name="tau_b"/>
+  <Parameter dimension="?" name="tau_b_slow"/>
+ </ComponentClass>
+</SpineML>

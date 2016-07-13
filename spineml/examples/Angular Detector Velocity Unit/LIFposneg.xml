@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="neuron_body" name="LIFposneg">
+  <Dynamics initial_regime="integration">
+   <Regime name="integration">
+    <TimeDerivative variable="a">
+     <MathInline>(-a+in-in_neg*detector_ratio)/tau</MathInline>
+    </TimeDerivative>
+    <TimeDerivative variable="a_slow">
+     <MathInline>(-a_slow+in_slow-in_neg_slow*detector_ratio)/tau</MathInline>
+    </TimeDerivative>
+   </Regime>
+   <Alias dimension="?" name="out">
+    <MathInline>m*a+c</MathInline>
+   </Alias>
+   <StateVariable dimension="V" name="a"/>
+   <StateVariable dimension="?" name="a_slow"/>
+  </Dynamics>
+  <AnalogSendPort name="out"/>
+  <AnalogReducePort dimension="?" name="in" reduce_op="+"/>
+  <AnalogReducePort dimension="?" name="in_neg" reduce_op="+"/>
+  <AnalogReducePort dimension="?" name="in_slow" reduce_op="+"/>
+  <AnalogReducePort dimension="?" name="in_neg_slow" reduce_op="+"/>
+  <AnalogSendPort name="a_slow"/>
+  <Parameter dimension="s" name="tau"/>
+  <Parameter dimension="?" name="m"/>
+  <Parameter dimension="?" name="c"/>
+  <Parameter dimension="?" name="detector_ratio"/>
+ </ComponentClass>
+</SpineML>

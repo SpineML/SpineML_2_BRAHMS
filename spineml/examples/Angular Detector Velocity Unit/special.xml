@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://nineml.org/9ML/0.1">
+ <LayoutClass name="special">
+  <Parameter dimension="?" name="numNeurons"/>
+  <Parameter dimension="?" name="space"/>
+  <Parameter dimension="?" name="x_off"/>
+  <Parameter dimension="?" name="y_off"/>
+  <Parameter dimension="?" name="z_off"/>
+  <Parameter dimension="?" name="zig"/>
+  <Spatial>
+   <Regime name="">
+    <Transform dimension="??" type="translate" variable="x" order="1">
+     <MathInline>t*space+x_off</MathInline>
+    </Transform>
+    <Transform dimension="??" type="translate" variable="t" order="4">
+     <MathInline>t+1</MathInline>
+    </Transform>
+    <Transform dimension="??" type="translate" variable="y" order="2">
+     <MathInline>y_off+mod(t,2)*zig</MathInline>
+    </Transform>
+    <Transform dimension="??" type="translate" variable="z" order="3">
+     <MathInline>z_off</MathInline>
+    </Transform>
+   </Regime>
+   <StateVariable dimension="?" name="x"/>
+   <StateVariable dimension="?" name="y"/>
+   <StateVariable dimension="?" name="z"/>
+   <StateVariable dimension="?" name="t"/>
+  </Spatial>
+ </LayoutClass>
+</SpineML>

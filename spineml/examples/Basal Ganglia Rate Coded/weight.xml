@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<SpineML xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ComponentClass type="weight_update" name="weight">
+  <Dynamics initial_regime="blank">
+   <Regime name="blank"/>
+   <Alias dimension="?" name="out">
+    <MathInline>w*in</MathInline>
+   </Alias>
+  </Dynamics>
+  <AnalogReducePort dimension="?" name="in" reduce_op="+"/>
+  <AnalogSendPort name="out"/>
+  <Parameter dimension="?" name="w"/>
+ </ComponentClass>
+</SpineML>

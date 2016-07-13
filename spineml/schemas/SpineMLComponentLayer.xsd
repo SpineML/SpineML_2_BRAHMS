@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+	This schema describes a SpineML Abstraction Layer. It differs slightly from the original SpineML 0.2 Schema 
+	but enforces more rigorous validation including key referencing for state variables, events etc. Models can 
+	be generated which confirm to this schema by using the Sheffield SpineML Toolset.
+
+ -->
+
+<xs:schema id="SpineMLComponentLayer" 
+xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+targetNamespace="http://www.shef.ac.uk/SpineMLComponentLayer" 
+xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" 
+xmlns:NML="http://www.shef.ac.uk/SpineMLComponentLayer" 
+elementFormDefault="qualified">
+
+	<xs:element name="SpineML" type="SpineMLType"></xs:element>
+       
+    <xs:element name="Parameter" type="ParameterType"/>
+    <xs:element name="StateVariable" type="StateVariableType"/>
+    <xs:element name="Alias" type="AliasType"/>
+    
+    <xs:element name="Port" type="PortType"/>
+    <xs:element name="AnalogSendPort" type="AnalogSendPortType" substitutionGroup="Port"/>
+    <xs:element name="AnalogReceivePort" type="AnalogReceivePortType" substitutionGroup="Port"/>
+    <xs:element name="AnalogReducePort" type="AnalogReducePortType" substitutionGroup="Port"/>
+    <xs:element name="EventSendPort" type="EventSendPortType" substitutionGroup="Port"/>
+    <xs:element name="EventReceivePort" type="EventReceivePortType" substitutionGroup="Port"/>
+    <xs:element name="ImpulseSendPort" type="ImpulseSendPortType" substitutionGroup="Port"/>
+    <xs:element name="ImpulseReceivePort" type="ImpulseReceivePortType" substitutionGroup="Port"/>
+    <xs:element name="ComponentClass" type="ComponentClassType">
+    	<!-- Keys -->
+    	<xs:key name="event_receive_key">
+    		<xs:selector xpath=".//NML:EventReceivePort"></xs:selector>
+    		<xs:field xpath="@name"></xs:field>
+    	</xs:key>
+        <xs:key name="impulse_receive_key">
+          <xs:selector xpath=".//NML:ImpulseReceivePort"></xs:selector>
+          <xs:field xpath="@name"></xs:field>
+        </xs:key>
+    	<xs:key name="event_send_key">
+    		<xs:selector xpath=".//NML:EventSendPort"></xs:selector>
+    		<xs:field xpath="@name"></xs:field>
+    	</xs:key>
+    	<xs:key name="analog_send_key">
+    		<xs:selector xpath=".//NML:Dynamics/NML:StateVariable|.//NML:Dynamics/NML:Alias"></xs:selector>
+    		<xs:field xpath="@name"></xs:field>
+    	</xs:key>
+        <xs:key name="impulse_send_key">
+          <xs:selector xpath=".//NML:ImpulseSendPort"></xs:selector>
+          <xs:field xpath="@name"></xs:field>
+        </xs:key>
+    	<!-- Key validation for OnEvent source ports -->
+    	<xs:keyref name="on_event_src_port" refer="event_receive_key">
+    		<xs:selector xpath=".//NML:Dynamics/NML:OnEvent"></xs:selector>
+    		<xs:field xpath="@src_port"></xs:field>
+    	</xs:keyref>
+        <!-- Key validation for OnImpulse source ports -->
+        <xs:keyref name="on_impulse_src_port" refer="impulse_receive_key">
+          <xs:selector xpath=".//NML:Dynamics/NML:OnImpulse"></xs:selector>
+          <xs:field xpath="@src_port"></xs:field>
+        </xs:keyref>
+    	<!-- Key validation for EventOut port names -->
+    	<xs:keyref name="event_out_port" refer="event_send_key">
+    		<xs:selector xpath=".//NML:Dynamics/NML:Regime/NML:OnCondition/NML:EventOut|.//NML:Dynamics/NML:Regime/NML:OnEvent/NML:EventOut|.//NML:Dynamics/NML:Regime/NML:OnImpulse/NML:EventOut"></xs:selector>
+    		<xs:field xpath="@port"></xs:field>
+    	</xs:keyref>
+      <!-- Key validation for ImpulseOut port names -->
+      <xs:keyref name="impulse_out_port" refer="impulse_send_key">
+        <xs:selector xpath=".//NML:Dynamics/NML:Regime/NML:OnCondition/NML:ImpulseOut|.//NML:Dynamics/NML:Regime/NML:OnEvent/NML:ImpulseOut|.//NML:Dynamics/NML:Regime/NML:OnImpulse/NML:ImpulseOut"></xs:selector>
+        <xs:field xpath="@port"></xs:field>
+      </xs:keyref>
+        <!-- Key validation for AnalogSendPort alias or state variable names-->
+    	<xs:keyref name="analog_send_port_name" refer="analog_send_key">
+    		<xs:selector xpath=".//NML:AnalogSendPort"></xs:selector>
+    		<xs:field xpath="@name"></xs:field>
+    	</xs:keyref>
+    </xs:element>
+    <xs:element name="Dynamics" type="DynamicsType">
+    	<!-- Keys -->
+    	<xs:key name="state_variable_key">
+    		<xs:selector xpath=".//NML:StateVariable"></xs:selector>
+    		<xs:field xpath="@name"></xs:field>
+    	</xs:key>
+    	<xs:key name="regime_key">
+    		<xs:selector xpath=".//NML:Regime"></xs:selector>
+    		<xs:field xpath="@name"></xs:field>
+    	</xs:key>
+    	<!-- Key validation for TimeDerivative variable names, StateAssignment variable names-->
+    	<xs:keyref name="time_derivative_variable" refer="state_variable_key">
+    		<xs:selector xpath=".//NML:Regime/NML:TimeDerivative"></xs:selector>
+    		<xs:field xpath="@variable"></xs:field>
+    	</xs:keyref>
+    	<!-- Key validation for StateAssignment variable names-->
+    	<xs:keyref name="state_assignment_variable" refer="state_variable_key">
+    		<xs:selector xpath=".//NML:Regime/NML:OnCondition/NML:StateAssignment|.//NML:Regime/NML:OnEvent/NML:StateAssignment"></xs:selector>
+    		<xs:field xpath="@variable"></xs:field>
+    	</xs:keyref>
+    	<!-- Key validation for OnCondition and OnEvent target regime names-->
+    	<xs:keyref name="target_regime_name" refer="regime_key">
+    		<xs:selector xpath=".//NML:Regime/NML:OnCondition|.//NML:Regime/NML:OnEvent"></xs:selector>
+    		<xs:field xpath="@target_regime"></xs:field>
+    	</xs:keyref>
+      <!-- Key validation for initial regime name-->
+      <xs:keyref name="initial_regime_name" refer="regime_key">
+        <xs:selector xpath="."></xs:selector>
+        <xs:field xpath="@initial_regime"></xs:field>
+      </xs:keyref>
+    </xs:element>
+    <xs:element name="Regime" type="RegimeType"/>
+    <xs:element name="TimeDerivative" type="TimeDerivativeType"/>
+    <xs:element name="MathInline" type="xs:string"/>
+    <xs:element name="OnCondition" type="OnConditionType"/>
+    <xs:element name="OnEvent" type="OnEventType"/>
+    <xs:element name="OnImpulse" type="OnImpulseType"/>
+    <xs:element name="StateAssignment" type="StateAssignmentType"/>
+    <xs:element name="EventOut" type="EventOutType"/>
+    <xs:element name="ImpulseOut" type="ImpulseOutType"/>
+    <xs:element name="Trigger" type="TriggerType"/>
+
+	<!--  Abstract and simple type definitions -->
+
+    <xs:simpleType name="component_class_type">
+	    <xs:restriction base="xs:normalizedString">
+	    	<xs:enumeration value="neuron_body"/>
+	        <xs:enumeration value="weight_update"/>
+	        <xs:enumeration value="postsynapse"/>
+	        <xs:enumeration value="generic_component"/>
+	    </xs:restriction>
+    </xs:simpleType>
+       
+    <xs:simpleType name="analog_port_reduction_type">
+	    <xs:restriction base="xs:normalizedString">
+	        <xs:enumeration value="+"/>
+	    </xs:restriction>
+    </xs:simpleType>
+      
+    <xs:complexType name="PortType" abstract="true">
+    </xs:complexType>
+    
+    
+    <!-- Complex type definitions -->
+    
+	<xs:complexType name="SpineMLType">
+    	<xs:sequence>
+    		<xs:element ref="ComponentClass"/>
+    	</xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="ParameterType">
+    	<xs:attribute name="name" type="xs:string" use="required"/>
+    	<xs:attribute name="dimension" type="xs:string" use="optional"/>
+    </xs:complexType>
+    
+    <xs:complexType name="StateVariableType" >
+    	<xs:complexContent>
+    		<xs:extension base="ParameterType"></xs:extension>
+    	</xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="AliasType">
+        	<xs:complexContent>
+    		<xs:extension base="ParameterType">
+   		        <xs:sequence>
+    				<xs:element ref="MathInline"/>
+    			</xs:sequence>
+    		</xs:extension>
+    	</xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="AnalogSendPortType">
+       <xs:complexContent>
+    		<xs:extension base="PortType">
+    		    <xs:attribute name="name" type="xs:string" use="required"/>		<!-- Must refer to a state variable -->
+            <xs:attribute name="is_per_connection" type="xs:boolean" use="optional"/>    <!-- Is this per connection -->
+    		</xs:extension>
+    	</xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="AnalogReceivePortType">
+       <xs:complexContent>
+    		<xs:extension base="PortType">
+    		    <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="dimension" type="xs:string" use="optional"/>
+                <xs:attribute name="post" type="xs:boolean" use="optional"/><!-- Is this a post synaptic reduction -->
+    		</xs:extension>
+    	</xs:complexContent>
+    </xs:complexType>
+    
+     <xs:complexType name="AnalogReducePortType">
+       <xs:complexContent>
+    		<xs:extension base="PortType">
+    		    <xs:attribute name="name" type="xs:string"  use="required"/>
+    			<xs:attribute name="reduce_op" type="analog_port_reduction_type" use="required"/>
+          <xs:attribute name="dimension" type="xs:string" use="optional"/>
+          <xs:attribute name="post" type="xs:boolean" use="optional"/> <!-- Is this a post synaptic reduction -->
+    		</xs:extension>
+    	</xs:complexContent>
+    </xs:complexType>
+    
+    
+    <xs:complexType name="EventSendPortType">
+       <xs:complexContent>
+    		<xs:extension base="PortType">
+    			<xs:attribute name="name" type="xs:string" use="required"/>
+    		</xs:extension>
+    	</xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="EventReceivePortType">
+       <xs:complexContent>
+    		<xs:extension base="PortType">
+    			<xs:attribute name="name" type="xs:string" use="required"/>
+    		</xs:extension>
+    	</xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="ImpulseSendPortType">
+       <xs:complexContent>
+        <xs:extension base="PortType">
+          <xs:attribute name="name" type="xs:string" use="required"/>
+          <xs:attribute name="is_per_connection" type="xs:boolean" use="optional"/> <!-- Is this per connection -->
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="ImpulseReceivePortType">
+       <xs:complexContent>
+        <xs:extension base="PortType">
+          <xs:attribute name="name" type="xs:string" use="required"/>
+          <xs:attribute name="dimension" type="xs:string" use="optional"/>
+          <xs:attribute name="post" type="xs:boolean" use="optional"/> <!-- Is this a post synaptic reduction -->
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="ComponentClassType">
+    	<xs:sequence>
+    		<xs:element ref="Dynamics"/>
+    		<xs:choice maxOccurs="unbounded" minOccurs="0">
+    			<xs:element ref="Port"/>
+    			<xs:element ref="Parameter"/>
+    		</xs:choice>
+    	</xs:sequence>
+    	<xs:attribute name="name" type="xs:string" use="required"/>
+      <xs:attribute name="type" type="component_class_type" use="optional"/>
+    </xs:complexType>
+    
+    <xs:complexType name="DynamicsType">
+    	<xs:sequence>
+    		<xs:choice maxOccurs="unbounded" minOccurs="0">
+    			<xs:element ref="Regime"/>
+    			<xs:element ref="StateVariable"/>
+    			<xs:element ref="Alias"/>
+    		</xs:choice>
+    	</xs:sequence>
+      <xs:attribute name="initial_regime" type="xs:string" use="required"/>
+    </xs:complexType>
+	    
+	<xs:complexType name="RegimeType">
+    	<xs:sequence>
+    		<xs:choice maxOccurs="unbounded" minOccurs="0">
+    			<xs:element ref="TimeDerivative"/>
+    			<xs:element ref="OnCondition"/>
+    			<xs:element ref="OnEvent"/>
+                <xs:element ref="OnImpulse"/>
+    		</xs:choice>
+    	</xs:sequence>
+ 	   	<xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="TimeDerivativeType">
+    	<xs:sequence>
+    		<xs:element ref="MathInline"/>
+    	</xs:sequence>
+    	<xs:attribute name="variable" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="OnConditionType">
+    	<xs:sequence>
+    		<xs:choice maxOccurs="unbounded" minOccurs="0">
+    			<xs:element ref="StateAssignment"/>
+    			<xs:element ref="EventOut"/>
+                <xs:element ref="ImpulseOut"/>
+    		</xs:choice>
+    		<xs:element ref="Trigger"/>
+    	</xs:sequence>
+ 	   	<xs:attribute name="target_regime" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="OnEventType">
+    	<xs:sequence>
+    		<xs:choice maxOccurs="unbounded" minOccurs="0">
+    			<xs:element ref="StateAssignment"/>
+    			<xs:element ref="EventOut"/>
+                <xs:element ref="ImpulseOut"/>
+    		</xs:choice>
+    	</xs:sequence>
+ 	   	<xs:attribute name="target_regime" type="xs:string" use="required"/>
+ 	   	<xs:attribute name="src_port" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="OnImpulseType">
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+          <xs:element ref="StateAssignment"/>
+          <xs:element ref="EventOut"/>
+          <xs:element ref="ImpulseOut"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="target_regime" type="xs:string" use="required"/>
+      <xs:attribute name="src_port" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="StateAssignmentType">
+    	<xs:sequence>
+    		<xs:element ref="MathInline"/>
+    	</xs:sequence>
+    	<xs:attribute name="variable" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="EventOutType">
+    	<xs:attribute name="port" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="ImpulseOutType">
+      <xs:attribute name="port" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="TriggerType">
+    	<xs:sequence>
+    		<xs:element ref="MathInline"/>
+    	</xs:sequence>
+    </xs:complexType>
+    
+    
+    
+    
+
+</xs:schema>
