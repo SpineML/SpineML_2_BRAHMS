@@ -95,9 +95,6 @@
   </xs:complexType>
 
   <xs:complexType name="AbstractConnectionType" abstract="true">
-    <xs:sequence>
-      <xs:element ref="Delay" minOccurs="0" />
-    </xs:sequence>
   </xs:complexType>
 
 
