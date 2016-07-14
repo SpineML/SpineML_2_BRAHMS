@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema id="SpineMLNetworkLayer" 
-xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-targetNamespace="http://www.shef.ac.uk/SpineMLNetworkLayer" 
-xmlns="http://www.shef.ac.uk/SpineMLNetworkLayer" 
-xmlns:NML="http://www.shef.ac.uk/SpineMLNetworkLayer" 
+<xs:schema id="SpineMLNetworkLayer"
+xmlns:xs="http://www.w3.org/2001/XMLSchema"
+targetNamespace="http://www.shef.ac.uk/SpineMLNetworkLayer"
+xmlns="http://www.shef.ac.uk/SpineMLNetworkLayer"
+xmlns:NML="http://www.shef.ac.uk/SpineMLNetworkLayer"
 elementFormDefault="qualified">
 
 	<!-- Element Definitions -->
 
     <xs:element name="SpineML" type="SpineMLType">
-    
+
     	<!-- Keyrefs for general Component name referencing -->
     	<xs:key name="input_source_key">
     		<xs:selector xpath=".//NML:Group|.//NML:Population/NML:Neuron"></xs:selector>
@@ -38,12 +38,12 @@ elementFormDefault="qualified">
     	</xs:key>
     	<xs:keyref name="population_destination" refer="population_name_key">
     		<xs:selector xpath=".//NML:Population/NML:Projection"></xs:selector>
-    		<xs:field xpath="@dst_population"></xs:field>    	
+    		<xs:field xpath="@dst_population"></xs:field>
 		</xs:keyref>
     </xs:element>
 
 	<xs:element name="Component" type="ComponentType"></xs:element>
-    <xs:element name="Property" type="PropertyType"></xs:element>    
+    <xs:element name="Property" type="PropertyType"></xs:element>
     <xs:element name="AbstractValue" type="AbstractValueType"></xs:element>
     <xs:element name="FixedValue" substitutionGroup="AbstractValue" type="FixedValueType"></xs:element>
     <xs:element name="ValueList" substitutionGroup="AbstractValue" type="ValueListType"></xs:element>
@@ -81,7 +81,7 @@ elementFormDefault="qualified">
     	</xs:sequence>
 		<xs:attribute name="name" type="xs:string"></xs:attribute>
     </xs:complexType>
-    
+
     <xs:complexType name="ComponentType" abstract="true">
     	<xs:sequence>
       <xs:element ref="Annotation" minOccurs="0"></xs:element>
@@ -92,7 +92,7 @@ elementFormDefault="qualified">
     	<xs:attribute name="name" type="xs:string" use="required"/>
     	<xs:attribute name="url" type="xs:string" use="required"/>
     </xs:complexType>
-    
+
     <xs:complexType name="GroupType">
     	<xs:complexContent>
     		<xs:extension base="ComponentType">
@@ -103,7 +103,7 @@ elementFormDefault="qualified">
 	    	</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-      
+
     <xs:complexType name="PropertyType">
     	<xs:sequence>
             <xs:choice>
@@ -114,10 +114,10 @@ elementFormDefault="qualified">
     	<xs:attribute name="name" type="xs:string" use="required"/>
     	<xs:attribute name="dimension" type="xs:string"/>
     </xs:complexType>
-        
+
     <xs:complexType name="AbstractValueType" abstract="true">
     </xs:complexType>
-    
+
     <xs:complexType name="FixedValueType">
     	<xs:complexContent>
     		<xs:extension base="AbstractValueType">
@@ -125,7 +125,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="ValueListType">
     	<xs:complexContent>
     		<xs:extension base="AbstractValueType">
@@ -138,12 +138,12 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-       
+
     <xs:complexType name="ValueType">
 		<xs:attribute name="index" type="xs:integer" use="required"/>
 		<xs:attribute name="value" type="xs:double" use="required"/>
     </xs:complexType>
-     
+
     <xs:complexType name="AbstractDistributionType" abstract="true">
     	<xs:complexContent>
     		<xs:extension base="AbstractValueType">
@@ -160,7 +160,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="NormalDistributionType">
     	<xs:complexContent>
     		<xs:extension base="AbstractDistributionType">
@@ -169,7 +169,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="PoissonDistributionType">
     	<xs:complexContent>
     		<xs:extension base="AbstractDistributionType">
@@ -177,11 +177,11 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-        
 
-        
 
-    
+
+
+
     <xs:complexType name="AbstractConnectionType" abstract="true">
     </xs:complexType>
 
@@ -199,7 +199,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="OneToOneConnectionType">
     	<xs:complexContent>
     		<xs:extension base="AbstractConnectionType">
@@ -209,7 +209,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="AllToAllConnectionType">
     	<xs:complexContent>
     		<xs:extension base="AbstractConnectionType">
@@ -219,7 +219,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="FixedProbabilityConnectionType">
     	<xs:complexContent>
     		<xs:extension base="AbstractConnectionType">
@@ -231,7 +231,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="ConnectionType">
 			<xs:attribute name="src_neuron" type="xs:integer" use="required"/>
 			<xs:attribute name="dst_neuron" type="xs:integer" use="required"/>
@@ -247,7 +247,7 @@ elementFormDefault="qualified">
     <xs:attribute name="packed_data" type="xs:boolean" use="optional"/>
   </xs:complexType>
 
-    
+
     <xs:complexType name="DelayType">
     	<xs:sequence>
     		<xs:choice> <!-- Delay value is a subset of possible AbstractValues (i.e. no explicit list is allowed)-->
@@ -257,10 +257,10 @@ elementFormDefault="qualified">
     	</xs:sequence>
       <xs:attribute name="dimension" type="xs:string"/>
     </xs:complexType>
-    
 
-    
-    
+
+
+
     <xs:complexType name="PopulationType">
 		<xs:sequence>
       <xs:element ref="Annotation" minOccurs="0"></xs:element>
@@ -269,7 +269,7 @@ elementFormDefault="qualified">
 			<xs:element ref="Projection" minOccurs="0" maxOccurs="unbounded"></xs:element>
 		</xs:sequence>
     </xs:complexType>
-    
+
     <xs:complexType name="NeuronType">
     	<xs:complexContent>
     		<xs:extension base="ComponentType">
@@ -277,16 +277,16 @@ elementFormDefault="qualified">
 	    	</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-     
-        
+
+
     <xs:complexType name="ProjectionType">
 		<xs:sequence>
 			<xs:element ref="Synapse" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="dst_population" type="xs:string" use="required"/> <!-- Must reference a Population (Neuron) name -->
     </xs:complexType>
-    
-    
+
+
     <xs:complexType name="SynapseType">
 		<xs:sequence>
 			<xs:element ref="AbstractConnection"></xs:element>
@@ -294,18 +294,18 @@ elementFormDefault="qualified">
 			<xs:element ref="PostSynapse"></xs:element>
 		</xs:sequence>
     </xs:complexType>
-     
+
     <xs:complexType name="WeightUpdateType">
     	<xs:complexContent>
     		<xs:extension base="ComponentType">
-				<xs:attribute name="input_src_port" type="xs:string" use="required"/>  
-				<xs:attribute name="input_dst_port" type="xs:string" use="required"/>  
+				<xs:attribute name="input_src_port" type="xs:string" use="required"/>
+				<xs:attribute name="input_dst_port" type="xs:string" use="required"/>
                 <xs:attribute name="feedback_src_port" type="xs:string"/> <!-- Feedback channel from post synaptic neuron body for learning -->
                 <xs:attribute name="feedback_dst_port" type="xs:string"/> <!-- Feedback channel from post synaptic neuron body for learning -->
 	    	</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
       <xs:complexType name="PostSynapseType">
     	<xs:complexContent>
     		<xs:extension base="ComponentType">
@@ -315,8 +315,8 @@ elementFormDefault="qualified">
 				<xs:attribute name="output_dst_port" type="xs:string" use="required"/>
 	    	</xs:extension>
     	</xs:complexContent>
-    </xs:complexType> 
-         
+    </xs:complexType>
+
     <xs:complexType name="LayoutType">	<!-- For now Layout can have any data -->
     	<xs:sequence>
         <xs:choice maxOccurs="unbounded" minOccurs="0">
