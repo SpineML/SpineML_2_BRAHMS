@@ -190,11 +190,12 @@ elementFormDefault="qualified">
     		<xs:extension base="AbstractConnectionType">
     			<xs:sequence>
             <xs:element ref="Annotation" minOccurs="0"></xs:element>
-    				<xs:element ref="Delay" minOccurs="0"></xs:element>
             <xs:choice>
               <xs:element ref="Connection" maxOccurs="unbounded" minOccurs="0"></xs:element>
               <xs:element ref="BinaryFile"></xs:element>
             </xs:choice>
+    	    <xs:element ref="Delay" minOccurs="0"></xs:element>
+
     			</xs:sequence>
     		</xs:extension>
     	</xs:complexContent>
