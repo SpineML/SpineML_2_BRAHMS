@@ -9,3 +9,6 @@ git remote add -f spineml-spineml https://github.com/SpineML/spineml.git
 
 # Add this as a subtree
 git subtree add --prefix spineml spineml-spineml master --squash
+
+# If required, pull new changes from upstream:
+git subtree pull --prefix spineml spineml-spineml master --squash
