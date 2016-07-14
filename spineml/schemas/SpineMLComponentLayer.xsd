@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- 
-	This schema describes a SpineML Abstraction Layer. It differs slightly from the original SpineML 0.2 Schema 
-	but enforces more rigorous validation including key referencing for state variables, events etc. Models can 
+<!--
+	This schema describes a SpineML Abstraction Layer. It differs slightly from the original SpineML 0.2 Schema
+	but enforces more rigorous validation including key referencing for state variables, events etc. Models can
 	be generated which confirm to this schema by using the Sheffield SpineML Toolset.
 
  -->
 
-<xs:schema id="SpineMLComponentLayer" 
-xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-targetNamespace="http://www.shef.ac.uk/SpineMLComponentLayer" 
-xmlns="http://www.shef.ac.uk/SpineMLComponentLayer" 
-xmlns:NML="http://www.shef.ac.uk/SpineMLComponentLayer" 
+<xs:schema id="SpineMLComponentLayer"
+xmlns:xs="http://www.w3.org/2001/XMLSchema"
+targetNamespace="http://www.shef.ac.uk/SpineMLComponentLayer"
+xmlns="http://www.shef.ac.uk/SpineMLComponentLayer"
+xmlns:NML="http://www.shef.ac.uk/SpineMLComponentLayer"
 elementFormDefault="qualified">
 
 	<xs:element name="SpineML" type="SpineMLType"></xs:element>
-       
+
     <xs:element name="Parameter" type="ParameterType"/>
     <xs:element name="StateVariable" type="StateVariableType"/>
     <xs:element name="Alias" type="AliasType"/>
-    
+
     <xs:element name="Port" type="PortType"/>
     <xs:element name="AnalogSendPort" type="AnalogSendPortType" substitutionGroup="Port"/>
     <xs:element name="AnalogReceivePort" type="AnalogReceivePortType" substitutionGroup="Port"/>
@@ -128,36 +128,36 @@ elementFormDefault="qualified">
 	        <xs:enumeration value="generic_component"/>
 	    </xs:restriction>
     </xs:simpleType>
-       
+
     <xs:simpleType name="analog_port_reduction_type">
 	    <xs:restriction base="xs:normalizedString">
 	        <xs:enumeration value="+"/>
 	    </xs:restriction>
     </xs:simpleType>
-      
+
     <xs:complexType name="PortType" abstract="true">
     </xs:complexType>
-    
-    
+
+
     <!-- Complex type definitions -->
-    
+
 	<xs:complexType name="SpineMLType">
     	<xs:sequence>
     		<xs:element ref="ComponentClass"/>
     	</xs:sequence>
     </xs:complexType>
-    
+
     <xs:complexType name="ParameterType">
     	<xs:attribute name="name" type="xs:string" use="required"/>
     	<xs:attribute name="dimension" type="xs:string" use="optional"/>
     </xs:complexType>
-    
+
     <xs:complexType name="StateVariableType" >
     	<xs:complexContent>
     		<xs:extension base="ParameterType"></xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="AliasType">
         	<xs:complexContent>
     		<xs:extension base="ParameterType">
@@ -167,7 +167,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="AnalogSendPortType">
        <xs:complexContent>
     		<xs:extension base="PortType">
@@ -176,7 +176,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="AnalogReceivePortType">
        <xs:complexContent>
     		<xs:extension base="PortType">
@@ -186,7 +186,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
      <xs:complexType name="AnalogReducePortType">
        <xs:complexContent>
     		<xs:extension base="PortType">
@@ -197,8 +197,8 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
-    
+
+
     <xs:complexType name="EventSendPortType">
        <xs:complexContent>
     		<xs:extension base="PortType">
@@ -206,7 +206,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="EventReceivePortType">
        <xs:complexContent>
     		<xs:extension base="PortType">
@@ -214,7 +214,7 @@ elementFormDefault="qualified">
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="ImpulseSendPortType">
        <xs:complexContent>
         <xs:extension base="PortType">
@@ -223,7 +223,7 @@ elementFormDefault="qualified">
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="ImpulseReceivePortType">
        <xs:complexContent>
         <xs:extension base="PortType">
@@ -233,7 +233,7 @@ elementFormDefault="qualified">
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="ComponentClassType">
     	<xs:sequence>
     		<xs:element ref="Dynamics"/>
@@ -245,7 +245,7 @@ elementFormDefault="qualified">
     	<xs:attribute name="name" type="xs:string" use="required"/>
       <xs:attribute name="type" type="component_class_type" use="optional"/>
     </xs:complexType>
-    
+
     <xs:complexType name="DynamicsType">
     	<xs:sequence>
     		<xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -256,7 +256,7 @@ elementFormDefault="qualified">
     	</xs:sequence>
       <xs:attribute name="initial_regime" type="xs:string" use="required"/>
     </xs:complexType>
-	    
+
 	<xs:complexType name="RegimeType">
     	<xs:sequence>
     		<xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -268,14 +268,14 @@ elementFormDefault="qualified">
     	</xs:sequence>
  	   	<xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
-    
+
     <xs:complexType name="TimeDerivativeType">
     	<xs:sequence>
     		<xs:element ref="MathInline"/>
     	</xs:sequence>
     	<xs:attribute name="variable" type="xs:string" use="required"/>
     </xs:complexType>
-    
+
     <xs:complexType name="OnConditionType">
     	<xs:sequence>
     		<xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -287,7 +287,7 @@ elementFormDefault="qualified">
     	</xs:sequence>
  	   	<xs:attribute name="target_regime" type="xs:string" use="required"/>
     </xs:complexType>
-    
+
     <xs:complexType name="OnEventType">
     	<xs:sequence>
     		<xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -299,7 +299,7 @@ elementFormDefault="qualified">
  	   	<xs:attribute name="target_regime" type="xs:string" use="required"/>
  	   	<xs:attribute name="src_port" type="xs:string" use="required"/>
     </xs:complexType>
-    
+
     <xs:complexType name="OnImpulseType">
       <xs:sequence>
         <xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -311,30 +311,30 @@ elementFormDefault="qualified">
       <xs:attribute name="target_regime" type="xs:string" use="required"/>
       <xs:attribute name="src_port" type="xs:string" use="required"/>
     </xs:complexType>
-    
+
     <xs:complexType name="StateAssignmentType">
     	<xs:sequence>
     		<xs:element ref="MathInline"/>
     	</xs:sequence>
     	<xs:attribute name="variable" type="xs:string" use="required"/>
     </xs:complexType>
-    
+
     <xs:complexType name="EventOutType">
     	<xs:attribute name="port" type="xs:string" use="required"/>
     </xs:complexType>
-    
+
     <xs:complexType name="ImpulseOutType">
       <xs:attribute name="port" type="xs:string" use="required"/>
     </xs:complexType>
-    
+
     <xs:complexType name="TriggerType">
     	<xs:sequence>
     		<xs:element ref="MathInline"/>
     	</xs:sequence>
     </xs:complexType>
-    
-    
-    
-    
+
+
+
+
 
 </xs:schema>
