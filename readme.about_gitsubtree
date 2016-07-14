@@ -1,3 +1,11 @@
 I used this blog post to guide my use of the spineml subtree.
 
 http://blogs.atlassian.com/2013/05/alternatives-to-git-submodule-git-subtree/
+
+I did this:
+
+# Add spineml.git as a remote:
+git remote add -f spineml-spineml https://github.com/SpineML/spineml.git 
+
+# Add this as a subtree
+git subtree add --prefix spineml spineml-spineml master --squash
