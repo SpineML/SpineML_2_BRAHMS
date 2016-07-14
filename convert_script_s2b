@@ -505,11 +505,11 @@ echo "Validates Highlevel: $VALIDATESHL (0 means valid)"
 # if only highlevel then it's highlevel
 # if only lowlevel, then it's lowlevel
 
-if [ -z $VALIDATESHL ]; then
+if [ $VALIDATESHL = "0" ]; then
     # High level
     echo "This validates as a High Level SpineML model (no generic inputs, gap junctions etc)"
 else
-    if [ -z $VALIDATESLL ]; then
+    if [ $VALIDATESLL = "0" ]; then
         echo "This validates as a Low Level SpineML model"
     else
         # It's not high level SpineML or low level SpineML so error out
