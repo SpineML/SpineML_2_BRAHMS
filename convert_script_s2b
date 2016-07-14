@@ -466,8 +466,10 @@ rm "$OUTPUT_DIR/output_script" >/dev/null 2>&1
 #
 
 # for each component in $OUTPUT_MODEL_DIR that's not an experiment:
-shopt -s extglob # need extended globbing for the following:
-CMPTFILES=`find ${OUTPUT_MODEL_DIR} -maxdepth 1 -path '*.xml' -not -path '*experiment*.xml' -not -path '${OUTPUT_MODEL_DIR}/model.xml' -not -path '${OUTPUT_MODEL_DIR}/metaData.xml'`
+
+# Use find to get a list of component files (FIXME not working yet)
+CMPTFILES=`find ${OUTPUT_MODEL_DIR} -maxdepth 1 -path '*.xml' -and -not -path '*experiment*.xml' -not -path '${OUTPUT_MODEL_DIR}/model.xml' -not -path '${OUTPUT_MODEL_DIR}/metaData.xml'`
+
 for CMPT in ${CMPTFILES}; do
     echo "xmlinting component $CMPT"
     xmllint --noout --noblanks \
@@ -480,7 +482,6 @@ for CMPT in ${CMPTFILES}; do
         exit -1
     fi
 done
-shopt -u extglob # turn off extended globbing again
 
 # The requested experiment:
 echo "xmllinting experiment ${OUTPUT_MODEL_DIR}/${EXPERIMENT}"
