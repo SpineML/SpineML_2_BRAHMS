@@ -470,7 +470,6 @@ rm "$OUTPUT_DIR/output_script" >/dev/null 2>&1
 # Use find to get a list of component files (FIXME not working yet)
 CMPTFILES=`spineml_preflight --list_components -e ${OUTPUT_MODEL_DIR}/${EXPERIMENT}`
 for CMPT in ${CMPTFILES}; do
-    echo "lint $CMPT.xml"
     xmllint --noout --noblanks \
             --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLComponentLayer.xsd \
             ${OUTPUT_MODEL_DIR}/${CMPT}.xml
@@ -491,7 +490,6 @@ if [ $VALEXPT -ne 0 ]; then
     echo "Experiment ${EXPERIMENT} does not validate as a SpineML Experiment"
     exit -1
 fi
-
 
 # High or low level:
 echo "xmllinting experiment network layer"
