@@ -468,31 +468,37 @@ rm "$OUTPUT_DIR/output_script" >/dev/null 2>&1
 # for each component in $OUTPUT_MODEL_DIR that's not an experiment:
 
 # Use find to get a list of component files (FIXME not working yet)
-CMPTFILES=`find ${OUTPUT_MODEL_DIR} -maxdepth 1 -path '*.xml' -and -not -path '*experiment*.xml' -not -path '${OUTPUT_MODEL_DIR}/model.xml' -not -path '${OUTPUT_MODEL_DIR}/metaData.xml'`
-
+CMPTFILES=`spineml_preflight --list_components -e ${OUTPUT_MODEL_DIR}/${EXPERIMENT}`
 for CMPT in ${CMPTFILES}; do
-    echo "xmlinting component $CMPT"
+    echo "lint $CMPT.xml"
     xmllint --noout --noblanks \
             --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLComponentLayer.xsd \
-            ${CMPT}
+            ${OUTPUT_MODEL_DIR}/${CMPT}.xml
     VALCMPT=$?
-    echo "xmllint result: $VALCMPT"
     if [ $VALCMPT -ne 0 ]; then
-        echo "Component $CMPT does not validate as a SpineML Component"
+        echo "Component $CMPT.xml does not validate as a SpineML Component"
         exit -1
     fi
 done
 
 # The requested experiment:
 echo "xmllinting experiment ${OUTPUT_MODEL_DIR}/${EXPERIMENT}"
-VALEXPT=xmllint --noout --noblanks \
-       --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLExperimentLayer.xsd \
-       ${OUTPUT_MODEL_DIR}/${EXPERIMENT}
+xmllint --noout --noblanks \
+    --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLExperimentLayer.xsd \
+    ${OUTPUT_MODEL_DIR}/${EXPERIMENT}
+VALEXPT=$?
+if [ $VALEXPT -ne 0 ]; then
+    echo "Experiment ${EXPERIMENT} does not validate as a SpineML Experiment"
+    exit -1
+fi
+
 
 # High or low level:
 echo "xmllinting experiment network layer"
-VALIDATESLL=xmllint --noout --noblanks --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLLowLevelNetworkLayer.xsd ${OUTPUT_MODEL_DIR}/model.xml
-VALIDATESHL=xmllint --noout --noblanks --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLNetworkLayer.xsd ${OUTPUT_MODEL_DIR}/model.xml
+xmllint --noout --noblanks --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLLowLevelNetworkLayer.xsd ${OUTPUT_MODEL_DIR}/model.xml
+VALIDATESLL=$?
+xmllint --noout --noblanks --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLNetworkLayer.xsd ${OUTPUT_MODEL_DIR}/model.xml
+VALIDATESHL=$?
 
 echo "Validates Lowlevel: $VALIDATESLL (0 means valid)"
 echo "Validates Highlevel: $VALIDATESHL (0 means valid)"
