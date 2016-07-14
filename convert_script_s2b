@@ -455,25 +455,73 @@ rm "$OUTPUT_DIR/rep*xml*" >/dev/null 2>&1
 rm "$OUTPUT_DIR/sys*" >/dev/null 2>&1
 rm "$OUTPUT_DIR/output_script" >/dev/null 2>&1
 
-# Run a process here to see if the model is highlevel or lowlevel. If
-# it's highlevel, then check it for validity, then convert it into
-# lowlevel prior to applying SpineML_2_BRAHMS_write_script.xsl
 
-# The check could be a feature of SpineML_PreFlight, but much better
-# is to xmllint the XML with either high or low level specs
+#
+# Model validation and determination of whether this is a low level or
+# high level SpineML model.
+#
+# Note that because we preflight the model, we should validate the
+# preflighted model. If this fails, then we need to validate the
+# non-preflighted model and let the user know.
+#
 
-# Note: Bring the spineml into SpineML_2_BRAHMS as a git sub-project
-
-# for each component:
-xmllint --noout --noblanks --schema ../../schemas/SpineMLComponentLayer.xsd Brette_Benchmark_Network.xml
+# for each component in $OUTPUT_MODEL_DIR that's not an experiment:
+shopt -s extglob # need extended globbing for the following:
+CMPTFILES=`find ${OUTPUT_MODEL_DIR} -maxdepth 1 -path '*.xml' -not -path '*experiment*.xml' -not -path '${OUTPUT_MODEL_DIR}/model.xml' -not -path '${OUTPUT_MODEL_DIR}/metaData.xml'`
+for CMPT in ${CMPTFILES}; do
+    echo "xmlinting component $CMPT"
+    xmllint --noout --noblanks \
+            --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLComponentLayer.xsd \
+            ${CMPT}
+    VALCMPT=$?
+    echo "xmllint result: $VALCMPT"
+    if [ $VALCMPT -ne 0 ]; then
+        echo "Component $CMPT does not validate as a SpineML Component"
+        exit -1
+    fi
+done
+shopt -u extglob # turn off extended globbing again
 
 # The requested experiment:
-xmllint --noout --noblanks --schema ../../schemas/SpineMLExperimentLayer.xsd Brette_Benchmark_Network.xml
+echo "xmllinting experiment ${OUTPUT_MODEL_DIR}/${EXPERIMENT}"
+VALEXPT=xmllint --noout --noblanks \
+       --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLExperimentLayer.xsd \
+       ${OUTPUT_MODEL_DIR}/${EXPERIMENT}
 
 # High or low level:
+echo "xmllinting experiment network layer"
+VALIDATESLL=xmllint --noout --noblanks --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLLowLevelNetworkLayer.xsd ${OUTPUT_MODEL_DIR}/model.xml
+VALIDATESHL=xmllint --noout --noblanks --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLNetworkLayer.xsd ${OUTPUT_MODEL_DIR}/model.xml
+
+echo "Validates Lowlevel: $VALIDATESLL (0 means valid)"
+echo "Validates Highlevel: $VALIDATESHL (0 means valid)"
+
+# if both, then it's highlevel
+# if only highlevel then it's highlevel
+# if only lowlevel, then it's lowlevel
+
+if [ -z $VALIDATESHL ]; then
+    # High level
+    echo "This validates as a High Level SpineML model (no generic inputs, gap junctions etc)"
+else
+    if [ -z $VALIDATESLL ]; then
+        echo "This validates as a Low Level SpineML model"
+    else
+        # It's not high level SpineML or low level SpineML so error out
+        echo "This model does not validate as as SpineML model, cannot simulate."
+        exit -1
+    fi
+fi
 
 
-# The conversion should be an xsl script called by xsltproc
+#
+# If high level, then carry out a model conversion using an xsl script
+# called by xsltproc
+#
+if [ -z $VALIDATESHL ]; then
+    echo "Carry out model conversion from High Level to corresponding Low Level prior to execution (IMPLEMENTME)"
+    exit -1
+fi
 
 # create the output script using an xsl translation and the experiment.xml file
 echo xsltproc -o "$OUTPUT_DIR/output.script" --stringparam hostos "$OS" \
