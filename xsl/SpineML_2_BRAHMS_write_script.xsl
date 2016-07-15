@@ -490,10 +490,13 @@ else
 fi
 </xsl:when>
 <!-- END SMLLOWNL SECTION -->
-<!-- SpineML high level network layer -->
-<!-- FIXME: Need to reproduce the script above for SMLLOWNL here, with SMLLOWNL replaced by SMLNL: -->
+
+<!-- SpineML high level network layer is not handled by
+     SpineML_2_BRAHMS. Instead, any high level model should have been
+     converted with HL_to_LL.xsl into an equivalent low level
+     description. -->
 <xsl:when test="SMLNL:SpineML">#/bin/bash
-echo "Duplicate code for the SMLLOWNL case from START SMLLOWNL SECTION to END SMLLOWNL SECTION."
+echo "Please convert this high level SpineML model into a low level model with HL_to_LL.xsl"
 exit 1
 </xsl:when>
 <xsl:otherwise>
