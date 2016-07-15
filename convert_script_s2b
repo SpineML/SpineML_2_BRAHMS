@@ -72,6 +72,8 @@ Options are:
                experiments, numbers 0, 1, 2, etc. Here, you can pass the number
                of the experiment to run. E.g. -e 0. Defaults to 0.
 
+  -E expt_file Provide the name of the experiment file. Overrides -e option.
+
   -p "option"  Property change option. This modifies the experiment.xml file to
                add a change to a parameter or the initial value of a state
                variable. The population or projection name must be given, along
@@ -198,6 +200,7 @@ VERBOSE_BRAHMS="no"
 BRAHMS_NOGUI=""
 
 EXPT_NUM=""
+EXPERIMENT=""
 
 # Test for arrays
 test_arr=FAIL
@@ -217,7 +220,7 @@ CCI=0 # Constant Current Iterator
 TVCI=0
 
 # Parse cmd line options
-while getopts w:srAgm:o:e:p:c:t:n:a:vV\? opt
+while getopts w:srAgm:o:e:E:p:c:t:n:a:vV\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -235,6 +238,8 @@ do
         o)  OUTPUT_DIR="$OPTARG"
             ;;
         e)  EXPT_NUM="$OPTARG"
+            ;;
+        E)  EXPERIMENT="$OPTARG"
             ;;
         p)  PROPERTY_CHANGES[$PCI]="--property_change=$OPTARG"
             PCI=$((PCI+1))
@@ -291,7 +296,9 @@ if [ "$spfrtn" -ne 0 ]; then
 fi
 
 # Make up the experiment file name
-EXPERIMENT="experiment"$EXPT_NUM".xml"
+if [ x${EXPERIMENT} = x ]; then
+    EXPERIMENT="experiment"$EXPT_NUM".xml"
+fi
 echo "Experiment is: $EXPERIMENT"
 
 #
@@ -465,9 +472,7 @@ rm "$OUTPUT_DIR/output_script" >/dev/null 2>&1
 # non-preflighted model and let the user know.
 #
 
-# for each component in $OUTPUT_MODEL_DIR that's not an experiment:
-
-# Use find to get a list of component files (FIXME not working yet)
+# xmllint each component in the model (spineml_preflight tells us what these are)
 CMPTFILES=`spineml_preflight --list_components -e ${OUTPUT_MODEL_DIR}/${EXPERIMENT}`
 for CMPT in ${CMPTFILES}; do
     xmllint --noout --noblanks \
@@ -480,7 +485,7 @@ for CMPT in ${CMPTFILES}; do
     fi
 done
 
-# The requested experiment:
+# Lint the requested experiment:
 echo "xmllinting experiment ${OUTPUT_MODEL_DIR}/${EXPERIMENT}"
 xmllint --noout --noblanks \
     --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLExperimentLayer.xsd \
@@ -492,10 +497,11 @@ if [ $VALEXPT -ne 0 ]; then
 fi
 
 # High or low level:
+NETWORK_LAYER=`spineml_preflight --show_model_file -e ${OUTPUT_MODEL_DIR}/${EXPERIMENT}`
 echo "xmllinting experiment network layer"
-xmllint --noout --noblanks --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLLowLevelNetworkLayer.xsd ${OUTPUT_MODEL_DIR}/model.xml
+xmllint --noout --noblanks --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLLowLevelNetworkLayer.xsd ${OUTPUT_MODEL_DIR}/${NETWORK_LAYER}
 VALIDATESLL=$?
-xmllint --noout --noblanks --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLNetworkLayer.xsd ${OUTPUT_MODEL_DIR}/model.xml
+xmllint --noout --noblanks --schema ${SPINEML_2_BRAHMS_DIR}/spineml/schemas/SpineMLNetworkLayer.xsd ${OUTPUT_MODEL_DIR}/${NETWORK_LAYER}
 VALIDATESHL=$?
 
 echo "Validates Lowlevel: $VALIDATESLL (0 means valid)"
@@ -523,9 +529,17 @@ fi
 # If high level, then carry out a model conversion using an xsl script
 # called by xsltproc
 #
-if [ -z $VALIDATESHL ]; then
-    echo "Carry out model conversion from High Level to corresponding Low Level prior to execution (IMPLEMENTME)"
-    exit -1
+if [ $VALIDATESHL = "0" ]; then
+    echo "Converting from High Level to corresponding Low Level model prior to execution"
+    xsltproc -o "$OUTPUT_MODEL_DIR/$NETWORK_LAYER.new" \
+             "$XSL_SCRIPT_PATH/HL_to_LL.xsl" \
+             "$OUTPUT_MODEL_DIR/$NETWORK_LAYER"
+    HLTOLL_RTN=$?
+    if [ "$HLTOLL_RTN" -ne "0" ]; then
+        echo "Error code $HLTOLL_RTN running xsltproc with HL_to_LL.xsl"
+        exit -1
+    fi
+    cp "$OUTPUT_MODEL_DIR/$NETWORK_LAYER.new" "$OUTPUT_MODEL_DIR/$NETWORK_LAYER"
 fi
 
 # create the output script using an xsl translation and the experiment.xml file
