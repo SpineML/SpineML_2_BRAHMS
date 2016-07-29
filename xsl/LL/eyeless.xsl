@@ -43,7 +43,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="fn">
 	<Class>dev/NoTremor/pseudoeye</Class>
 	<State c="z" a="output_data_path;threshold;power_degree;settleTime;" Format="DataML" Version="5" AuthTool="SystemML Toolbox" AuthToolVersion="0">
                 <m><xsl:value-of select="$spineml_output_dir"/></m>
-		<m c="f">11</m>
+		<m c="f">0.9</m>
                 <m c="f">2</m>
                 <m c="f">120</m>
 	</State>
