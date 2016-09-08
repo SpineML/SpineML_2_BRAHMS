@@ -89,6 +89,8 @@ private:
 
     rateType type;
 
+    int rateSeed;
+
     float dt;
 };
 
@@ -106,7 +108,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
         DataMLNode nodeState(&xmlNode);
 
         rngDataInit (&this->rngData);
-        this->rngData.seed = 123;
+        rateSeed = nodeState.getField("rateSeed").getUINT32();
+        if (rateSeed == 0) {
+            this->rngData.seed = getTime();
+        } else {
+            this->rngData.seed = rateSeed;
+        }
+
         // No need to zigset(), as we only use UNI() here.
 
         // obtain the parameters

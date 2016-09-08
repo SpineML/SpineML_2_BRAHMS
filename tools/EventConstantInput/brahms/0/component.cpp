@@ -74,6 +74,8 @@ private:
 
     rateType type;
 
+    int rateSeed;
+
     float dt;
 };
 
@@ -92,7 +94,12 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
         // Initialise volatile data variables for rng.h (but no need for zigset() here)
         rngDataInit (&rngData);
-        this->rngData.seed = 123;
+        rateSeed = nodeState.getField("rateSeed").getUINT32();
+        if (rateSeed == 0) {
+            this->rngData.seed = getTime();
+        } else {
+            this->rngData.seed = rateSeed;
+        }
 
         // obtain the parameters
         values = nodeState.getField("values").getArrayDOUBLE();

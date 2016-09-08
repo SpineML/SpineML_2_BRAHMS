@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?><xsl:stylesheet version="1.0"
-xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns:SMLLOWNL="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer"
 xmlns:SMLNL="http://www.shef.ac.uk/SpineMLNetworkLayer"
-xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer" 
-xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer" 
+xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer"
+xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer"
 xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLOWNL SMLNL SMLCL SMLEXPT fn">
 <xsl:output method="xml" omit-xml-declaration="no" version="1.0" encoding="UTF-8" indent="yes"/>
 
@@ -49,10 +49,10 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	<xsl:attribute name="a">
 		<xsl:text>values;</xsl:text>
 		<xsl:if test="@rate_based_input='poisson' or @rate_based_input='regular'">
-			<xsl:text>rateType;size;</xsl:text>
+			<xsl:text>rateType;rateSeed;size;</xsl:text>
 			<!-- LOG, WHERE NOT LOGGING 'ALL' -->
 			<xsl:variable name="target" select="@target"/>
-       		<xsl:for-each select="$expt_root//SMLEXPT:LogOutput[@indices and @target=$target]">
+			<xsl:for-each select="$expt_root//SMLEXPT:LogOutput[@indices and @target=$target]">
 				<xsl:value-of select="concat(@port,'LOG')"/>
 				<!---->;<!---->
 			</xsl:for-each>
@@ -76,6 +76,12 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 		<m c="f">1</m>
 	</xsl:if>
 	<xsl:if test="@rate_based_input='poisson' or @rate_based_input='regular'">
+		<xsl:if test="@rate_seed">
+			<m c="f"><xsl:value-of select="@rate_seed"/></m>
+		</xsl:if>
+		<xsl:if test="not(@rate_seed)">
+			<m c="f">123</m>
+		</xsl:if>
 		<m c="f">
 		<!-- size of source -->
 		<xsl:variable name="target" select="@target"/>
@@ -96,10 +102,10 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
         <xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@indices) and @target=$target]">
 			<m>
 			<xsl:attribute name="b">
-				<!---->1<!---->	
+				<!---->1<!---->
         	</xsl:attribute>
         	<xsl:attribute name="c">f</xsl:attribute>
-				<!---->1<!---->	
+				<!---->1<!---->
         	</m>
         </xsl:for-each>
         <!-- NAME FOR USE IN LOGS -->
@@ -136,7 +142,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	</xsl:if>
         <xsl:if test="count(../SMLNL:Connection//SMLNL:Connection)>0">
                 <xsl:value-of select="count(../SMLNL:Connection//SMLNL:Connection)"/>
-	</xsl:if>	
+	</xsl:if>
 </xsl:if>
 <xsl:if test="local-name(.)='PostSynapse'">
         <xsl:variable name="ownerPopName" select="../../@dst_population"/>
