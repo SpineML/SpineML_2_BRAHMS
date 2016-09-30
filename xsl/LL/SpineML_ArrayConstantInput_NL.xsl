@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?><xsl:stylesheet version="1.0"
-xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns:SMLLOWNL="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer"
 xmlns:SMLNL="http://www.shef.ac.uk/SpineMLNetworkLayer"
-xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer" 
-xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer" 
+xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer"
+xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer"
 xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLOWNL SMLNL SMLCL SMLEXPT fn">
 <xsl:output method="xml" omit-xml-declaration="no" version="1.0" encoding="UTF-8" indent="yes"/>
 
@@ -44,7 +44,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	<xsl:attribute name="a">
 		<xsl:text>values;</xsl:text>
 		<xsl:if test="@rate_based_input='poisson' or @rate_based_input='regular'">
-			<xsl:text>rateType;</xsl:text>
+			<xsl:text>rateType;rateSeed;</xsl:text>
 		</xsl:if>
 		</xsl:attribute>
 	<xsl:attribute name="Format">DataML</xsl:attribute>
@@ -61,6 +61,14 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	</xsl:if>
 	<xsl:if test="@rate_based_input='regular'">
 		<m c="f">1</m>
+	</xsl:if>
+	<xsl:if test="@rate_based_input='poisson' or @rate_based_input='regular'">
+		<xsl:if test="@rate_seed">
+			<m c="f"><xsl:value-of select="@rate_seed"/></m>
+		</xsl:if>
+		<xsl:if test="not(@rate_seed)">
+			<m c="f">123</m>
+		</xsl:if>
 	</xsl:if>
 	</State>
 </Process>

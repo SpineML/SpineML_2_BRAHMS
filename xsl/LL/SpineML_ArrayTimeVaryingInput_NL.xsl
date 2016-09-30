@@ -47,7 +47,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 			<xsl:value-of select="concat('values',@index)"/>;<!---->
 		</xsl:for-each>
 		<xsl:if test="@rate_based_input='poisson' or @rate_based_input='regular'">
-			<xsl:text>rateType;size;</xsl:text>
+			<xsl:text>rateType;rateSeed;size;</xsl:text>
 			<!-- LOG, WHERE NOT LOGGING 'ALL' -->
 			<xsl:variable name="target" select="@target"/>
        		<xsl:for-each select="$expt_root//SMLEXPT:LogOutput[@indices and @target=$target]">
@@ -83,6 +83,12 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 		<m c="f">1</m>
 	</xsl:if>
 	<xsl:if test="@rate_based_input='poisson' or @rate_based_input='regular'">
+		<xsl:if test="@rate_seed">
+			<m c="f"><xsl:value-of select="@rate_seed"/></m>
+		</xsl:if>
+		<xsl:if test="not(@rate_seed)">
+			<m c="f">123</m>
+		</xsl:if>
 		<m c="f">
 		<!-- size of source -->
 		<xsl:variable name="target" select="@target"/>
