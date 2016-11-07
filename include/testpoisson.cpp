@@ -13,8 +13,8 @@ int main()
     zigset(&rd, DUMMY);
     rd.seed = 123;
 
-    printf ("seed = %d\n---------\n", rd.seed);
-    while (i < 100) {
+    printf ("Test randomPoisson.\nseed = %d\n---------\n", rd.seed);
+    while (i < 1000) {
         rn = _randomPoisson ((&rd));
         printf ("%f\n", rn);
         i++;

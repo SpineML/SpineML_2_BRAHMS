@@ -1,8 +1,8 @@
 /*
  * This code follows Marsaglia, George, and Wai Wan Tsang. "The
  * ziggurat method for generating random variables." Journal of
- * statistical software 5.8 (2000): 1-7., but with a passed-in data
- * structure for mutable variables.
+ * statistical software Vol 5, Issue 8 (2000) pp1-7, but with a
+ * passed-in data structure for mutable variables.
  *
  * (RngData modifications authored by Seb James, August 2014).
  *
@@ -107,20 +107,37 @@ float uniformGCC(RngData* rd)
     return seed2;
 }
 
-// RANDOM NUMBER GENERATOR
+// SHR3 is an unsigned, 32 bit, integer random number generator:
 #define SHR3(rd) ((rd)->jz=(rd)->seed,          \
                   (rd)->seed^=((rd)->seed<<13), \
                   (rd)->seed^=((rd)->seed>>17), \
                   (rd)->seed^=((rd)->seed<<5),  \
                   (rd)->jz+(rd)->seed)
+// To produce a uniform random number between 0 and 1, apply this to SHR3:
 #define UNI(rd) (.5f + (int)SHR3(rd) * .2328306e-9f)
+
+// Here, the uniform random number is used to determine which box is
+// active, comparing against a normal distribution calculated in the
+// zigset() function.
 #define RNOR(rd) ((rd)->hz=SHR3(rd),                                    \
                   (rd)->iz=(rd)->hz&127,                                \
                   ((unsigned int)abs((rd)->hz) < (rd)->kn[(rd)->iz]) ? (rd)->hz*(rd)->wn[(rd)->iz] : nfix(rd))
+
+// Here, the uniform random number is used to determine which box is
+// active, comparing against an exponential distribution calculated in the
+// zigset() function.
 #define REXP(rd) ((rd)->jz=SHR3(rd),                                    \
                   (rd)->iz=(rd)->jz&255,                                \
                   ((rd)->jz < (rd)->ke[(rd)->iz]) ? (rd)->jz*(rd)->we[(rd)->iz] : efix(rd))
-#define RPOIS(rd) -log(1.0-UNI(rd))
+
+// https://en.wikipedia.org/wiki/Relationships_among_probability_distributions
+// says that: Exp(lambda) = - lambda ln (Uniform(0,1)), so this is
+// REXP2, not RPOIS (as it was in earlier versions of rng.h here).
+#define REXP2(rd) -log(UNI(rd))
+
+// FIXME: randomPoisson Needs implementing. Implement Poisson or
+// Bionomial tables in zigset() to do this.
+#define RPOIS(rd) 1
 
 float nfix (RngData* rd) /*provides RNOR if #define cannot */
 {
@@ -167,7 +184,8 @@ float efix (RngData* rd) /*provides REXP if #define cannot */
     }
 }
 
-// == This procedure creates the tables. 2nd arg 'jsrseed' is deprecated and unused. ==
+// This procedure creates the tables. 2nd arg 'jsrseed' is deprecated
+// and unused (instead, we set (rd)->seed in rngDataInit().
 void zigset (RngData* rd, unsigned int jsrseed)
 {
     clock();
@@ -235,8 +253,8 @@ int fastBinomial(RngData* rd, int N, float p)
 
 #define _randomUniform(rd) UNI(rd)
 #define _randomNormal(rd) RNOR(rd)
-#define _randomExponential(rd) REXP(rd)
-#define _randomPoisson(rd) RPOIS(rd)
+#define _randomExponential(rd) REXP(rd) // or REXP2(rd) which is slower
+#define _randomPoisson(rd) RPOIS(rd) // FIXME.
 #define HACK_MACRO(rd,N,p) 1;                                           \
     int spks=fastBinomial(rd,N,p);                                      \
     for(unsigned int i=0;i<spks;++i) {DATAOutspike.push_back(num);}

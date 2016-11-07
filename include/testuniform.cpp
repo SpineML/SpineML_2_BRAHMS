@@ -13,9 +13,9 @@ int main()
     zigset(&rd, DUMMY);
     rd.seed = 123;
 
-    printf ("Test randomNormal.\nseed = %d\n---------\n", rd.seed);
+    printf ("Test randomUniform.\nseed = %d\n---------\n", rd.seed);
     while (i < 1000) {
-        rn = _randomNormal ((&rd));
+        rn = _randomUniform ((&rd));
         printf ("%f\n", rn);
         i++;
     }

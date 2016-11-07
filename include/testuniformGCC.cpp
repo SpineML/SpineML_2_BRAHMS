@@ -13,8 +13,8 @@ int main()
     zigset(&rd, DUMMY);
     rd.seed = 1;
 
-    printf ("seed = %d\n---------\n", rd.seed);
-    while (i < 10) {
+    printf ("Test uniformGCC.\nseed = %d\n---------\n", rd.seed);
+    while (i < 30) {
         rn = uniformGCC ((&rd));
         printf ("%f\n", rn);
         i++;
