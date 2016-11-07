@@ -140,7 +140,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
         }
 
         // Log base name
-        baseNameForLogs = nodeState.getField("logfileNameForComponent").getSTRING();
+        baseNameForLogs = "../log/" + nodeState.getField("logfileNameForComponent").getSTRING();
 
         // check for logs
         if (nodeState.hasField("logInds")) {
