@@ -179,14 +179,12 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			// sanity check
 			for (UINT32 i = 0; i < srcInds.size(); ++i) {
-
 				if (srcInds[i] >= numElementsIn) {
-					berr << "Index out of range for connection " << float(i) << ": value=" << srcInds[i];
+                                    berr << "Index out of range for connection : srcInds[" << i << "] (" << srcInds[i] << ") >= numElementsIn ("<< numElementsIn <<")";
 				}
 				if (dstInds[i] >= numElementsOut) {
-					berr << "Index out of range for connection " << float(i) << ": value=" << dstInds[i];
+                                    berr << "Index out of range for connection : dstInds[" << i << "] (" << dstInds[i] << ") >= numElementsOut ("<< numElementsOut <<")";
 				}
-
 			}
 
 			if (_has_delay) {
