@@ -114,7 +114,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
         type = (rateType) nodeState.getField("rateType").getUINT32();
 
         // Log base name
-        baseNameForLogs = nodeState.getField("logfileNameForComponent").getSTRING();
+        baseNameForLogs = "../log/" + nodeState.getField("logfileNameForComponent").getSTRING();
 
         logOn = false;
 
