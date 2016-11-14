@@ -36,16 +36,33 @@
 
 				<xsl:variable name="target_name" select="../../@dst_population"/>
 				<xsl:variable name="source_name" select="../../../SMLLOWNL:Neuron/@name"/>
+				<xsl:variable name="weightupdate_name" select="./@name"/>
 
 				<!-- APPLY LESION -->
-				<xsl:if test="count($expt_root//SMLEXPT:Lesion[@src_population=$source_name and @dst_population=$target_name])=0">
+				<xsl:if test="count($expt_root//SMLEXPT:Lesion[@src_population=$source_name and @dst_population=$target_name])=0"><!-- if no lesion, then fill it in: -->
+
 					<xsl:if test="not(../../../SMLLOWNL:Neuron/@url='SpikeSource')">
 
 						<xsl:variable name="dstPortRef" select="@input_dst_port"/>
 						<Link>
 							<Src><xsl:value-of select="translate(../../../SMLLOWNL:Neuron/@name,' -', '_H')"/><xsl:text disable-output-escaping="no">&gt;</xsl:text><xsl:value-of select="@input_src_port"/></Src>
+
 							<Dst><xsl:value-of select="translate(@name,' -', '_H')"/><xsl:if test="count(document(@url)//SMLCL:AnalogReducePort[@name=$dstPortRef])=1 or count(document(@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=1 or count(document(@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])=1"><xsl:text disable-output-escaping="no">&lt;</xsl:text></xsl:if><xsl:text disable-output-escaping="no">&lt;</xsl:text><xsl:value-of select="@input_dst_port"/></Dst>
-							<Lag><xsl:if test="count(../*/SMLNL:Delay/SMLNL:FixedValue)=1"><xsl:value-of select="number(../*/SMLNL:Delay/SMLNL:FixedValue/@value) div $expt_root//@dt"/></xsl:if><xsl:if	test="not(count(../*/SMLNL:Delay/SMLNL:FixedValue)=1)">1</xsl:if></Lag>
+
+							<Lag>
+								<xsl:if test="count(../*/SMLNL:Delay/SMLNL:FixedValue)=1 or count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name])=1">
+									<xsl:if test="count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name])=1">
+										<xsl:comment>expt provided delay: </xsl:comment>
+										<xsl:value-of select="number($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+									</xsl:if>
+									<xsl:if test="count(../*/SMLNL:Delay/SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name])=0">
+										<!-- Model-provided delay -->
+										<xsl:value-of select="number(../*/SMLNL:Delay/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+									</xsl:if>
+								</xsl:if>
+								<xsl:if	test="not(count(../*/SMLNL:Delay/SMLNL:FixedValue)=1 or count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name])=1)">1</xsl:if>
+							</Lag>
+
 						</Link>
 
 					</xsl:if>
