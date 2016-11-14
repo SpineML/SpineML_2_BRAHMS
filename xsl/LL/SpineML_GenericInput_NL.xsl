@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?><xsl:stylesheet version="1.0"
-xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns:SMLLOWNL="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer"
 xmlns:SMLNL="http://www.shef.ac.uk/SpineMLNetworkLayer"
-xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer" 
-xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer" 
+xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer"
+xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer"
 xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLOWNL SMLNL SMLCL SMLEXPT fn">
 <xsl:output method="xml" omit-xml-declaration="no" version="1.0" encoding="UTF-8" indent="yes"/>
 
@@ -67,7 +67,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	</xsl:if>
         <xsl:if test="count(../SMLNL:ConnectionList)>0">
                 <xsl:value-of select="count(../SMLNL:ConnectionList/SMLNL:Connection)"/>
-	</xsl:if>	
+	</xsl:if>
 </xsl:if>
 <xsl:if test="local-name(.)='PostSynapse'">
         <xsl:variable name="ownerPopName" select="../../@dst_population"/>
@@ -102,7 +102,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 	</xsl:if>
         <xsl:if test="count(../SMLNL:Connection)>0">
                 <xsl:value-of select="count(../SMLNL:Connection//SMLNL:Connection)"/>
-	</xsl:if>	
+	</xsl:if>
 </xsl:if>
 <xsl:if test="local-name(.)='PostSynapse'">
         <xsl:variable name="ownerPopName" select="../../@dst_population"/>
@@ -287,7 +287,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 </xsl:if>
 
 </xsl:if>
-</xsl:for-each> 
+</xsl:for-each>
 <!-- END OF INPUTS -->
 
 
