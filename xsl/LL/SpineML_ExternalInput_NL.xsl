@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?><xsl:stylesheet version="1.0"
-xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns:SMLLOWNL="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer"
 xmlns:SMLNL="http://www.shef.ac.uk/SpineMLNetworkLayer"
-xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer" 
-xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer" 
+xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer"
+xmlns:SMLEXPT="http://www.shef.ac.uk/SpineMLExperimentLayer"
 xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLOWNL SMLNL SMLCL SMLEXPT fn">
 <xsl:output method="xml" omit-xml-declaration="no" version="1.0" encoding="UTF-8" indent="yes"/>
 
@@ -61,7 +61,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
         <!-- SET DEST BASED ON WHAT WE ARE INPUTING TO -->
         <xsl:if test="$main_root//*[@name = $target]/@url='SpikeSource'">
         	<!-- NOT SUPPORTED -->
-        	<xsl:message terminate="true">
+        	<xsl:message terminate="yes">
         		<!---->Error: Event external inputs are not currently supported by BRAHMS, sorry!<!---->
         	</xsl:message>
         </xsl:if>

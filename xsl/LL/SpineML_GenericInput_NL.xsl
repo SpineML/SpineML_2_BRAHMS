@@ -44,7 +44,7 @@
 
 					<!-- UNSUPPORTED -->
 					<xsl:if test="count(.//SMLNL:FixedValue)=0">
-						<xsl:message terminat="yes">Only Fixed delays for generic inputs currently supported for BRAHMS</xsl:message>
+						<xsl:message terminate="yes">Only Fixed delays for generic inputs currently supported for BRAHMS</xsl:message>
 					</xsl:if>
 
 					<xsl:variable name="sizeIn">
