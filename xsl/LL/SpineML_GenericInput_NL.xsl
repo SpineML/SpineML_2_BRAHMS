@@ -74,7 +74,7 @@
 								<xsl:value-of select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[@name=$ownerPopName]/@size"/>
 							</xsl:if>
 						</xsl:for-each>
-					</xsl:variable>
+					</xsl:variable> <!-- sizeIn -->
 
 					<xsl:variable name="sizeOut">
 
@@ -109,7 +109,7 @@
 								<xsl:value-of select="/SMLLOWNL:SpineML//SMLLOWNL:Neuron[@name=$ownerPopName]/@size"/>
 							</xsl:if>
 						</xsl:for-each>
-					</xsl:variable>
+					</xsl:variable> <!-- sizeOut -->
 
 					<xsl:if test="count(.//SMLNL:AllToAllConnection)=1">
 						<Process>
@@ -149,7 +149,12 @@
 									<!---->in<!---->
 								</xsl:if>
 							</Dst>
-							<Lag><xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)"><xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/></xsl:if><xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if></Lag>
+							<Lag>
+								<xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)">
+									<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+								</xsl:if>
+								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if>
+							</Lag>
 						</Link>
 						<Link>
 							<Src><xsl:value-of select="concat('remap',generate-id(.))"/><xsl:text disable-output-escaping="no">&gt;</xsl:text>out</Src>
@@ -165,7 +170,13 @@
 						<Link>
 							<Src><xsl:value-of select="translate(@src,' -', '_H')"/><xsl:text disable-output-escaping="no">&gt;</xsl:text><xsl:value-of select="@src_port"/></Src>
 							<Dst><xsl:value-of select="translate(../@name,' -', '_H')"/><xsl:if test="count(document(../@url)//SMLCL:AnalogReducePort[@name=$dstPortRef])=1 or count(document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef]) or count(document(../@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])"><xsl:text disable-output-escaping="no">&lt;</xsl:text></xsl:if><xsl:text disable-output-escaping="no">&lt;</xsl:text><xsl:value-of select="@dst_port"/></Dst>
-							<Lag><xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)"><xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/></xsl:if><xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if></Lag>
+
+							<Lag>
+								<xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)">
+									<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+								</xsl:if>
+								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if>
+							</Lag>
 						</Link>
 					</xsl:if>
 
@@ -208,7 +219,12 @@
 									<!---->in<!---->
 								</xsl:if>
 							</Dst>
-							<Lag><xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)"><xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/></xsl:if><xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if></Lag>
+							<Lag>
+								<xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)">
+									<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+								</xsl:if>
+								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if>
+							</Lag>
 						</Link>
 						<Link>
 							<Src><xsl:value-of select="concat('remap',generate-id(.))"/><xsl:text disable-output-escaping="no">&gt;</xsl:text>out</Src>
@@ -268,7 +284,12 @@
 									<!---->in<!---->
 								</xsl:if>
 							</Dst>
-							<Lag><xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)"><xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/></xsl:if><xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if></Lag>
+							<Lag>
+								<xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)">
+									<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+								</xsl:if>
+								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if>
+							</Lag>
 						</Link>
 						<Link>
 							<Src><xsl:value-of select="concat('remap',generate-id(.))"/><xsl:text disable-output-escaping="no">&gt;</xsl:text>out</Src>
