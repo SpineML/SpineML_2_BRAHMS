@@ -34,17 +34,18 @@
 
 			<!-- ############### GENERIC INPUTS ############### -->
 			<xsl:for-each select="//SMLLOWNL:Input">
-				<xsl:variable name="dstPortRef" select="@dst_port"/>
 
-				<xsl:variable name="target_name" select="../../@dst_population"/>
-				<xsl:variable name="source_name" select="../../../SMLLOWNL:Neuron/@name"/>
+				<xsl:variable name="srcPortRef" select="@src_port"/><!-- src_port attribute of LL:Input element -->
+				<xsl:variable name="dstPortRef" select="@dst_port"/><!-- dst_port attribute of LL:Input element -->
+				<xsl:variable name="source_name" select="@src"/><!-- src attribute of LL:Input element -->
+				<xsl:variable name="target_name" select="../../SMLLOWNL:Neuron/@name"/><!-- name attribute of parent LL:Neuron element -->
 
-				<!-- APPLY LESION -->
+				<!-- APPLY LESION. Note lesion is applied to all connections between src_population and dst_population-->
 				<xsl:if test="count($expt_root//SMLEXPT:Lesion[@src_population=$source_name and @dst_population=$target_name])=0">
 
 					<!-- UNSUPPORTED -->
 					<xsl:if test="count(.//SMLNL:FixedValue)=0">
-						<xsl:message terminate="yes">Only Fixed delays for generic inputs currently supported for BRAHMS</xsl:message>
+						<xsl:message terminate="yes">Only Fixed delays for generic inputs are currently supported for BRAHMS</xsl:message>
 					</xsl:if>
 
 					<xsl:variable name="sizeIn">
@@ -77,7 +78,6 @@
 					</xsl:variable> <!-- sizeIn -->
 
 					<xsl:variable name="sizeOut">
-
 						<xsl:variable name="dstportactual" select="document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef] | document(../@url)//SMLCL:AnalogReducePort[@name=$dstPortRef] | document(../@url)//SMLCL:AnalogReceivePort[@name=$dstPortRef] | document(../@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef]"/>
 						<xsl:for-each select="..">
 							<xsl:if test="local-name(.)='Neuron'">
@@ -129,11 +129,13 @@
 								<m c="f"><xsl:value-of select="$sizeOut"/></m>
 							</State>
 						</Process>
+						<!-- Link for AllToAllConnection -->
 						<Link>
 							<Src>
 								<xsl:value-of select="translate(@src,' -', '_H')"/>
 								<xsl:text disable-output-escaping="no">&gt;</xsl:text>
-							<xsl:value-of select="@src_port"/></Src>
+								<xsl:value-of select="@src_port"/>
+							</Src>
 							<Dst>
 								<xsl:value-of select="concat('remap',generate-id(.))"/>
 								<xsl:if test="count(document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=1">
@@ -150,11 +152,18 @@
 								</xsl:if>
 							</Dst>
 							<Lag>
-								<xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)">
-									<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+								<xsl:if test="(count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)) or count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
+									<xsl:if test="count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
+										<xsl:comment>Expt layer value:</xsl:comment>
+										<xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+									</xsl:if>
+									<xsl:if test="count(.//SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=0">
+										<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+									</xsl:if>
 								</xsl:if>
-								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if>
+								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">0</xsl:if>
 							</Lag>
+
 						</Link>
 						<Link>
 							<Src><xsl:value-of select="concat('remap',generate-id(.))"/><xsl:text disable-output-escaping="no">&gt;</xsl:text>out</Src>
@@ -163,24 +172,33 @@
 						</Link>
 					</xsl:if>
 
-
-
 					<xsl:if test="count(.//SMLNL:OneToOneConnection)=1">
-
+						<!-- Link for OneToOneConnection -->
 						<Link>
 							<Src><xsl:value-of select="translate(@src,' -', '_H')"/><xsl:text disable-output-escaping="no">&gt;</xsl:text><xsl:value-of select="@src_port"/></Src>
 							<Dst><xsl:value-of select="translate(../@name,' -', '_H')"/><xsl:if test="count(document(../@url)//SMLCL:AnalogReducePort[@name=$dstPortRef])=1 or count(document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef]) or count(document(../@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])"><xsl:text disable-output-escaping="no">&lt;</xsl:text></xsl:if><xsl:text disable-output-escaping="no">&lt;</xsl:text><xsl:value-of select="@dst_port"/></Dst>
 
 							<Lag>
-								<xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)">
-									<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+<!--								To trigger expt-provided delay, have something like this in the experiment file:
+								<Model network_layer_url="model.xml">
+									<Delay src_population="Mctx" src_port="output" dst_population="CerebellarSubtraction" dst_port="in" dimension="ms">
+										<UL:FixedValue value="23"/>
+									</Delay>
+								</Model>
+-->								<xsl:if test="(count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)) or count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
+									<xsl:if test="count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
+										<xsl:comment>Expt layer value: </xsl:comment>
+										<xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+									</xsl:if>
+									<xsl:if test="count(.//SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=0">
+										<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+									</xsl:if>
+
 								</xsl:if>
-								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if>
+								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">0</xsl:if>
 							</Lag>
 						</Link>
 					</xsl:if>
-
-
 
 					<xsl:if test="count(.//SMLNL:FixedProbabilityConnection)=1">
 						<Process>
@@ -202,6 +220,7 @@
 								<m c="f"><xsl:value-of select="@seed"/></m>
 							</State>
 						</Process>
+						<!-- Link for FixedProbabilityConnection -->
 						<Link>
 							<Src><xsl:value-of select="translate(@src,' -', '_H')"/><xsl:text disable-output-escaping="no">&gt;</xsl:text><xsl:value-of select="@src_port"/></Src>
 							<Dst>
@@ -220,10 +239,16 @@
 								</xsl:if>
 							</Dst>
 							<Lag>
-								<xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)">
-									<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+								<xsl:if test="(count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)) or count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
+									<xsl:if test="count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
+										<xsl:comment>Expt layer value: </xsl:comment>
+										<xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+									</xsl:if>
+									<xsl:if test="count(.//SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=0">
+										<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+									</xsl:if>
 								</xsl:if>
-								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if>
+								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">0</xsl:if>
 							</Lag>
 						</Link>
 						<Link>
@@ -232,8 +257,6 @@
 							<Lag>0</Lag>
 						</Link>
 					</xsl:if>
-
-
 
 					<xsl:if test="count(.//SMLNL:ConnectionList)=1">
 						<Process>
@@ -267,6 +290,7 @@
 								</xsl:if>
 							</State>
 						</Process>
+						<!-- Link for ConnectionList -->
 						<Link>
 							<Src><xsl:value-of select="translate(@src,' -', '_H')"/><xsl:text disable-output-escaping="no">&gt;</xsl:text><xsl:value-of select="@src_port"/></Src>
 							<Dst>
@@ -285,10 +309,16 @@
 								</xsl:if>
 							</Dst>
 							<Lag>
-								<xsl:if test="count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)">
-									<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+								<xsl:if test="(count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)) or count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
+									<xsl:if test="count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
+										<xsl:comment>Expt layer value: </xsl:comment>
+										<xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+									</xsl:if>
+									<xsl:if test="count(.//SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=0">
+										<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+									</xsl:if>
 								</xsl:if>
-								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if>
+								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">0</xsl:if>
 							</Lag>
 						</Link>
 						<Link>
@@ -303,7 +333,7 @@
 						<Link>
 							<Src><xsl:value-of select="translate(@src,' -', '_H')"/><xsl:text disable-output-escaping="no">&gt;</xsl:text><xsl:value-of select="@src_port"/></Src>
 							<Dst><xsl:value-of select="translate(../@name,' -', '_H')"/><xsl:if test="count(document(../@url)//SMLCL:AnalogReducePort[@name=$dstPortRef])=1 or count(document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=1 or count(document(../@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])=1"><xsl:text disable-output-escaping="no">&lt;</xsl:text></xsl:if><xsl:text disable-output-escaping="no">&lt;</xsl:text><xsl:value-of select="@dst_port"/></Dst>
-							<Lag>1</Lag>
+							<Lag>0</Lag>
 						</Link>
 					</xsl:if>
 
