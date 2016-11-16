@@ -45,7 +45,15 @@
 
 					<!-- UNSUPPORTED -->
 					<xsl:if test="count(.//SMLNL:FixedValue)=0">
-						<xsl:message terminate="yes">Only Fixed delays for generic inputs are currently supported for BRAHMS</xsl:message>
+						<!-- If this is set to terminate, then the sys.xml will be written out without any Links in it.
+						     The simulation will then run, but not with results that the user would expect. -->
+						<xsl:message terminate="no">WARNING: Only Fixed delays for generic inputs are currently supported by SpineML_2_BRAHMS</xsl:message>
+						<Link>
+							<xsl:comment>This link has been inserted to cause a BRAHMS error, because generic inputs with uniform or normal delays are not currently supported by SpineML_2_BRAHMS and BRAHMS</xsl:comment>
+							<Src>Message_for_user__Only_FixedValue_supported_for_Generic_Inputs</Src>
+							<Dst>NoDest</Dst>
+							<Lag>0</Lag>
+						</Link>
 					</xsl:if>
 
 					<xsl:variable name="sizeIn">
