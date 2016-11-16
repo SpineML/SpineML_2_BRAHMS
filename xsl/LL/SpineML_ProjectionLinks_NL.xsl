@@ -50,23 +50,27 @@
 							<Dst><xsl:value-of select="translate(@name,' -', '_H')"/><xsl:if test="count(document(@url)//SMLCL:AnalogReducePort[@name=$dstPortRef])=1 or count(document(@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=1 or count(document(@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])=1"><xsl:text disable-output-escaping="no">&lt;</xsl:text></xsl:if><xsl:text disable-output-escaping="no">&lt;</xsl:text><xsl:value-of select="@input_dst_port"/></Dst>
 
 							<Lag>
-<!--								To trigger expt-provided delay, have something like this in the experiment file:
+								<!-- To trigger expt-provided delay, have something like this in the experiment file:
 								<Model network_layer_url="model.xml">
 									<Delay weight_update="PopA_to_PopB_Synapse_0_weight_update" dimension="ms">
 										<UL:FixedValue value="23"/>
 									</Delay>
-								</Model>
--->								<xsl:if test="count(../*/SMLNL:Delay/SMLNL:FixedValue)=1 or count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=1">
-									<xsl:if test="count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=1">
-										<xsl:comment>Expt layer value:</xsl:comment>
-										<xsl:value-of select="number($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
-									</xsl:if>
-									<xsl:if test="count(../*/SMLNL:Delay/SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
-										<!-- Model-provided delay -->
-										<xsl:value-of select="number(../*/SMLNL:Delay/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
-									</xsl:if>
-								</xsl:if>
-								<xsl:if	test="not(count(../*/SMLNL:Delay/SMLNL:FixedValue)=1 or count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=1)">1</xsl:if>
+								</Model> -->
+								<xsl:choose>
+									<xsl:when test="count(../*/SMLNL:Delay/SMLNL:FixedValue)=1 or count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=1">
+										<xsl:if test="count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=1">
+											<xsl:comment>Expt layer value:</xsl:comment>
+											<xsl:value-of select="number($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+										</xsl:if>
+										<xsl:if test="count(../*/SMLNL:Delay/SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
+											<!-- Model-provided delay -->
+											<xsl:value-of select="number(../*/SMLNL:Delay/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
+										</xsl:if>
+									</xsl:when>
+									<!-- If the Delay is e.g. UniformDistribution or NormalDistribution, then it's handled in the
+									     weight update component, with parameters passed in by SpineML_WeightUpdate_NL.xsl hence the "otherwise 0" here: -->
+									<xsl:otherwise>0</xsl:otherwise>
+								</xsl:choose>
 							</Lag>
 
 						</Link>
