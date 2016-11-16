@@ -446,13 +446,13 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			if (nodeState.hasField("pDelay")) {
 				this-&gt;allParamsDelaysAreFixedValue = false;
 				delayForConnTemp = nodeState.getField("pDelay").getArrayDOUBLE();
-				bout &lt;&lt; "have p delays" &lt;&lt; D_INFO;
+				//bout &lt;&lt; "have p delays" &lt;&lt; D_INFO;
 			}
 
 			// check what is happening
 			if (nodeState.hasField("pDelay") &amp;&amp; delayForConnTemp.size() == 4) {
 
-				bout &lt;&lt; "have p delays: right size" &lt;&lt; D_INFO;
+				//bout &lt;&lt; "have p delays: right size" &lt;&lt; D_INFO;
 
 				// resize the buffer
 				delayForConn.resize(numConn_BRAHMS);
@@ -462,24 +462,33 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				// generate the delays:
 				if (delayForConnTemp[0] == 1) { // Normal distribution
-					this-&gt;rngData_BRAHMS.seed = delayForConnTemp[3];
+				        //bout &lt;&lt; "have p delays: Normal Distr" &lt;&lt; D_INFO;
+				        this-&gt;rngData_BRAHMS.seed = delayForConnTemp[3];
+					INT32 delayIntermediate_BRAHMS = 0;
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
-						delayForConn[i_BRAHMS] = round((RNOR(&amp;this-&gt;rngData_BRAHMS)*delayForConnTemp[2]+delayForConnTemp[1])/most_delay_accuracy);
-						//bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
-						if (delayForConn[i_BRAHMS] &lt; 0) delayForConn[i_BRAHMS] = 0;
-						if (delayForConn[i_BRAHMS] &gt; max_delay_val) max_delay_val = delayForConn[i_BRAHMS];
+						delayIntermediate_BRAHMS = (INT32)round((RNOR(&amp;this-&gt;rngData_BRAHMS)*delayForConnTemp[2]+delayForConnTemp[1])/most_delay_accuracy);
+						if (delayIntermediate_BRAHMS &lt; 0) {
+							bout &lt;&lt; "Normally generated delay " &lt;&lt; delayIntermediate_BRAHMS &lt;&lt; "&lt;0, setting this delay to 0." &lt;&lt; D_WARN;
+							delayForConn[i_BRAHMS] = 0;
+						} else {
+							delayForConn[i_BRAHMS] = (UINT32)delayIntermediate_BRAHMS;
+						}
+						//bout &lt;&lt; "Delay for connection " &lt;&lt; i_BRAHMS &lt;&lt; ": " &lt;&lt; delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
+						if (delayForConn[i_BRAHMS] &gt; max_delay_val) {
+							max_delay_val = delayForConn[i_BRAHMS];
+						}
 					}
 				}
 				if (delayForConnTemp[0] == 2) { // Uniform distribution
+				        //bout &lt;&lt; "have p delays: Uniform Distr" &lt;&lt; D_INFO;
 					this-&gt;rngData_BRAHMS.seed = delayForConnTemp[3];
 					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
-						delayForConn[i_BRAHMS] = round((_randomUniform(&amp;this-&gt;rngData_BRAHMS)*(delayForConnTemp[2]-delayForConnTemp[1])+delayForConnTemp[1])/most_delay_accuracy);
-						//bout &lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
+						delayForConn[i_BRAHMS] = (UINT32)round((_randomUniform(&amp;this-&gt;rngData_BRAHMS)*(delayForConnTemp[2]-delayForConnTemp[1])+delayForConnTemp[1])/most_delay_accuracy);
 						if (delayForConn[i_BRAHMS] &gt; max_delay_val) { max_delay_val = delayForConn[i_BRAHMS]; }
 					}
 				}
 
-				bout &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; " = moo" &lt;&lt; D_INFO;
+				//bout &lt;&lt; "resizing delayBuffer and delayedAnalogVals to size: " &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; D_INFO;
 
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
 				delayedAnalogVals.resize(round(max_delay_val/most_delay_accuracy)+1);
@@ -731,7 +740,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			int numEl_BRAHMS = numConn_BRAHMS;
 			t = float(time->now)*dt;
 
-			bout &lt;&lt; "allParamsDelaysAreFixedValue was:" &lt;&lt; allParamsDelaysAreFixedValue &lt;&lt; D_INFO;
+			//bout &lt;&lt; "allParamsDelaysAreFixedValue was:" &lt;&lt; allParamsDelaysAreFixedValue &lt;&lt; D_INFO;
 
 			<!-- WRITE XML FOR LOGS -->
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="finaliseLogs"/>
