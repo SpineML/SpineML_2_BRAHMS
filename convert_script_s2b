@@ -40,7 +40,7 @@ Options are:
                working directory, \$HOME/SpineML_2_BRAHMS (if it already exists)
                or to \$HOME/spineml-2-brahms.
 
-  -s           DON'T rebuild sys.xml and sys-exe.xml (The BRAHMS SystemML 
+  -s           DON'T rebuild sys.xml and sys-exe.xml (The BRAHMS SystemML
                description of the SpineML model). This prevents the calls to
                xsltproc which create temp/sys(-exe).xml, as long as
                temp/sys(-exe).xml exists. Added to speed up development when
@@ -81,6 +81,19 @@ Options are:
 
                E.g.: -p "Striatum_D1:tau:45ms" - change param "tau" to 45 ms
                for the population "Striatum_D1".
+
+               Multiple instances of this option may be given. The content of
+               each option is passed unmodified to spineml_preflight.
+
+  -d "option"  Delay change option. Change a delay on a projection or generic
+               connection. For projections, provide an argument like
+               "PopA:PopB:0:45" to set a delay of 45 ms to the projection from
+               PopA to PopB on synapse 0.
+
+               For generic connections the argument should be
+               "PopA:PortA:PopB:PortB:45" to set a 45 ms delay to the connection
+               from PortA on PopA to PortB on PopB. It is only possible to set
+               fixed delays using this argument.
 
                Multiple instances of this option may be given. The content of
                each option is passed unmodified to spineml_preflight.
@@ -210,14 +223,16 @@ fi
 
 # Declare an array for the property change options
 declare -a PROPERTY_CHANGES
+declare -a DELAY_CHANGES
 declare -a CONSTANT_CURRENTS
 declare -a TVARYING_CURRENTS
 PCI=0 # Property Change Iterator
+DCI=0 # Delay Change Iterator
 CCI=0 # Constant Current Iterator
 TVCI=0
 
 # Parse cmd line options
-while getopts w:srAgm:o:e:p:c:t:n:a:vV\? opt
+while getopts w:srAgm:o:e:p:d:c:t:n:a:vV\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -238,6 +253,9 @@ do
             ;;
         p)  PROPERTY_CHANGES[$PCI]="--property_change=$OPTARG"
             PCI=$((PCI+1))
+            ;;
+        d)  DELAY_CHANGES[$DCI]="--delay_change=$OPTARG"
+            DCI=$((DCI+1))
             ;;
         c)  CONSTANT_CURRENTS[$CCI]="--constant_current=$OPTARG"
             CCI=$((CCI+1))
@@ -345,7 +363,7 @@ fi
 
 # Preflight the model - note we're outputting the contents of the PROPERTY_CHANGES
 # array which contains --property_change=a:b:3 type options.
-spineml_preflight -e $OUTPUT_MODEL_DIR"/"$EXPERIMENT "${PROPERTY_CHANGES[@]}" "${CONSTANT_CURRENTS[@]}" "${TVARYING_CURRENTS[@]}"
+spineml_preflight -e $OUTPUT_MODEL_DIR"/"$EXPERIMENT "${PROPERTY_CHANGES[@]}" "${DELAY_CHANGES[@]}" "${CONSTANT_CURRENTS[@]}" "${TVARYING_CURRENTS[@]}"
 if [ "$?" -ne "0" ]; then
     echo "Failed to preflight the model." >&2
     exit -1
@@ -377,7 +395,7 @@ if [ -d /usr/lib/spineml-2-brahms ]; then
     mkdir -p "$SPINEML_2_BRAHMS_DIR/Namespace"
     cp -Ra /usr/lib/spineml-2-brahms/* "$SPINEML_2_BRAHMS_DIR/Namespace/"
     set +e
-else 
+else
     # Check whether we need to build the spineml-2-brahms namespace
     set -e # This tells bash to exit on any unsuccessful command (reverse with set +e)
     if [ "x$(cat current_os)" = "x$OS" ]; then
