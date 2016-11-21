@@ -188,7 +188,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			}
 
 			if (_has_delay) {
-				bout << "Delays in Generic inputs are currently not supported" << D_WARN;
+                            berr << "Unfortunately, delays in Generic inputs are not supported by SpineML_2_BRAHMS." << D_WARN;
 			}
 
 			spikesIn = false;
