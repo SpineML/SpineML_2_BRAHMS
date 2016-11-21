@@ -44,7 +44,8 @@
 				<xsl:if test="count($expt_root//SMLEXPT:Lesion[@src_population=$source_name and @dst_population=$target_name])=0">
 
 					<!-- UNSUPPORTED -->
-					<xsl:if test="count(.//SMLNL:FixedValue)=0">
+					<xsl:if test="count(.//SMLNL:FixedValue)=0 and count(.//SMLNL:ConnectionList)=0">
+						<!-- Note that we don't terminate for ConnectionLists. Later, in the ConnectionList code, we'll check for a FixedDelay -->
 						<xsl:message terminate="yes">Error: Only Fixed delays for generic inputs are currently supported by SpineML_2_BRAHMS</xsl:message>
 					</xsl:if>
 
@@ -139,11 +140,11 @@
 							<Dst>
 								<xsl:value-of select="concat('remap',generate-id(.))"/>
 								<xsl:if test="count(document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=1">
-        								<xsl:text disable-output-escaping="no">&lt;</xsl:text>
+									<xsl:text disable-output-escaping="no">&lt;</xsl:text>
 									<!---->inSpike<!---->
 								</xsl:if>
 								<xsl:if test="count(document(../@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])=1">
-        								<xsl:text disable-output-escaping="no">&lt;</xsl:text>
+									<xsl:text disable-output-escaping="no">&lt;</xsl:text>
 									<!---->inImpulse<!---->
 								</xsl:if>
 								<xsl:if test="count(document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=0 and count(document(../@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])=0">
@@ -161,7 +162,7 @@
 										<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
 									</xsl:if>
 								</xsl:if>
-								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">0</xsl:if>
+								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if>
 							</Lag>
 
 						</Link>
@@ -195,7 +196,7 @@
 									</xsl:if>
 
 								</xsl:if>
-								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">0</xsl:if>
+								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if>
 							</Lag>
 						</Link>
 					</xsl:if>
@@ -226,11 +227,11 @@
 							<Dst>
 								<xsl:value-of select="concat('remap',generate-id(.))"/>
 								<xsl:if test="count(document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=1">
-        								<xsl:text disable-output-escaping="no">&lt;</xsl:text>
+									<xsl:text disable-output-escaping="no">&lt;</xsl:text>
 									<!---->inSpike<!---->
 								</xsl:if>
 								<xsl:if test="count(document(../@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])=1">
-        								<xsl:text disable-output-escaping="no">&lt;</xsl:text>
+									<xsl:text disable-output-escaping="no">&lt;</xsl:text>
 									<!---->inImpulse<!---->
 								</xsl:if>
 								<xsl:if test="count(document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=0 and count(document(../@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])=0">
@@ -259,6 +260,10 @@
 					</xsl:if>
 
 					<xsl:if test="count(.//SMLNL:ConnectionList)=1">
+						<!-- Test to ensure that a generic input connection list has a FixedValue delay. -->
+						<xsl:if test="not(count(.//SMLNL:ConnectionList/SMLNL:Delay/SMLNL:FixedValue)=1)">
+							<xsl:message terminate="yes">Error: Generic Input ConnectionLists need to have a FixedValue Delay; per-connection delays from the ConnectionList itself are not supported by SpineML_2_BRAHMS.</xsl:message>
+						</xsl:if>
 						<Process>
 							<Name><xsl:value-of select="concat('remap',generate-id(.))"/></Name>
 							<Class>dev/SpineML/tools/explicitList</Class>
@@ -296,11 +301,11 @@
 							<Dst>
 								<xsl:value-of select="concat('remap',generate-id(.))"/>
 								<xsl:if test="count(document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=1">
-        								<xsl:text disable-output-escaping="no">&lt;</xsl:text>
+									<xsl:text disable-output-escaping="no">&lt;</xsl:text>
 									<!---->inSpike<!---->
 								</xsl:if>
 								<xsl:if test="count(document(../@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])=1">
-        								<xsl:text disable-output-escaping="no">&lt;</xsl:text>
+									<xsl:text disable-output-escaping="no">&lt;</xsl:text>
 									<!---->inImpulse<!---->
 								</xsl:if>
 								<xsl:if test="count(document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=0 and count(document(../@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])=0">
@@ -318,13 +323,13 @@
 										<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
 									</xsl:if>
 								</xsl:if>
-								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">0</xsl:if>
+								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">1</xsl:if>
 							</Lag>
 						</Link>
 						<Link>
 							<Src><xsl:value-of select="concat('remap',generate-id(.))"/><xsl:text disable-output-escaping="no">&gt;</xsl:text>out</Src>
 							<Dst><xsl:value-of select="translate(../@name,' -', '_H')"/><xsl:if test="count(document(../@url)//SMLCL:AnalogReducePort[@name=$dstPortRef])=1 or count(document(../@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=1"><xsl:text disable-output-escaping="no">&lt;</xsl:text></xsl:if><xsl:text disable-output-escaping="no">&lt;</xsl:text><xsl:value-of select="@dst_port"/></Dst>
-							<Lag>0</Lag>
+							<Lag>1</Lag>
 						</Link>
 					</xsl:if>
 

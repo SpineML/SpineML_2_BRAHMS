@@ -38,7 +38,7 @@
 
 				<!-- APPLY LESION -->
 				<xsl:if test="count($expt_root//SMLEXPT:Lesion[@src_population=$source_name and @dst_population=$target_name])=0">
-					<!--       -->
+					<!-- -->
 					<xsl:variable name="sizeOut">
 						<xsl:for-each select="/SMLLOWNL:SpineML/SMLLOWNL:Population">
 							<xsl:if test="SMLLOWNL:Neuron/@name=$target_name">
@@ -59,35 +59,35 @@
 							<xsl:attribute name="c">z</xsl:attribute>
 							<xsl:attribute name="a">model_directory;size;<!---->
 							<xsl:for-each select="SMLLOWNL:PostSynapse/SMLNL:Property | $expt_root//SMLEXPT:Experiment//SMLEXPT:Configuration[@target=$curr_psp/@name]/SMLNL:Property">
-        							<xsl:value-of select="@name"/>
-        							<xsl:if test="count(.//SMLNL:UniformDistribution)>0 or count(.//SMLNL:NormalDistribution)>0">
-        								<!---->RANDX<!---->
-        							</xsl:if>
-	    							<xsl:if test="local-name(..)='Configuration'">
+								<xsl:value-of select="@name"/>
+								<xsl:if test="count(.//SMLNL:UniformDistribution)>0 or count(.//SMLNL:NormalDistribution)>0">
+									<!---->RANDX<!---->
+								</xsl:if>
+									<xsl:if test="local-name(..)='Configuration'">
 									<!---->OVER2<!---->
-	    							</xsl:if>
+								</xsl:if>
 								<xsl:if test="count(.//SMLNL:BinaryFile)">
 									<!---->BIN_FILE_NAME<!---->
 									<!---->;<!---->
 									<xsl:value-of select="@name"/>
 									<!---->BIN_NUM_ELEMENTS<!---->
 								</xsl:if>
-        							<!---->;<!---->
-        							<xsl:if test="count(.//SMLNL:FixedValue | .//SMLNL:UniformDistribution | .//SMLNL:NormalDistribution)=1 and count(.//SMLNL:ValueList)=1">
-		    							<xsl:value-of select="@name"/>
-		    							<!---->OVER1<!---->
-		    							<!---->;<!---->
-        							</xsl:if>
+								<!---->;<!---->
+								<xsl:if test="count(.//SMLNL:FixedValue | .//SMLNL:UniformDistribution | .//SMLNL:NormalDistribution)=1 and count(.//SMLNL:ValueList)=1">
+									<xsl:value-of select="@name"/>
+									<!---->OVER1<!---->
+									<!---->;<!---->
+								</xsl:if>
 							</xsl:for-each>
 							<!-- LOGS, WHERE NOT LOGGING 'ALL' -->
 							<xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@tcp_port) and @indices and @target=$curr_psp/@name]">
-        							<xsl:value-of select="concat(@port,'LOG')"/>
-        							<!---->;<!---->
+								<xsl:value-of select="concat(@port,'LOG')"/>
+								<!---->;<!---->
 							</xsl:for-each>
 							<!-- LOGS, WHERE LOGGING 'ALL' -->
 							<xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@tcp_port) and not(@indices) and @target=$curr_psp/@name]">
-        							<xsl:value-of select="concat(@port,'LOG')"/>
-        							<!---->;<!---->
+								<xsl:value-of select="concat(@port,'LOG')"/>
+								<!---->;<!---->
 							</xsl:for-each>
 							<!-- A FILENAME FOR LOGGING -->
 							<!---->logfileNameForComponent;<!---->
@@ -102,15 +102,15 @@
 
 								<!-- NO VALUE -->
 								<xsl:if test="count(.//*)=0">
-        								<m c="f">
-        									<xsl:value-of select="'0'"/>
-        								</m>
+									<m c="f">
+										<xsl:value-of select="'0'"/>
+									</m>
 								</xsl:if>
 								<!-- FIXED VALUE -->
 								<xsl:if test="count(.//SMLNL:FixedValue)>0">
-        								<m c="f">
-        									<xsl:value-of select=".//SMLNL:FixedValue/@value"/>
-        								</m>
+									<m c="f">
+										<xsl:value-of select=".//SMLNL:FixedValue/@value"/>
+									</m>
 								</xsl:if>
 								<!-- STOCHASTIC VALUE (NORMAL) -->
 								<xsl:if test="count(.//SMLNL:NormalDistribution)>0">
@@ -131,7 +131,7 @@
 										<xsl:text> </xsl:text>
 										<xsl:value-of select=".//SMLNL:UniformDistribution/@maximum"/>
 										<xsl:text> </xsl:text>
-		   								<xsl:value-of select=".//SMLNL:UniformDistribution/@seed"/>
+										<xsl:value-of select=".//SMLNL:UniformDistribution/@seed"/>
 									</m>
 								</xsl:if>
 								<!-- VALUE LIST -->
@@ -179,20 +179,20 @@
 							<!-- LOGS, WHERE NOT LOGGING 'ALL' -->
 							<xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@tcp_port) and @indices and @target=$curr_psp/@name]">
 								<m><xsl:attribute name="b">1 <!---->
-        							<xsl:call-template name="count_array_items">
-        								<xsl:with-param name="items" select="@indices"/>
-        							</xsl:call-template>
-        						</xsl:attribute>
-        						<xsl:attribute name="c">f</xsl:attribute>
+								<xsl:call-template name="count_array_items">
+									<xsl:with-param name="items" select="@indices"/>
+								</xsl:call-template>
+							</xsl:attribute>
+							<xsl:attribute name="c">f</xsl:attribute>
 							<xsl:value-of select="translate(@indices,',',' ')"/>
-        							</m>
+								</m>
 							</xsl:for-each>
 							<xsl:for-each select="$expt_root//SMLEXPT:LogOutput[not(@tcp_port) and not(@indices) and @target=$curr_psp/@name]">
 								<m><xsl:attribute name="b">1 1<!---->
-        						</xsl:attribute>
-        						<xsl:attribute name="c">f</xsl:attribute>
+							</xsl:attribute>
+							<xsl:attribute name="c">f</xsl:attribute>
 							<!---->-1<!---->
-        							</m>
+								</m>
 							</xsl:for-each>
 							<!-- NAME FOR USE IN LOGS -->
 							<m><xsl:value-of select="translate(SMLLOWNL:PostSynapse/@name,' ', '_')"/></m>
