@@ -156,9 +156,19 @@
 								<xsl:if test="(count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)) or count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
 									<xsl:if test="count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
 										<xsl:comment>Expt layer value:</xsl:comment>
+
+										<xsl:if test="((number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt) mod 1) &gt; 0">
+											<xsl:message terminate="yes">Error: The specified delay <xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value)"/> cannot be expressed as an integer number of timesteps (of <xsl:value-of select="$expt_root//@dt"/> ms)</xsl:message>
+										</xsl:if>
+
 										<xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
 									</xsl:if>
 									<xsl:if test="count(.//SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=0">
+
+										<xsl:if test="((number(.//SMLNL:FixedValue/@value) div $expt_root//@dt) mod 1) &gt; 0">
+											<xsl:message terminate="yes">Error: The specified delay <xsl:value-of select="number(.//SMLNL:FixedValue/@value)"/> cannot be expressed as an integer number of timesteps (of <xsl:value-of select="$expt_root//@dt"/> ms)</xsl:message>
+										</xsl:if>
+
 										<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
 									</xsl:if>
 								</xsl:if>
@@ -189,9 +199,17 @@
 -->								<xsl:if test="(count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)) or count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
 									<xsl:if test="count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
 										<xsl:comment>Expt layer value: </xsl:comment>
+
+										<xsl:if test="((number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt) mod 1) &gt; 0">
+											<xsl:message terminate="yes">Error: The specified delay <xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value)"/> cannot be expressed as an integer number of timesteps (of <xsl:value-of select="$expt_root//@dt"/> ms)</xsl:message>
+										</xsl:if>
+
 										<xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
 									</xsl:if>
 									<xsl:if test="count(.//SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=0">
+										<xsl:if test="((number(.//SMLNL:FixedValue/@value) div $expt_root//@dt) mod 1) &gt; 0">
+											<xsl:message terminate="yes">Error: The specified delay <xsl:value-of select="number(.//SMLNL:FixedValue/@value)"/> cannot be expressed as an integer number of timesteps (of <xsl:value-of select="$expt_root//@dt"/> ms)</xsl:message>
+										</xsl:if>
 										<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
 									</xsl:if>
 
@@ -243,12 +261,23 @@
 								<xsl:if test="(count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)) or count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
 									<xsl:if test="count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
 										<xsl:comment>Expt layer value: </xsl:comment>
+
+										<xsl:if test="((number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt) mod 1) &gt; 0">
+											<xsl:message terminate="yes">Error: The specified delay <xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value)"/> cannot be expressed as an integer number of timesteps (of <xsl:value-of select="$expt_root//@dt"/> ms)</xsl:message>
+										</xsl:if>
+
 										<xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
 									</xsl:if>
 									<xsl:if test="count(.//SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=0">
+
+										<xsl:if test="((number(.//SMLNL:FixedValue/@value) div $expt_root//@dt) mod 1) &gt; 0">
+											<xsl:message terminate="yes">Error: The specified delay <xsl:value-of select="number(.//SMLNL:FixedValue/@value)"/> cannot be expressed as an integer number of timesteps (of <xsl:value-of select="$expt_root//@dt"/> ms)</xsl:message>
+										</xsl:if>
+
 										<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
 									</xsl:if>
 								</xsl:if>
+
 								<xsl:if test="not(count(.//SMLNL:FixedValue)=1) or number(.//SMLNL:FixedValue/@value)=0">0</xsl:if>
 							</Lag>
 						</Link>
@@ -317,9 +346,19 @@
 								<xsl:if test="(count(.//SMLNL:FixedValue)=1 and not(number(.//SMLNL:FixedValue/@value)=0)) or count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
 									<xsl:if test="count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=1">
 										<xsl:comment>Expt layer value: </xsl:comment>
+
+										<xsl:if test="((number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt) mod 1) &gt; 0">
+											<xsl:message terminate="yes">Error: The specified delay <xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value)"/> cannot be expressed as an integer number of timesteps (of <xsl:value-of select="$expt_root//@dt"/> ms)</xsl:message>
+										</xsl:if>
+
 										<xsl:value-of select="number($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
 									</xsl:if>
 									<xsl:if test="count(.//SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@src_population=$source_name and @src_port=$srcPortRef and @dst_population=$target_name and @dst_port=$dstPortRef]/SMLNL:FixedValue)=0">
+
+										<xsl:if test="((number(.//SMLNL:FixedValue/@value) div $expt_root//@dt) mod 1) &gt; 0">
+											<xsl:message terminate="yes">Error: The specified delay <xsl:value-of select="number(.//SMLNL:FixedValue/@value)"/> cannot be expressed as an integer number of timesteps (of <xsl:value-of select="$expt_root//@dt"/> ms)</xsl:message>
+										</xsl:if>
+
 										<xsl:value-of select="number(.//SMLNL:FixedValue/@value) div $expt_root//@dt"/>
 									</xsl:if>
 								</xsl:if>
