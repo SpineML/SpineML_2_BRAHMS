@@ -1,0 +1,3 @@
+[submodule "spineml"]
+	path = spineml
+	url = https://github.com/SpineML/spineml
