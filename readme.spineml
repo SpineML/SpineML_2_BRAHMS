@@ -15,6 +15,11 @@ the spineml folder and run
 git pull
 ```
 
+After pulling, you then have to commit the changes that you pulled and
+you'll see spineml listed on
+https://github.com/SpineML/SpineML_2_BRAHMS with a new commit
+revision. Right now, it's "spineml @ 7db5f2c".
+
 At present it's not actually necessary to pull in spineml, but in the
 future, the contents of spineml will be installed as part of
 SpineML_2_BRAHMS and used for verifying that models are valid spineml
