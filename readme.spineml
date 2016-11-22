@@ -1,0 +1,21 @@
+This code contains a copy of spineml as a git submodule.
+
+To bring the code in for spineml for the first time run
+
+```bash
+git submodule update --init --recursive
+```
+
+You can do this from the SpineML_2_BRAHMS base directory.
+
+To update from the parent spineml project, just change directory into
+the spineml folder and run
+
+```bash
+git pull
+```
+
+At present it's not actually necessary to pull in spineml, but in the
+future, the contents of spineml will be installed as part of
+SpineML_2_BRAHMS and used for verifying that models are valid spineml
+prior to running them.
