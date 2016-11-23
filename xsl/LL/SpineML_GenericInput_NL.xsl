@@ -40,8 +40,8 @@
 				<xsl:variable name="source_name" select="@src"/><!-- src attribute of LL:Input element -->
 				<xsl:variable name="target_name" select="../../SMLLOWNL:Neuron/@name"/><!-- name attribute of parent LL:Neuron element -->
 
-				<!-- APPLY LESION. Note lesion is applied to all connections between src_population and dst_population-->
-				<xsl:if test="count($expt_root//SMLEXPT:Lesion[@src_population=$source_name and @dst_population=$target_name])=0">
+				<!-- Apply GenericInputLesion. -->
+				<xsl:if test="count($expt_root//SMLEXPT:GenericInputLesion[@src=$source_name and @src_port=$srcPortRef and @dst=$target_name and @dst_port=$dstPortRef])=0">
 
 					<!-- UNSUPPORTED -->
 					<xsl:if test="count(.//SMLNL:FixedValue)=0 and count(.//SMLNL:ConnectionList)=0">
