@@ -38,10 +38,14 @@
 				<xsl:variable name="srcPortRef" select="@src_port"/><!-- src_port attribute of LL:Input element -->
 				<xsl:variable name="dstPortRef" select="@dst_port"/><!-- dst_port attribute of LL:Input element -->
 				<xsl:variable name="source_name" select="@src"/><!-- src attribute of LL:Input element -->
-				<xsl:variable name="target_name" select="../../SMLLOWNL:Neuron/@name"/><!-- name attribute of parent LL:Neuron element -->
+
+				<!-- The dst of a GenericInputLesion needs to match one of these three things: -->
+				<xsl:variable name="target_name" select="../../SMLLOWNL:Neuron/@name"/> <!-- a population -->
+				<xsl:variable name="target_ps_name" select="../../SMLLOWNL:PostSynapse/@name"/> <!-- a postsynapse in a projection -->
+				<xsl:variable name="target_wu_name" select="../../SMLLOWNL:WeightUpdate/@name"/> <!-- a weightupdate in a projection -->
 
 				<!-- Apply GenericInputLesion. -->
-				<xsl:if test="count($expt_root//SMLEXPT:GenericInputLesion[@src=$source_name and @src_port=$srcPortRef and @dst=$target_name and @dst_port=$dstPortRef])=0">
+				<xsl:if test="count($expt_root//SMLEXPT:GenericInputLesion[@src=$source_name and @src_port=$srcPortRef and (@dst=$target_name or @dst=$target_ps_name or @dst=$target_wu_name) and @dst_port=$dstPortRef])=0">
 
 					<!-- UNSUPPORTED -->
 					<xsl:if test="count(.//SMLNL:FixedValue)=0 and count(.//SMLNL:ConnectionList)=0">
