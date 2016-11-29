@@ -297,7 +297,14 @@
 					<xsl:if test="count(.//SMLNL:ConnectionList)=1">
 						<!-- Test to ensure that a generic input connection list has a FixedValue delay. -->
 						<xsl:if test="not(count(.//SMLNL:ConnectionList/SMLNL:Delay/SMLNL:FixedValue)=1)">
-							<xsl:message terminate="yes">Error: Generic Input ConnectionLists need to have a FixedValue Delay; per-connection delays from the ConnectionList itself are not supported by SpineML_2_BRAHMS.</xsl:message>
+							<xsl:if test="$target_name != ''">
+								<xsl:message terminate="no">Error for connection: <xsl:value-of select="$source_name"/>[<xsl:value-of select="$srcPortRef"/>] to <xsl:value-of select="$target_name"/>[<xsl:value-of select="$dstPortRef"/>]...</xsl:message>
+							</xsl:if>
+							<xsl:if test="$target_ps_name != ''">
+								<xsl:message terminate="no">Error for connection: <xsl:value-of select="$source_name"/>[<xsl:value-of select="$srcPortRef"/>] to <xsl:value-of select="$target_wu_name"/> or <xsl:value-of select="$target_ps_name"/>[<xsl:value-of select="$dstPortRef"/>]...</xsl:message>
+							</xsl:if>
+
+							<xsl:message terminate="yes">...Generic Input ConnectionLists need to have a FixedValue Delay; per-connection delays from the ConnectionList itself are not supported by SpineML_2_BRAHMS. Connection list Delay count: <xsl:value-of select="count(.//SMLNL:ConnectionList/SMLNL:Delay/SMLNL:FixedValue)"/></xsl:message>
 						</xsl:if>
 						<Process>
 							<Name><xsl:value-of select="concat('remap',generate-id(.))"/></Name>
