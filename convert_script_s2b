@@ -337,7 +337,15 @@ echo "OUTPUT_MODEL_DIR: $OUTPUT_MODEL_DIR"
 # We make a COPY of the model dir, copying it into
 # OUTPUT_MODEL_DIR. We'll then "preflight" this copy of the model and
 # use this as the working input model.
-cp -Ra "$MODEL_DIR"/* "$OUTPUT_MODEL_DIR"/
+
+# Possibly add -u for update to reduce storage network
+# bandwidth. Possibly use find and exec to copy only at one level of
+# depth. This ONLY has to copy the SpineML model and not any
+# additional subdirectories that may be present.
+
+##cp -Ra "$MODEL_DIR"/* "$OUTPUT_MODEL_DIR"/
+find ${MODEL_DIR} -maxdepth 1 -not -type d -exec cp -u {} ${OUTPUT_MODEL_DIR}/ \;
+
 if [ "$?" -ne "0" ]; then
     echo "Failed to make a copy of the input model directory" >&2
     exit -1
