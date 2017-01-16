@@ -445,7 +445,7 @@ fi <!-- end "assume" test -->
 
 if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f "$SPINEML_RUN_DIR/sys.xml" ] ; then
   echo "Building the SystemML system..."
-  xsltproc --maxdepth 50000 -o "$SPINEML_RUN_DIR/sys.xml" --stringparam spineml_model_dir "$MODEL_DIR" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl" "$MODEL_DIR/$INPUT"
+  xsltproc --maxdepth 50000 --maxvars 500000 -o "$SPINEML_RUN_DIR/sys.xml" --stringparam spineml_model_dir "$MODEL_DIR" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl" "$MODEL_DIR/$INPUT"
   XSLTPROCRTN=$?
   echo "xsltproc (for SystemML system) returned: $XSLTPROCRTN"
   if [ $XSLTPROCRTN -ne "0" ]; then
