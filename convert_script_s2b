@@ -82,6 +82,20 @@ Options are:
                E.g.: -p "Striatum_D1:tau:45ms" - change param "tau" to 45 ms
                for the population "Striatum_D1".
 
+               The value can be a special string to specify a number drawn from
+               a random uniform or random normal distribution. For random
+               uniform with min=2, max=10 and seed=123, use something like:
+
+               -p "STN_spk to GPeTI Synapse 0 weight_update:S:UNI(2,10,123)"
+
+               To specify a normal distribution with mean 8, variance 2 and seed
+               123, use:
+
+               -p "STN_spk to GPeTI Synapse 0 weight_update:S:NORM(8,2,123)"
+
+               As with fixed value property changes, a dimension can be appended
+               to the UNI() or NORM() string.
+
                Multiple instances of this option may be given. The content of
                each option is passed unmodified to spineml_preflight.
 
