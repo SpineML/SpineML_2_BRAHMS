@@ -118,11 +118,17 @@ private:
 	int numElements_BRAHMS;
 	int numElementsIn_BRAHMS;
 
+	// A vector of the (integer) delays (in number of timesteps?) for the
+	// connection with which this weight component is associated.
 	VUINT32 delayForConn;
 
+	// A buffer (vector of vectors of ints) for any delayed events and impulses.
 	vector &lt; VINT32 &gt; delayBuffer;
-	vector &lt; VDOUBLE &gt; delayedAnalogVals;
 
+	// A buffer (vector of vectors of doubles) for any delayed analog values.
+	vector &lt; VDOUBLE &gt; delayBufferAnalog;
+
+	// An index used for delayBuffer and delayBufferAnalog
 	int delayBufferIndex;
 
 	// create the lookups for the connectivity
@@ -430,7 +436,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				}
 
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
-				delayedAnalogVals.resize(round(max_delay_val/most_delay_accuracy)+1);
+				delayBufferAnalog.resize(round(max_delay_val/most_delay_accuracy)+1);
 
 				// remap the delays to indices
 				delayForConn.resize(delayForConnTemp.size());
@@ -492,10 +498,10 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					}
 				}
 
-				//bout &lt;&lt; "resizing delayBuffer and delayedAnalogVals to size: " &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; D_INFO;
+				//bout &lt;&lt; "resizing delayBuffer and delayBufferAnalog to size: " &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; D_INFO;
 
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
-				delayedAnalogVals.resize(round(max_delay_val/most_delay_accuracy)+1);
+				delayBufferAnalog.resize(round(max_delay_val/most_delay_accuracy)+1);
 			}
 
 			//debug

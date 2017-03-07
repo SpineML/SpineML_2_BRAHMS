@@ -243,7 +243,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
      <xsl:otherwise>
 
 			DOUBLE* DATA<xsl:value-of select="@name"/>;
-			if (!delayedAnalogVals.size()) {
+			if (!delayBufferAnalog.size()) {
 				<xsl:value-of select="@name"/>.clear();
 				<xsl:value-of select="@name"/>.resize(numConn_BRAHMS,0);
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; PORT<xsl:value-of select="@name"/>.size(); ++i_BRAHMS) {
@@ -262,17 +262,17 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 						// sum inputs into buffer
 						for (int k_BRAHMS = 0; k_BRAHMS &lt; connectivityS2C[j_BRAHMS].size(); ++k_BRAHMS) {
 							int delayBufferCurr_BRAHMS = (delayBufferIndex+delayForConn[connectivityS2C[j_BRAHMS][k_BRAHMS]])%delayBuffer.size();
-							if (!delayedAnalogVals[delayBufferCurr_BRAHMS].size()) {
-								delayedAnalogVals[delayBufferCurr_BRAHMS].resize(numConn_BRAHMS,0);
+							if (!delayBufferAnalog[delayBufferCurr_BRAHMS].size()) {
+								delayBufferAnalog[delayBufferCurr_BRAHMS].resize(numConn_BRAHMS,0);
 							}
-							delayedAnalogVals[delayBufferCurr_BRAHMS][connectivityS2C[j_BRAHMS][k_BRAHMS]] += DATA<xsl:value-of select="@name"/>[j_BRAHMS];
+							delayBufferAnalog[delayBufferCurr_BRAHMS][connectivityS2C[j_BRAHMS][k_BRAHMS]] += DATA<xsl:value-of select="@name"/>[j_BRAHMS];
 						}
 					}
 				}
 				// copy from buffer
-				<xsl:value-of select="@name"/> = delayedAnalogVals[delayBufferIndex];
-				delayedAnalogVals[delayBufferIndex].clear();
-				delayedAnalogVals[delayBufferIndex].resize(numConn_BRAHMS,0);
+				<xsl:value-of select="@name"/> = delayBufferAnalog[delayBufferIndex];
+				delayBufferAnalog[delayBufferIndex].clear();
+				delayBufferAnalog[delayBufferIndex].resize(numConn_BRAHMS,0);
 				// initialisation
 				if (!<xsl:value-of select="@name"/>.size()) {
 					<xsl:value-of select="@name"/>.resize(numConn_BRAHMS,0);
