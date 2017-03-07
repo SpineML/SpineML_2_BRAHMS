@@ -333,6 +333,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			<xsl:if test="./SMLNL:ConnectionList">
 			vector &lt;INT32&gt; srcInds;
 			vector &lt;INT32&gt; dstInds;
+			<!-- Here we read in the connection
+			     states. Code will need to be added here
+			     to read the delay buffers also. -->
 			if (nodeState.hasField("_bin_file_name")) {
 				string fileName = nodeState.getField("_bin_file_name").getSTRING();
 				int _num_conn = (int) nodeState.getField("_bin_num_conn").getDOUBLE();
@@ -366,7 +369,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					if (ret_FOR_BRAHMS == -1) berr &lt;&lt; "Error loading binary connections";
 					//bout  &lt;&lt; srcInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; dstInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; delayForConnTemp[i_BRAHMS] &lt;&lt; D_WARN;
 				}
-			} else {
+			} else { <!-- there's no _bin_file_name -->
 				srcInds = nodeState.getField("src").getArrayINT32();
 				dstInds = nodeState.getField("dst").getArrayINT32();
 
@@ -405,6 +408,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			</xsl:if> <!-- SMLNL:ConnectionList -->
 
+			<!-- Set up the delay buffers -->
 			// get delay
 			if (nodeState.hasField("delayForConn")) {
 				this-&gt;allParamsDelaysAreFixedValue = false;
@@ -438,7 +442,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				//bout&lt;&lt; float(delayBuffer.size()) &lt;&lt; D_INFO;
 				for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConnTemp.size(); ++i_BRAHMS) {
 					delayForConn[i_BRAHMS] = round(delayForConnTemp[i_BRAHMS]/most_delay_accuracy);
-					//&lt;&lt;delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
+					bout &lt;&lt; delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
 				}
 			}
 
@@ -663,7 +667,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				<xsl:apply-templates select="SMLCL:ImpulseReceivePort | SMLCL:ImpulseSendPort" mode="serviceImpulsePortsRemap"/>
 			</xsl:for-each>
 
-			// Event Ports Remaps (if any)
+			// Event Ports Remaps (if any) <!-- Produces the delay buffer stuff -->
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
 				<xsl:apply-templates select="SMLCL:EventReceivePort | SMLCL:EventSendPort" mode="serviceEventPortsRemap"/>
 			</xsl:for-each>

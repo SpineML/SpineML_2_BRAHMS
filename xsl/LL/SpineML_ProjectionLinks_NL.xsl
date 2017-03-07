@@ -79,6 +79,7 @@
 												<xsl:if test="count(../*/SMLNL:Delay/SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue)=0">
 													<xsl:comment>Model-provided delay: </xsl:comment>
 
+													<!-- Going to set this delay to 0, taking it out of BRAHMS's hands, and then implement a ring buffer somewhere else. WeightUpdate? PostSynapse? -->
 													<xsl:if test="((number(../*/SMLNL:Delay/SMLNL:FixedValue/@value) div $expt_root//@dt) mod 1) &gt; 0">
 														<xsl:message terminate="yes">Error: The specified delay <xsl:value-of select="number(../*/SMLNL:Delay/SMLNL:FixedValue/@value)"/> cannot be expressed as an integer number of timesteps (of <xsl:value-of select="$expt_root//@dt"/> ms)</xsl:message>
 													</xsl:if>
