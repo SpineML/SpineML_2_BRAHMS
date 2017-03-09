@@ -56,7 +56,6 @@
 									<Dst><xsl:value-of select="translate(@name,' -', '_H')"/><xsl:if test="count(document(@url)//SMLCL:AnalogReducePort[@name=$dstPortRef])=1 or count(document(@url)//SMLCL:EventReceivePort[@name=$dstPortRef])=1 or count(document(@url)//SMLCL:ImpulseReceivePort[@name=$dstPortRef])=1"><xsl:text disable-output-escaping="no">&lt;</xsl:text></xsl:if><xsl:text disable-output-escaping="no">&lt;</xsl:text><xsl:value-of select="@input_dst_port"/></Dst>
 
 									<Lag>
-
 										<!-- To trigger expt-provided delay, have something like this in the experiment file:
 										     <Model network_layer_url="model.xml">
 										     <ProjectionDelayChange src="A" dst="B" synapse="0">
@@ -67,35 +66,25 @@
 										     </Model> -->
 										<xsl:choose>
 											<!-- Probably need to avoid this xsl:when as well...
+											     The logic would be: If it's fixed value and the fixed value is 0, then make this 0; otherwise make this 1. This tells brahms
+											     that we have delays in the connections even though they're usually not encoded in the brahms sys.xml.
 											-->
-											<xsl:when test="count(../*/SMLNL:Delay/SMLNL:FixedValue)=1 or (count($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue)=1 and count(../SMLNL:ConnectionList)=0)"><xsl:comment>Fixed:</xsl:comment>0<!--
-												<xsl:if test="count($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue)=1">
-													<xsl:comment>Expt layer value: </xsl:comment>
+											<xsl:when test="(
+													  count(../*/SMLNL:Delay/SMLNL:FixedValue)=1
+													  and
+													  number(../*/SMLNL:Delay/SMLNL:FixedValue/@value)=0
+													)
+													or
+													( count($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue)=1
+													  and
+													  number($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue/@value)=0
+													)"><xsl:comment>Fixed (here or in expt) and 0:</xsl:comment>0</xsl:when>
 
-													<xsl:if test="((number($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue/@value) div $expt_root//@dt) mod 1) &gt; 0">
-														<xsl:message terminate="yes">Error: The specified delay <xsl:value-of select="number($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue/@value)"/> cannot be expressed as an integer number of timesteps (of <xsl:value-of select="$expt_root//@dt"/> ms)</xsl:message>
-													</xsl:if>
-
-													<xsl:value-of select="number($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
-													</xsl:if>
-
-												<xsl:if test="count(../*/SMLNL:Delay/SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue)=0">
-													<xsl:comment>Model-provided delay: </xsl:comment>
-
-													<xsl:if test="((number(../*/SMLNL:Delay/SMLNL:FixedValue/@value) div $expt_root//@dt) mod 1) &gt; 0">
-														<xsl:message terminate="yes">Error: The specified delay <xsl:value-of select="number(../*/SMLNL:Delay/SMLNL:FixedValue/@value)"/> cannot be expressed as an integer number of timesteps (of <xsl:value-of select="$expt_root//@dt"/> ms)</xsl:message>
-														</xsl:if>
-
-													<xsl:value-of select="number(../*/SMLNL:Delay/SMLNL:FixedValue/@value) div $expt_root//@dt"/>
-													</xsl:if>
-												-->
-											</xsl:when>
-
-											<xsl:when test="count(../SMLNL:ConnectionList)=1"><xsl:comment>One timestep added to tell BRAHMS that there IS a delay in the ConnectionList</xsl:comment>1</xsl:when>
-
-											<!-- If the Delay is e.g. UniformDistribution or NormalDistribution, then it's handled in the
-											     weight update component, with parameters passed in by SpineML_WeightUpdate_NL.xsl hence the "otherwise 0" here: -->
-											<xsl:otherwise>0</xsl:otherwise>
+											<!-- If the Delay is UniformDistribution, NormalDistribution, ConnectionList or a non-zero FixedValue, then it's handled in the
+											     weight update component, with parameters passed in by SpineML_WeightUpdate_NL.xsl hence the "otherwise 1" here. We have to tell
+											     BRAHMS that there IS a delay in the connection, to avoid BRAHMS complaints about impossible loops. This is slightly less than ideal,
+											     because we add an extra delay to any delayed connection. -->
+											<xsl:otherwise>1</xsl:otherwise>
 										</xsl:choose>
 									</Lag>
 

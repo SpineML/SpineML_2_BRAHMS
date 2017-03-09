@@ -65,19 +65,27 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 						<xsl:variable name="weightupdate_name" select=".//SMLLOWNL:WeightUpdate/@name"/>
 						<xsl:attribute name="c">z</xsl:attribute>
 						<xsl:attribute name="a">model_directory;sizeIn;sizeOut;<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">_bin_file_name;_bin_num_conn;_bin_has_delay;</xsl:if><xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Connection)>0">src;dst;<xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Delay)=0">delayForConn;</xsl:if></xsl:if>
-						<!-- If there's a fixedDelay, then add it -->
-						<xsl:message terminate="no">weightupdate_name: <xsl:value-of select="$weightupdate_name"/></xsl:message>
-						<!-- Existing ProjectionDelayChange code is in SpineML_ProjectionLinks_NL.xml -->
-						<xsl:if test="count(.//SMLNL:Delay/SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name])=0">
-							<!---->fixedDelay;<!---->
-						</xsl:if>
-						<!-- If there's a Uniform/Normal Distribution but no experiment layer delay change override, then include the pDelay -->
-						<xsl:if test="count(.//SMLNL:Delay/SMLNL:UniformDistribution)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
-							<!---->pDelay;<!---->
-						</xsl:if>
-						<xsl:if test="count(.//SMLNL:Delay/SMLNL:NormalDistribution)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
-							<!---->pDelay;<!---->
-						</xsl:if>
+						<!---->
+						<!-- Check if there is a delay change in the experiment layer, otherwise output fixedDelay/pDelay as appropriate -->
+						<xsl:choose>
+							<xsl:when test="count($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue)=1">
+								<xsl:comment>Use Expt layer fixed value: </xsl:comment>
+								<!--<xsl:value-of select="number($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue/@value)"/>-->
+								<!---->fixedDelay;<!---->
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:if test="count(.//SMLNL:Delay/SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name])=0">
+									<!---->fixedDelay;<!---->
+								</xsl:if>
+								<!-- If there's a Uniform/Normal Distribution but no experiment layer delay change override, then include the pDelay -->
+								<xsl:if test="count(.//SMLNL:Delay/SMLNL:UniformDistribution)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
+									<!---->pDelay;<!---->
+								</xsl:if>
+								<xsl:if test="count(.//SMLNL:Delay/SMLNL:NormalDistribution)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
+									<!---->pDelay;<!---->
+								</xsl:if>
+							</xsl:otherwise>
+						</xsl:choose>
 						<xsl:if test="count(.//SMLNL:FixedProbabilityConnection)=1">probabilityValue;</xsl:if>
 						<xsl:for-each select="SMLLOWNL:WeightUpdate/SMLNL:Property | $expt_root//SMLEXPT:Experiment//SMLEXPT:Configuration[@target=$curr_syn/@name]/SMLNL:Property">
 							<xsl:value-of select="@name"/>
@@ -141,31 +149,42 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 								</m>
 							</xsl:if>
 						</xsl:if>
-						<xsl:if test="count(.//SMLNL:Delay/SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name])=0">
-							<m c="f">
-								<xsl:value-of select=".//SMLNL:Delay/SMLNL:FixedValue/@value"/> <!-- in ms -->
-							</m>
-						</xsl:if>
-						<xsl:if test="count(.//SMLNL:Delay/SMLNL:UniformDistribution)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
-							<m b="1 4" c="f">
-								<!---->2 <!---->
-								<xsl:value-of select=".//SMLNL:Delay/SMLNL:UniformDistribution/@minimum"/>
-								<xsl:text> </xsl:text>
-								<xsl:value-of select=".//SMLNL:Delay/SMLNL:UniformDistribution/@maximum"/>
-								<xsl:text> </xsl:text>
-								<xsl:value-of select=".//SMLNL:Delay/SMLNL:UniformDistribution/@seed"/>
-							</m>
-						</xsl:if>
-						<xsl:if test="count(.//SMLNL:Delay/SMLNL:NormalDistribution)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
-							<m b="1 4" c="f">
-								<!---->1 <!---->
-								<xsl:value-of select=".//SMLNL:Delay/SMLNL:NormalDistribution/@mean"/>
-								<xsl:text> </xsl:text>
-								<xsl:value-of select=".//SMLNL:Delay/SMLNL:NormalDistribution/@variance"/>
-								<xsl:text> </xsl:text>
-								<xsl:value-of select=".//SMLNL:Delay/SMLNL:NormalDistribution/@seed"/>
-							</m>
-						</xsl:if>
+						<!---->
+						<!-- Delay values (fixed/probabilistic) -->
+						<xsl:choose>
+							<xsl:when test="count($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue)=1">
+								<m c="f">
+									<xsl:value-of select="number($expt_root//SMLEXPT:ProjectionDelayChange[@src=$source_name and @dst=$target_name and @synapse=$synnum]/SMLNL:Delay/SMLNL:FixedValue/@value)"/>
+								</m>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:if test="count(.//SMLNL:Delay/SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name])=0">
+									<m c="f">
+										<xsl:value-of select=".//SMLNL:Delay/SMLNL:FixedValue/@value"/> <!-- in ms -->
+									</m>
+								</xsl:if>
+								<xsl:if test="count(.//SMLNL:Delay/SMLNL:UniformDistribution)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
+									<m b="1 4" c="f">
+										<!---->2 <!---->
+										<xsl:value-of select=".//SMLNL:Delay/SMLNL:UniformDistribution/@minimum"/>
+										<xsl:text> </xsl:text>
+										<xsl:value-of select=".//SMLNL:Delay/SMLNL:UniformDistribution/@maximum"/>
+										<xsl:text> </xsl:text>
+										<xsl:value-of select=".//SMLNL:Delay/SMLNL:UniformDistribution/@seed"/>
+									</m>
+								</xsl:if>
+								<xsl:if test="count(.//SMLNL:Delay/SMLNL:NormalDistribution)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
+									<m b="1 4" c="f">
+										<!---->1 <!---->
+										<xsl:value-of select=".//SMLNL:Delay/SMLNL:NormalDistribution/@mean"/>
+										<xsl:text> </xsl:text>
+										<xsl:value-of select=".//SMLNL:Delay/SMLNL:NormalDistribution/@variance"/>
+										<xsl:text> </xsl:text>
+										<xsl:value-of select=".//SMLNL:Delay/SMLNL:NormalDistribution/@seed"/>
+									</m>
+								</xsl:if>
+							</xsl:otherwise>
+						</xsl:choose>
 						<xsl:if test="count(./SMLNL:FixedProbabilityConnection)=1"><m c="f"><xsl:value-of select=".//SMLNL:FixedProbabilityConnection/@probability"/></m></xsl:if>
 						<xsl:for-each select="SMLLOWNL:WeightUpdate//SMLNL:Property | $expt_root//SMLEXPT:Experiment//SMLEXPT:Configuration[@target=$curr_syn/@name]/SMLNL:Property">
 
