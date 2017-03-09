@@ -128,7 +128,7 @@ private:
 	// A buffer (vector of vectors of doubles) for any delayed analog values.
 	vector &lt; VDOUBLE &gt; delayBufferAnalog;
 
-	// An index used for delayBuffer and delayBufferAnalog
+	// An index used for delayBuffer and delayBufferAnalog, both of which are used as circular buffers.
 	int delayBufferIndex;
 
 	// create the lookups for the connectivity
@@ -234,7 +234,14 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			rngDataInit(&amp;this-&gt;rngData_BRAHMS);
 			zigset(&amp;this-&gt;rngData_BRAHMS, 11);
 
-			// Create the connectivity map
+			<!--
+			    Start of connectivity map code.
+			-->
+			// Create the connectivity maps
+			//
+			// A vector of double delays for the connections. Used for every type of connection.
+			VDOUBLE delayForConnTemp;
+
                         <xsl:if test="count(./SMLNL:AllToAllConnection) = 1">
 			connectivityC2D.reserve(numElementsIn_BRAHMS*numElements_BRAHMS);
 			connectivityS2C.resize(numElementsIn_BRAHMS);
@@ -264,6 +271,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			// set up the number of connections
 			numConn_BRAHMS = connectivityC2D.size();
+
 			</xsl:if> <!-- SMLNL:AllToAllConnection -->
 
                         <xsl:if test="count(./SMLNL:OneToOneConnection) = 1">
@@ -288,6 +296,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			// set up the number of connections
 			numConn_BRAHMS = connectivityC2D.size();
+
 			</xsl:if> <!-- SMLNL:OneToOneConnection -->
 
 			<xsl:if test="count(./SMLNL:FixedProbabilityConnection) = 1">
@@ -331,10 +340,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			// set up the number of connections
 			numConn_BRAHMS = connectivityC2D.size();
-			//bout &lt;&lt; float(numConn_BRAHMS) &lt;&lt; D_INFO;
-			</xsl:if> <!-- SMLNL:FixedProbabilityConnection -->
 
-			VDOUBLE delayForConnTemp;
+			</xsl:if> <!-- SMLNL:FixedProbabilityConnection -->
 
 			<xsl:if test="./SMLNL:ConnectionList">
 			vector &lt;INT32&gt; srcInds;
@@ -359,32 +366,47 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				srcInds.resize(_num_conn);
 				dstInds.resize(_num_conn);
-				if (_has_delay) {
-					delayForConnTemp.resize(_num_conn);
-				}
+
+				// Whether or not we have delays *in the connection file* (_has_delay), we resize delayForConnTemp.
+				delayForConnTemp.resize(_num_conn);
+
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; _num_conn; ++i_BRAHMS) {
-					size_t ret_FOR_BRAHMS = fread(&amp;srcInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
-					if (ret_FOR_BRAHMS == -1) { berr &lt;&lt; "Error loading binary connections"; }
+
+				        size_t ret_FOR_BRAHMS = fread(&amp;srcInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
+					if (ret_FOR_BRAHMS == -1) {
+					        berr &lt;&lt; "Error loading binary src connection";
+					}
+
 					ret_FOR_BRAHMS = fread(&amp;dstInds[i_BRAHMS], sizeof(unsigned int), 1, binfile);
-					if (ret_FOR_BRAHMS == -1) { berr &lt;&lt; "Error loading binary connections"; }
+					if (ret_FOR_BRAHMS == -1) {
+					        berr &lt;&lt; "Error loading binary dst connection";
+					}
+
 					if (_has_delay) {
 						float tempDelay_FOR_BRAHMS;
 						ret_FOR_BRAHMS = fread(&amp;tempDelay_FOR_BRAHMS, sizeof(float), 1, binfile);
+						if (ret_FOR_BRAHMS == -1) {
+							berr &lt;&lt; "Error loading binary connection delay";
+						}
 						delayForConnTemp[i_BRAHMS] = tempDelay_FOR_BRAHMS;
+					} else {
+						if (nodeState.hasField ("fixedDelay")) {
+							delayForConnTemp[i_BRAHMS] = nodeState.getField("fixedDelay").getDOUBLE();
+						}
 					}
-					if (ret_FOR_BRAHMS == -1) berr &lt;&lt; "Error loading binary connections";
-					//bout  &lt;&lt; srcInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; dstInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; delayForConnTemp[i_BRAHMS] &lt;&lt; D_WARN;
-				}
-			} else { <!-- there's no _bin_file_name -->
-				srcInds = nodeState.getField("src").getArrayINT32();
-				dstInds = nodeState.getField("dst").getArrayINT32();
 
+					bout  &lt;&lt; srcInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; dstInds[i_BRAHMS]
+					      &lt;&lt; " " &lt;&lt; delayForConnTemp[i_BRAHMS] &lt;&lt; D_INFO;
+					}
+
+			} else { // there's no _bin_file_name. Don't expect this in practice, because SpineML_PreFlight should have converted even short XML Connectionlists into binary files.
+				// Do something about delays, even though there is no binary connection file.
+			        srcInds = nodeState.getField("src").getArrayINT32();
+				dstInds = nodeState.getField("dst").getArrayINT32();
 				if (srcInds.size() != dstInds.size()) {
 					berr &lt;&lt; "Connectivity src and dst lists have different sizes";
 				}
 			}
-
-			numConn_BRAHMS = srcInds.size();
 
 			// sanity check on index values
 			for (unsigned int i_BRAHMS = 0; i_BRAHMS &lt; srcInds.size(); ++i_BRAHMS) {
@@ -412,27 +434,38 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				</xsl:if>
 			}
 
+			numConn_BRAHMS = connectivityC2D.size();
+
 			</xsl:if> <!-- SMLNL:ConnectionList -->
 
 			<!-- Set up the delay buffers -->
-			// get delay
+
+			// get delay from DataML, if it exists there
 			if (nodeState.hasField("delayForConn")) {
+				// Don't expect this field to exist; SpineML_PreFlight changes any in-XML delay lists to be turned into binary
+				// files so that _has_bin_file would be found in nodeState rather than delayForConn.
 				this-&gt;allParamsDelaysAreFixedValue = false;
 				delayForConnTemp = nodeState.getField("delayForConn").getArrayDOUBLE();
 			}
 
+			// Initialise our delayBufferIndex to 0. Incremented on each EVENT_RUN_SERVICE
 			delayBufferIndex = 0;
 
+			// delayForConnTemp may have been populated if the connection is a ConnectionList or if the DataML had a "delayForConn" field.
 			if (delayForConnTemp.size() > 0) {
 
-				if (delayForConnTemp.size() != numConn_BRAHMS) berr &lt;&lt; "Connectivity delay list has incorrect size";
+				if (delayForConnTemp.size() != numConn_BRAHMS) {
+					berr &lt;&lt; "Connectivity delay list has incorrect size";
+				}
 
 				// resize buffer
 				float max_delay_val = 0;
 				float most_delay_accuracy = (1000.0f * time->sampleRate.den / time->sampleRate.num);
 				for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConnTemp.size(); ++i_BRAHMS) {
 					delayForConnTemp[i_BRAHMS];
-					if (delayForConnTemp[i_BRAHMS] > max_delay_val) max_delay_val = delayForConnTemp[i_BRAHMS];
+					if (delayForConnTemp[i_BRAHMS] > max_delay_val) {
+						max_delay_val = delayForConnTemp[i_BRAHMS];
+					}
 				}
 
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
@@ -440,9 +473,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				// remap the delays to indices
 				delayForConn.resize(delayForConnTemp.size());
-
-				//delayBufferIndexCounter = 0;
-				//delayBufferIndexCounterMax = round(most_delay_accuracy/(1000.0f * time->sampleRate.den / time->sampleRate.num));
 
 				//bout&lt;&lt; most_delay_accuracy &lt;&lt; D_INFO;
 				//bout&lt;&lt; float(delayBuffer.size()) &lt;&lt; D_INFO;
@@ -452,60 +482,65 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				}
 			}
 
-			// check for probabilistic delay
+			// check for probabilistic or fixed delay
 			if (nodeState.hasField("pDelay")) {
 				this-&gt;allParamsDelaysAreFixedValue = false;
 				delayForConnTemp = nodeState.getField("pDelay").getArrayDOUBLE();
-				//bout &lt;&lt; "have p delays" &lt;&lt; D_INFO;
-			}
 
-			// check what is happening
-			if (nodeState.hasField("pDelay") &amp;&amp; delayForConnTemp.size() == 4) {
+				if (delayForConnTemp.size() == 4) {
 
-				//bout &lt;&lt; "have p delays: right size" &lt;&lt; D_INFO;
+					//bout &lt;&lt; "have p delays: right size" &lt;&lt; D_INFO;
 
-				// resize the buffer
-				delayForConn.resize(numConn_BRAHMS);
+					// resize the buffer
+					delayForConn.resize(numConn_BRAHMS);
 
-				float max_delay_val = 0;
+					float max_delay_val = 0;
+					float most_delay_accuracy = (1000.0f * time->sampleRate.den / time->sampleRate.num);
+
+					// generate the delays:
+					if (delayForConnTemp[0] == 1) { // Normal distribution
+					        //bout &lt;&lt; "have p delays: Normal Distr" &lt;&lt; D_INFO;
+					        this-&gt;rngData_BRAHMS.seed = delayForConnTemp[3];
+						INT32 delayIntermediate_BRAHMS = 0;
+						for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
+							delayIntermediate_BRAHMS = (INT32)round((RNOR(&amp;this-&gt;rngData_BRAHMS)*delayForConnTemp[2]+delayForConnTemp[1])/most_delay_accuracy);
+							if (delayIntermediate_BRAHMS &lt; 0) {
+								bout &lt;&lt; "Normally generated delay " &lt;&lt; delayIntermediate_BRAHMS &lt;&lt; "&lt;0, setting this delay to 0." &lt;&lt; D_WARN;
+								delayForConn[i_BRAHMS] = 0;
+							} else {
+								delayForConn[i_BRAHMS] = (UINT32)delayIntermediate_BRAHMS;
+							}
+							//bout &lt;&lt; "Delay for connection " &lt;&lt; i_BRAHMS &lt;&lt; ": " &lt;&lt; delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
+							if (delayForConn[i_BRAHMS] &gt; max_delay_val) {
+								max_delay_val = delayForConn[i_BRAHMS];
+							}
+						}
+					}
+					if (delayForConnTemp[0] == 2) { // Uniform distribution
+					        //bout &lt;&lt; "have p delays: Uniform Distr" &lt;&lt; D_INFO;
+						this-&gt;rngData_BRAHMS.seed = delayForConnTemp[3];
+						for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
+							delayForConn[i_BRAHMS] = (UINT32)round((_randomUniform(&amp;this-&gt;rngData_BRAHMS)*(delayForConnTemp[2]-delayForConnTemp[1])+delayForConnTemp[1])/most_delay_accuracy);
+							if (delayForConn[i_BRAHMS] &gt; max_delay_val) { max_delay_val = delayForConn[i_BRAHMS]; }
+						}
+					}
+
+					//bout &lt;&lt; "resizing delayBuffer and delayBufferAnalog to size: " &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; D_INFO;
+
+					delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
+					delayBufferAnalog.resize(round(max_delay_val/most_delay_accuracy)+1);
+				}
+
+			} else if (nodeState.hasField("fixedDelay")) {
+				// NB the allParamsDelaysAreFixedValue code is probably now obsolete since I added delay
+				// buffers for all types of connection. Or it is at least in need of re-thinking. It had a bug in any case.
+				// Resize delayForConn to be of size numConn_BRAHMS and fill it with fixedDelay.
+				float max_delay_val = (float)nodeState.getField("fixedDelay").getDOUBLE();
 				float most_delay_accuracy = (1000.0f * time->sampleRate.den / time->sampleRate.num);
-
-				// generate the delays:
-				if (delayForConnTemp[0] == 1) { // Normal distribution
-				        //bout &lt;&lt; "have p delays: Normal Distr" &lt;&lt; D_INFO;
-				        this-&gt;rngData_BRAHMS.seed = delayForConnTemp[3];
-					INT32 delayIntermediate_BRAHMS = 0;
-					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
-						delayIntermediate_BRAHMS = (INT32)round((RNOR(&amp;this-&gt;rngData_BRAHMS)*delayForConnTemp[2]+delayForConnTemp[1])/most_delay_accuracy);
-						if (delayIntermediate_BRAHMS &lt; 0) {
-							bout &lt;&lt; "Normally generated delay " &lt;&lt; delayIntermediate_BRAHMS &lt;&lt; "&lt;0, setting this delay to 0." &lt;&lt; D_WARN;
-							delayForConn[i_BRAHMS] = 0;
-						} else {
-							delayForConn[i_BRAHMS] = (UINT32)delayIntermediate_BRAHMS;
-						}
-						//bout &lt;&lt; "Delay for connection " &lt;&lt; i_BRAHMS &lt;&lt; ": " &lt;&lt; delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
-						if (delayForConn[i_BRAHMS] &gt; max_delay_val) {
-							max_delay_val = delayForConn[i_BRAHMS];
-						}
-					}
-				}
-				if (delayForConnTemp[0] == 2) { // Uniform distribution
-				        //bout &lt;&lt; "have p delays: Uniform Distr" &lt;&lt; D_INFO;
-					this-&gt;rngData_BRAHMS.seed = delayForConnTemp[3];
-					for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConn.size(); ++i_BRAHMS) {
-						delayForConn[i_BRAHMS] = (UINT32)round((_randomUniform(&amp;this-&gt;rngData_BRAHMS)*(delayForConnTemp[2]-delayForConnTemp[1])+delayForConnTemp[1])/most_delay_accuracy);
-						if (delayForConn[i_BRAHMS] &gt; max_delay_val) { max_delay_val = delayForConn[i_BRAHMS]; }
-					}
-				}
-
-				//bout &lt;&lt; "resizing delayBuffer and delayBufferAnalog to size: " &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; D_INFO;
-
+				delayForConn.resize (numConn_BRAHMS, nodeState.getField("fixedDelay").getDOUBLE()/most_delay_accuracy);
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
 				delayBufferAnalog.resize(round(max_delay_val/most_delay_accuracy)+1);
 			}
-
-			//debug
-			//bout &lt;&lt; float(numConn_BRAHMS) &lt;&lt; D_INFO;
 
 			int numEl_BRAHMS = numConn_BRAHMS;
 

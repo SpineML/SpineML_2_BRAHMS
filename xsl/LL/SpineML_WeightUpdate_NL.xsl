@@ -65,8 +65,13 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 						<xsl:variable name="weightupdate_name" select=".//SMLLOWNL:WeightUpdate/@name"/>
 						<xsl:attribute name="c">z</xsl:attribute>
 						<xsl:attribute name="a">model_directory;sizeIn;sizeOut;<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">_bin_file_name;_bin_num_conn;_bin_has_delay;</xsl:if><xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Connection)>0">src;dst;<xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Delay)=0">delayForConn;</xsl:if></xsl:if>
-						<!-- If there's a Uniform/Normal Distribution but no experiment layer delay change override, then incude the pDelay -->
-
+						<!-- If there's a fixedDelay, then add it -->
+						<xsl:message terminate="no">weightupdate_name: <xsl:value-of select="$weightupdate_name"/></xsl:message>
+						<!-- Existing ProjectionDelayChange code is in SpineML_ProjectionLinks_NL.xml -->
+						<xsl:if test="count(.//SMLNL:Delay/SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name])=0">
+							<!---->fixedDelay;<!---->
+						</xsl:if>
+						<!-- If there's a Uniform/Normal Distribution but no experiment layer delay change override, then include the pDelay -->
 						<xsl:if test="count(.//SMLNL:Delay/SMLNL:UniformDistribution)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
 							<!---->pDelay;<!---->
 						</xsl:if>
@@ -135,6 +140,11 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 								<xsl:for-each select="./SMLNL:ConnectionList/SMLNL:Connection"><xsl:value-of select="@delay"/><xsl:text> </xsl:text></xsl:for-each>
 								</m>
 							</xsl:if>
+						</xsl:if>
+						<xsl:if test="count(.//SMLNL:Delay/SMLNL:FixedValue)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name])=0">
+							<m c="f">
+								<xsl:value-of select=".//SMLNL:Delay/SMLNL:FixedValue/@value"/> <!-- in ms -->
+							</m>
 						</xsl:if>
 						<xsl:if test="count(.//SMLNL:Delay/SMLNL:UniformDistribution)=1 and count($expt_root//SMLEXPT:Delay[@weight_update=$weightupdate_name]/SMLNL:FixedValue)=0">
 							<m b="1 4" c="f">
