@@ -35,9 +35,8 @@ spikes::Output PORTOut<xsl:value-of select="@name"/>;
 				for (int i_BRAHMS_LOOP = 0; i_BRAHMS_LOOP &lt; numInputs_BRAHMS; ++i_BRAHMS_LOOP) {
 					PORT<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].selectSet(set_BRAHMS);
 					PORT<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].attach(hComponent, i_BRAHMS_LOOP);
-					
 				}
-				
+
 </xsl:template>
 
 <xsl:template match="SMLCL:ImpulseReceivePort" mode="serviceImpulsePorts">
@@ -78,7 +77,7 @@ spikes::Output PORTOut<xsl:value-of select="@name"/>;
 						// add the index from the lookup
 						DATA<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].push_back(connectivityD2C[impulseIndex__In][k_BRAHMS_LOOP]);
 						// add the value
-						DATAval<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].push_back(impulseValue__In);							
+						DATAval<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].push_back(impulseValue__In);
 					}
 				}
 			}
@@ -103,23 +102,23 @@ spikes::Output PORTOut<xsl:value-of select="@name"/>;
 						// add the index from the lookup
 						DATA<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].push_back(connectivityS2C[impulseIndex__In][k_BRAHMS_LOOP]);
 						// add the value
-						DATAval<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].push_back(impulseValue__In);							
+						DATAval<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].push_back(impulseValue__In);
 					}
 				}
 			}
-			
+
 			// do delay
 			if (delayBuffer.size()) {
 				// for each spike
 				for (UINT32 i_BRAHMS_LOOP = 0; i_BRAHMS_LOOP &lt; DATA<xsl:value-of select="@name"/>.size(); ++i_BRAHMS_LOOP) {
 					for (UINT32 j_BRAHMS_LOOP = 0; j_BRAHMS_LOOP &lt; DATA<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].size(); ++j_BRAHMS_LOOP) {
-				
+
 						// get delay buffer index to set and add impulse to buffer lists
 						delayBuffer[(delayBufferIndex+delayForConn[DATA<xsl:value-of select="@name"/>[i_BRAHMS_LOOP][j_BRAHMS_LOOP]])%delayBuffer.size()].push_back(DATA<xsl:value-of select="@name"/>[i_BRAHMS_LOOP][j_BRAHMS_LOOP]);
 						delayedImpulseVals[(delayBufferIndex+delayForConn[DATA<xsl:value-of select="@name"/>[i_BRAHMS_LOOP][j_BRAHMS_LOOP]])%delayBuffer.size()].push_back(DATAval<xsl:value-of select="@name"/>[i_BRAHMS_LOOP][j_BRAHMS_LOOP]);
-				
-					}				
-				}			
+
+					}
+				}
 			}
 			</xsl:otherwise>
 			</xsl:choose>
@@ -138,14 +137,14 @@ spikes::Output PORTOut<xsl:value-of select="@name"/>;
 
 			vector &lt; INT32 &gt; OUT<xsl:value-of select="@name"/>;
 			for (INT32 i_BRAHMS_LOOP = 0; i_BRAHMS_LOOP &lt; DATAOut<xsl:value-of select="@name"/>.size(); i_BRAHMS_LOOP+=3) {
-			
+
 				INT32 impulseIndex__Out;
 				DOUBLE impulseValue__Out;
 				getImpulse(&amp;(DATAOut<xsl:value-of select="@name"/>[0]), i_BRAHMS_LOOP, impulseIndex__Out, impulseValue__Out);
 				// add the remapped impulse to the output
 				addImpulse(OUT<xsl:value-of select="@name"/>, connectivityC2D[impulseIndex__Out], impulseValue__Out);
 
-			}	
+			}
 			PORTOut<xsl:value-of select="@name"/>.setContent(&amp;OUT<xsl:value-of select="@name"/>[0], OUT<xsl:value-of select="@name"/>.size());
 </xsl:template>
 

@@ -13,6 +13,14 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <!--xsl:variable name="rule_proto" select="@prototype"/>
 <xsl:variable name="rule_file" select="document(/SMLLOWNL:SpineML/SMLNL:Node[@name=$rule_proto]/@url)"/-->
 <xsl:variable name="WeightUpdate_file" select="document(SMLLOWNL:WeightUpdate/@url)"/>
+<!-- A unique name for this weight update, to include source and destination info, including ports-->
+<xsl:variable name="WeightUpdate_name" select="concat (
+					        concat(
+					         concat(translate(SMLLOWNL:WeightUpdate/@name,' ','_'), '_ports_'),
+					         concat(SMLLOWNL:WeightUpdate/@input_src_port,'_to_')
+						),
+					        SMLLOWNL:WeightUpdate/@input_dst_port
+					       )"/><!-- plus use @input_src_port and @input_dst_port -->
 <!-- Here we use the numbers to determine what we are outputting -->
 <xsl:variable name="number1"><xsl:number count="//SMLLOWNL:Population" format="1"/></xsl:variable>
 <xsl:variable name="number2"><xsl:number count="//SMLLOWNL:Projection" format="1"/></xsl:variable>
@@ -130,6 +138,11 @@ private:
 
 	// An index used for delayBuffer and delayBufferAnalog, both of which are used as circular buffers.
 	int delayBufferIndex;
+	// Use for the index into the delayBuffer from which to retrieve data.
+	int delayBufferIndexBack;
+
+	// To save multiple calls of .size(), store this in a variable
+	int delayBufferSize;
 
 	// create the lookups for the connectivity
 	vector &lt; vector &lt; int &gt; &gt; connectivityS2C;
@@ -525,7 +538,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 						}
 					}
 
-					//bout &lt;&lt; "resizing delayBuffer and delayBufferAnalog to size: " &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; D_INFO;
+					bout &lt;&lt; "resizing delayBuffer and delayBufferAnalog to size: " &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; D_INFO;
 
 					delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
 					delayBufferAnalog.resize(round(max_delay_val/most_delay_accuracy)+1);
@@ -538,11 +551,17 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				float max_delay_val = (float)nodeState.getField("fixedDelay").getDOUBLE();
 				float most_delay_accuracy = (1000.0f * time->sampleRate.den / time->sampleRate.num);
 				delayForConn.resize (numConn_BRAHMS, nodeState.getField("fixedDelay").getDOUBLE()/most_delay_accuracy);
+				bout &lt;&lt; "resizing fixedDelay delayBuffer and delayBufferAnalog to size: " &lt;&lt; (round(max_delay_val/most_delay_accuracy)+1) &lt;&lt; D_INFO;
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
 				delayBufferAnalog.resize(round(max_delay_val/most_delay_accuracy)+1);
 			}
 
 			int numEl_BRAHMS = numConn_BRAHMS;
+
+			// Now we know the size of delayBuffer/delayBufferAnalog, can initialise delayBufferIndexBack
+			delayBufferSize = delayBuffer.size();
+			delayBufferIndexBack = delayBufferIndex + delayBufferSize - 1;
+			bout &lt;&lt; "Initialised delayBufferIndexBack to " &lt;&lt; delayBufferIndexBack &lt;&lt; D_INFO;
 
 			// State Variables
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
@@ -685,10 +704,14 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			int num_BRAHMS;
 			int numEl_BRAHMS = numConn_BRAHMS;
 
-			// move delayBufferIndex
-			if (delayBuffer.size()) {
+			if (!delayBuffer.empty()) {
+				// move delayBufferIndex...
 				++delayBufferIndex;
-				delayBufferIndex = delayBufferIndex%delayBuffer.size();
+				++delayBufferIndexBack;
+
+				// ...returning to start if necessary
+				delayBufferIndex = delayBufferIndex%delayBufferSize;
+				delayBufferIndexBack = delayBufferIndexBack%delayBufferSize;
 			}
 
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.size(); ++i_BRAHMS) {
@@ -750,15 +773,14 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 <!---->
 			// Apply regime changes
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime.size(); ++i_BRAHMS) {
-						        <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS] = <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS];
-
-			// updating logs...
-           		<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="makeSendPortLogs"/>
+			        <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[i_BRAHMS] = <xsl:value-of select="concat(translate($WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[i_BRAHMS];
+				// updating logs...
+           			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="makeSendPortLogs"/>
 			}
 
 			// updating logs...
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort" mode="makeSendPortLogs"/>
-
+<!---->
            		// writing logs...
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="saveSendPortLogs"/>
 
@@ -794,6 +816,35 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
 				<xsl:apply-templates select="SMLCL:StateVariable" mode="writeoutStateVariable"/>
 			</xsl:for-each>
+
+			<!-- WRITEME: Write out delay buffers. -->
+			bout &lt;&lt; "Output delay buffers into files with names like " &lt;&lt; "<xsl:value-of select="$WeightUpdate_name"/>" &lt;&lt; D_INFO;
+			if (!delayBuffer.empty()) {
+				// vector &lt; VINT32 &gt; delayBuffer;
+				string delayFilename = modelDirectory_BRAHMS + "/" + "<xsl:value-of select="$WeightUpdate_name"/>.delayBuffer";
+				//FILE* f = fopen (f, delayFilename.c_str(), "wb");
+				ofstream f(delayFilename.c_str(), ios::out | ios::binary);
+				if (!f.is_open()) {
+					berr &lt;&lt; "Failed to open delay buffer file "  &lt;&lt; delayFilename &lt;&lt; " for writing";
+				}
+				vector&lt;VINT32&gt;::iterator bvi = delayBuffer.begin(); // bli for "buffer vector iterator"
+				while (bvi != delayBuffer.end()) {
+ 					// First write out the number of VINT32s that there will be in this "line" into the file
+					const INT32 bufsize = (INT32)bvi-&gt;size();
+					bout &lt;&lt; "This buffer has size " &lt;&lt; bufsize &lt;&lt; D_INFO;
+					f.write ((const char*)&amp;bufsize, sizeof(INT32));
+					// Now write the data:
+                                        VINT32* vint = &amp;(*bvi);
+					f.write((char*)&amp;(vint[0]), bufsize * sizeof(INT32));
+					++bvi;
+				}
+				f.close();
+			}
+			if (!delayBufferAnalog.empty()) {
+			// vector &lt; VDOUBLE &gt; delayBufferAnalog
+			string delayFilename = modelDirectory_BRAHMS + "/" + "<xsl:value-of select="$WeightUpdate_name"/>.delayBufferAnalog";
+			}
+
 			return C_OK;
 		}
 	}
@@ -802,22 +853,11 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 	return S_NULL;
 }
 
-
-
-
-
-
-
 //	include the second part of the overlay (it knows you've included it once already)
 #include "brahms-1199.h"
 
-
 </xsl:if>
-
-
 </xsl:for-each>
-
-
 </xsl:template>
 
 <xsl:include href="SpineML_Dynamics.xsl"/>

@@ -39,6 +39,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				}
 #endif
 				<!-- Now we've made a backup of the original model state, we can write out the new state. -->
+				bout &lt;&lt; "Writing state variable data into file '" &lt;&lt; <xsl:value-of select="@name"/>_fileName &lt;&lt; "'" &lt;&lt; D_INFO;
 				<xsl:value-of select="@name"/>_svfile = fopen (<xsl:value-of select="@name"/>_fileName.c_str(), "wb");
 				if (!<xsl:value-of select="@name"/>_svfile) {
 					berr &lt;&lt; "Could not open state variable file: " &lt;&lt; <xsl:value-of select="@name"/>_fileName;
