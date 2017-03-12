@@ -81,7 +81,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; delayBuffer[rightIndex].size(); ++i_BRAHMS) {
 
 					num_BRAHMS = delayBuffer[rightIndex][i_BRAHMS];
-					bout &lt;&lt; "index " &lt;&lt; i_BRAHMS &lt;&lt; " of delayBuffer " &lt;&lt; rightIndex &lt;&lt; D_INFO;
+					//bout &lt;&lt; "index " &lt;&lt; i_BRAHMS &lt;&lt; " of delayBuffer " &lt;&lt; rightIndex &lt;&lt; D_INFO;
 					switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 						<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
 						//Regime for event at src_port <xsl:value-of select="$port"/>
@@ -97,11 +97,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 						}
 					}
 				}
-#define CLEAR_DELAY_BUFFER 1
-#ifdef CLEAR_DELAY_BUFFER // Don't clear this, else there's nothing to save at the end!
-				bout &lt;&lt; "Clearing delayBuffer[" &lt;&lt; rightIndex &lt;&lt; "] delayBuffer.size(): " &lt;&lt; delayBuffer.size() &lt;&lt; "/" &lt;&lt; delayBufferSize &lt;&lt; D_INFO;
 				delayBuffer[rightIndex].clear();
-#endif
+
 			} else {
 				for (int in_BRAHMS = 0; in_BRAHMS &lt; DATA<xsl:value-of select="@name"/>.size(); ++in_BRAHMS) {
 					for (int i_BRAHMS = 0; i_BRAHMS &lt; DATA<xsl:value-of select="@name"/>[in_BRAHMS].size(); ++i_BRAHMS) {

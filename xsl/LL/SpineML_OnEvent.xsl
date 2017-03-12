@@ -5,7 +5,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:template match="SMLCL:OnEvent" mode="doEventInputs"><!---->
 							//OnEvent1
 							<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[num_BRAHMS]=<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@target_regime"/>;
-							bout &lt;&lt; "OnEvent1, set <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[num_BRAHMS=" &lt;&lt; num_BRAHMS  &lt;&lt; "/" &lt;&lt; <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext.size() &lt;&lt; " possibilities" &lt;&lt; "] to " &lt;&lt; <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@target_regime"/>  &lt;&lt; D_INFO;
+							//bout &lt;&lt; "OnEvent1, set <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[num_BRAHMS=" &lt;&lt; num_BRAHMS  &lt;&lt; "/" &lt;&lt; <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext.size() &lt;&lt; " possibilities" &lt;&lt; "] to " &lt;&lt; <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@target_regime"/>  &lt;&lt; D_INFO;
 							<!-- if is an event driven component -->
 							<xsl:if test="count(//SMLCL:TimeDerivative | SMLCL:AnalogReceivePort | SMLCL:AnalogReducePort) = 0">
 								<xsl:apply-templates select="//SMLCL:Alias" mode="doPortAssignments"/>
