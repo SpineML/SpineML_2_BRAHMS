@@ -13,14 +13,6 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <!--xsl:variable name="rule_proto" select="@prototype"/>
 <xsl:variable name="rule_file" select="document(/SMLLOWNL:SpineML/SMLNL:Node[@name=$rule_proto]/@url)"/-->
 <xsl:variable name="WeightUpdate_file" select="document(SMLLOWNL:WeightUpdate/@url)"/>
-<!-- A unique name for this weight update, to include source and destination info, including ports. This is no good; have to get it at runtime! FIXME. Source for this information is probably the DataML. -->
-<xsl:variable name="WeightUpdate_name" select="concat (
-					        concat(
-					         concat(translate(SMLLOWNL:WeightUpdate/@name,' ','_'), '_ports_'),
-					         concat(SMLLOWNL:WeightUpdate/@input_src_port,'_to_')
-						),
-					        SMLLOWNL:WeightUpdate/@input_dst_port
-					       )"/><!-- plus use @input_src_port and @input_dst_port -->
 <!-- Here we use the numbers to determine what we are outputting -->
 <xsl:variable name="number1"><xsl:number count="//SMLLOWNL:Population" format="1"/></xsl:variable>
 <xsl:variable name="number2"><xsl:number count="//SMLLOWNL:Projection" format="1"/></xsl:variable>
@@ -95,6 +87,9 @@ public:
 	Symbol event(Event* event);
 
 private:
+	// Copy other into this-&gt;delayBuffer
+	void delayBufferCopy (const vector&lt;VINT32&gt;&amp; other);
+
 	// Some data for the random number generator.
 	RngData rngData_BRAHMS;
 
@@ -105,6 +100,13 @@ private:
 
 	// model directory string
 	string modelDirectory_BRAHMS;
+
+	// The name of the process - this is taken from the
+	// process_name feature of the DataML node associated with this
+	// process. It identifies the source, destination and synapse of
+	// the connection. It's the same as the &lt;Name&gt; node of the
+	// &lt;Process&gt; which defines this weight update in sys.xml.
+	string processName;
 
 	// Determine if this weight update component has only FixedValue Parameters and
 	// FixedValue delays. Initialised to true; may be set false. If it remains true,
@@ -131,7 +133,7 @@ private:
 	VUINT32 delayForConn;
 
 	// A buffer (vector of vectors of ints) for any delayed events and impulses.
-	vector &lt; VINT32 &gt; delayBuffer;
+	vector &lt; vector&lt;int &gt; &gt; delayBuffer;
 
 	// A buffer (vector of vectors of doubles) for any delayed analog values.
 	vector &lt; VDOUBLE &gt; delayBufferAnalog;
@@ -203,6 +205,36 @@ private:
 #endif
 };
 
+void COMPONENT_CLASS_CPP::delayBufferCopy (const vector&lt;vector&lt;int &gt; &gt;&amp; other)
+{
+	vector&lt;vector&lt;int &gt; &gt;::iterator dbi = delayBuffer.begin();
+
+	// Clear out member vector&lt;int &gt;s in delayBuffer:
+	while (dbi != delayBuffer.end()) {
+		dbi->clear();
+		dbi->reserve(1024);
+		++dbi;
+	}
+
+	// Resize delayBuffer
+	if (delayBuffer.size() != other.size()) {
+		delayBuffer.resize(other.size());
+	}
+
+	// Copy other's members
+	dbi = delayBuffer.begin();
+	vector&lt;vector&lt;int &gt; &gt;::const_iterator obi = other.begin();
+	while (obi != other.end()) {
+		vector&lt;int &gt;::const_iterator i = obi->begin();
+		while (i != obi->end()) {
+			dbi->push_back (*i);
+			++i;
+		}
+		++obi;
+		++dbi;
+	}
+}
+
 ////////////////	EVENT
 
 Symbol COMPONENT_CLASS_CPP::event(Event* event)
@@ -226,8 +258,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			XMLNode xmlNode(data->state);
 			DataMLNode nodeState(&amp;xmlNode);
 
-			// FIXME: Figure out how to get to the Process Name element.
-			bout &lt;&lt; "This node has name: " &lt;&lt; nodeState.name &lt;&lt; D_INFO;
+			processName = nodeState.getField("process_name").getSTRING();
+			bout &lt;&lt; "This process has name: " &lt;&lt; processName &lt;&lt; D_INFO;
 
 			// obtain the parameters
 			size_BRAHMS = nodeState.getField("sizeIn").getArrayDOUBLE();
@@ -251,6 +283,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			<!--
 			    Start of connectivity map code.
 			-->
+			bout &lt;&lt; "Start of connectivity map code..." &lt;&lt; D_INFO;
 			// Create the connectivity maps
 			//
 			// A vector of double delays for the connections. Used for every type of connection.
@@ -409,9 +442,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 						}
 					}
 
-					bout  &lt;&lt; srcInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; dstInds[i_BRAHMS]
-					      &lt;&lt; " " &lt;&lt; delayForConnTemp[i_BRAHMS] &lt;&lt; D_INFO;
-					}
+					//bout  &lt;&lt; "src/dst/delay: " &lt;&lt; srcInds[i_BRAHMS] &lt;&lt; " " &lt;&lt; dstInds[i_BRAHMS]
+					//      &lt;&lt; " " &lt;&lt; delayForConnTemp[i_BRAHMS] &lt;&lt; D_INFO;
+				}
 
 			} else { // there's no _bin_file_name. Don't expect this in practice, because SpineML_PreFlight should have converted even short XML Connectionlists into binary files.
 				// Do something about delays, even though there is no binary connection file.
@@ -453,6 +486,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			</xsl:if> <!-- SMLNL:ConnectionList -->
 
 			<!-- Set up the delay buffers -->
+			bout &lt;&lt; "Set up the delay buffers..." &lt;&lt; D_INFO;
 
 			// get delay from DataML, if it exists there
 			if (nodeState.hasField("delayForConn")) {
@@ -492,7 +526,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				//bout&lt;&lt; float(delayBuffer.size()) &lt;&lt; D_INFO;
 				for (UINT32 i_BRAHMS = 0; i_BRAHMS &lt; delayForConnTemp.size(); ++i_BRAHMS) {
 					delayForConn[i_BRAHMS] = round(delayForConnTemp[i_BRAHMS]/most_delay_accuracy);
-					bout &lt;&lt; delayForConn[i_BRAHMS] &lt;&lt; D_INFO;
 				}
 			}
 
@@ -560,42 +593,124 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			int numEl_BRAHMS = numConn_BRAHMS;
 
 			// Read the delay buffers, and then check that their sizes matches this model.
-			bout &lt;&lt; "Read delay buffers from files with names like " &lt;&lt; "<xsl:value-of select="$WeightUpdate_name"/>" &lt;&lt; " or "  &lt;&lt; "_insertnodename_" &lt;&lt; D_INFO;
-			string delayFilename = modelDirectory_BRAHMS + "/" + "<xsl:value-of select="$WeightUpdate_name"/>.delayBuffer";
+			bout &lt;&lt; "Read delay buffers from files with names like " &lt;&lt; processName &lt;&lt; D_INFO;
+
+			string delayFilename = modelDirectory_BRAHMS + "/" + processName + ".delayBuffer";
 			ifstream f(delayFilename.c_str(), ios::in);
 			if (f.is_open()) {
+				bout &lt;&lt; delayFilename  &lt;&lt; " is open." &lt;&lt; D_INFO;
 				// Then we have data to read.
-				vector&lt;VINT32&gt; dbufCand; // Candidate delayBuffer
-				VINT32 dbuf; // Empty VINT32 to add to dbufCand
-				INT32 bufsize = 0;
+				vector&lt;vector&lt;int &gt; &gt; dbufCand; // Candidate delayBuffer
+				dbufCand.resize(delayBuffer.size());
+				//dbufCand.clear();
+				int bufsize = 0;
+				bool readData = false;
+				int j = 0;
+#ifdef WAYONE
 				while (!f.eof()) {
-
 					try {
 						f.read((char*)&amp;bufsize, sizeof(INT32));
 						if (!f.eof()) {
-							dbufCand.push_back (dbuf);
-							bout &lt;&lt; "bufsize for first buffer: " &lt;&lt; bufsize &lt;&lt; D_INFO;
 							if (bufsize > 0) {
-								f.read((char*)&amp;(dbufCand[dbufCand.size()-1]), bufsize * sizeof(INT32));
+
+								bout &lt;&lt; "read bufsize from file: " &lt;&lt; (int)bufsize &lt;&lt; D_INFO;
+								bout &lt;&lt; "bufsize chars: "
+								&lt;&lt; (((bufsize&amp;0xff000000) >> 6) &amp; 0xff)
+								&lt;&lt; "|"
+								&lt;&lt; (((bufsize&amp;0x00ff0000) >> 4) &amp; 0xff)
+								&lt;&lt; "|"
+								&lt;&lt; (((bufsize&amp;0x0000ff00) >> 2) &amp; 0xff)
+								&lt;&lt; "|"
+								&lt;&lt; (bufsize&amp;0x000000ff)
+								&lt;&lt; D_INFO;
+
+								if (!readData) { readData = true; }
+								bout &lt;&lt; "read data into dbufCand[" &lt;&lt; j &lt;&lt;"]"&lt;&lt; D_INFO;
+								dbufCand[j].clear();
+								dbufCand[j].reserve (bufsize);
+								while (bufsize > 0) {
+									int tempint = 0;
+									f.read((char*)&amp;(tempint), sizeof(INT32));
+									bout &lt;&lt; "tempint chars: "
+									&lt;&lt; (((tempint&amp;0xff000000) >> 6) &amp; 0xff)
+									&lt;&lt; "|"
+									&lt;&lt; (((tempint&amp;0x00ff0000) >> 4) &amp; 0xff)
+									&lt;&lt; "|"
+									&lt;&lt; (((tempint&amp;0x0000ff00) >> 2) &amp; 0xff)
+									&lt;&lt; "|"
+									&lt;&lt; (tempint&amp;0x000000ff)
+									&lt;&lt; D_INFO;
+									dbufCand[j].push_back(tempint);
+									--bufsize;
+								}
+								bout &lt;&lt; "read data size: " &lt;&lt; dbufCand[j].size() &lt;&lt; D_INFO;
+								bout &lt;&lt; "0th element of data: " &lt;&lt; dbufCand[j][0] &lt;&lt; D_INFO;
 							}
+						} else {
+							bout &lt;&lt; "at end of file." &lt;&lt; D_INFO;
 						}
+					} catch (const exception&amp; e) {
+						berr &lt;&lt; "Exception reading delayBuffer";
+						}
+						++j;
+				}
+#endif
+
+				// Just read file into a single vector first:
+				vector&lt;int&gt; rawvals;
+				while (!f.eof()) {
+					try {
+						int t;
+						f.read((char*)&amp;t, sizeof(INT32));
+						rawvals.push_back (t);
 					} catch (const exception&amp; e) {
 						berr &lt;&lt; "Exception reading delayBuffer";
 					}
 				}
-				bout &lt;&lt; "dbufCand has size " &lt;&lt; dbufCand.size() &lt;&lt; D_INFO;
-				if (dbufCand.size() == this-&gt;delayBuffer.size()) {
-					this-&gt;delayBuffer.swap (dbufCand);
-				} else {
-					bout &lt;&lt; "Ignoring saved delay buffer data (size: " &lt;&lt; dbufCand.size()
-					     &lt;&lt; ") as it does not match the model (size: " &lt;&lt; delayBuffer.size()
-					     &lt;&lt; ")." &lt;&lt; D_WARN;
+
+
+				vector&lt;int&gt;::iterator ii = rawvals.begin();
+				while (ii != rawvals.end()) {
+					int bufsize = *ii;
+					++ii;
+					if (bufsize) {
+						bout &lt;&lt; "bufsize: " &lt;&lt; (int)bufsize &lt;&lt; D_INFO;
+					}
+					dbufCand[j].clear();
+					dbufCand[j].reserve (bufsize);
+					while (bufsize > 0 &amp;&amp; ii != rawvals.end()) {
+						dbufCand[j].push_back (*ii);
+						++ii;
+						--bufsize;
+					}
+					++j;
 				}
+
+				bout &lt;&lt; "dbufCand has size " &lt;&lt; dbufCand.size() &lt;&lt; D_INFO;
+
+
+				if (readData == false) {
+					bout &lt;&lt; "Stored delay buffers were empty, not swapping delayBuffer for dbufCand." &lt;&lt; D_INFO;
+				} else {
+					if (dbufCand.size() == delayBuffer.size()) {
+						//delayBuffer.swap (dbufCand);
+						delayBufferCopy (dbufCand);
+					} else {
+						bout &lt;&lt; "Ignoring saved delay buffer data (size: " &lt;&lt; dbufCand.size()
+						     &lt;&lt; ") as it does not match the model (size: " &lt;&lt; delayBuffer.size()
+						     &lt;&lt; ")." &lt;&lt; D_WARN;
+					}
+				}
+				bout &lt;&lt; "close f" &lt;&lt; D_INFO;
 				f.close();
+			} else {
+				bout &lt;&lt; "There is no delay file to read." &lt;&lt; D_INFO;
 			}
 
 			// Now we know the size of delayBuffer/delayBufferAnalog, can initialise a delayBufferSize variable.
 			//delayBufferSize = delayBuffer.size();
+
+			bout &lt;&lt; "delays done, now assign state variables, parameters etc" &lt;&lt; D_INFO;
 
 			// State Variables
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
@@ -849,23 +964,45 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			</xsl:for-each>
 
 			<!-- Write out delay buffers. -->
-			bout &lt;&lt; "Output delay buffers (size " &lt;&lt; delayBuffer.size() &lt;&lt;") into files with names like " &lt;&lt; "<xsl:value-of select="$WeightUpdate_name"/>" &lt;&lt; D_INFO;
+			bout &lt;&lt; "Output delay buffers (size " &lt;&lt; delayBuffer.size() &lt;&lt; ")" &lt;&lt; D_INFO;
 			if (!delayBuffer.empty()) {
-				string delayFilename = modelDirectory_BRAHMS + "/" + "<xsl:value-of select="$WeightUpdate_name"/>.delayBuffer";
+				string delayFilename = modelDirectory_BRAHMS + "/" + processName + ".delayBuffer";
 				ofstream f(delayFilename.c_str(), ios::out | ios::binary);
 				if (!f.is_open()) {
 					berr &lt;&lt; "Failed to open delay buffer file "  &lt;&lt; delayFilename &lt;&lt; " for writing";
 				}
-				vector&lt;VINT32&gt;::iterator bvi = delayBuffer.begin(); // bli for "buffer vector iterator"
+				vector&lt;vector&lt;int &gt; &gt;::iterator bvi = delayBuffer.begin(); // bli for "buffer vector iterator"
 				while (bvi != delayBuffer.end()) {
- 					// First write out the number of VINT32s that there will be in this "line" into the file
+ 					// First write out the number of vector&lt;int &gt;s that there will be in this "line" into the file
 					const INT32 bufsize = (INT32)bvi-&gt;size();
-					//bout &lt;&lt; "This buffer has size " &lt;&lt; bufsize &lt;&lt; " sizeof(INT32): " &lt;&lt; sizeof(INT32) &lt;&lt; D_INFO;
+					if (bufsize) {
+						bout &lt;&lt; "This buffer has size " &lt;&lt; bufsize &lt;&lt; " sizeof(INT32): " &lt;&lt; sizeof(INT32) &lt;&lt; D_INFO;
+					}
 					f.write ((const char*)&amp;bufsize, sizeof(INT32));
 					if (bufsize > 0) { // This if is not strictly necessary.
 						// Now write the data:
-	                                        VINT32* vint = &amp;(*bvi);
+						vector&lt; int &gt;::iterator ii = bvi->begin();
+						while (ii != bvi->end()) {
+							int val = *ii;
+							bout &lt;&lt; "Writing out buffer value " &lt;&lt; val &lt;&lt; D_INFO;
+
+							bout &lt;&lt; "val chars: "
+							&lt;&lt; (((val&amp;0xff000000) >> 6) &amp; 0xff)
+							&lt;&lt; "|"
+							&lt;&lt; (((val&amp;0x00ff0000) >> 4) &amp; 0xff)
+							&lt;&lt; "|"
+							&lt;&lt; (((val&amp;0x0000ff00) >> 2) &amp; 0xff)
+							&lt;&lt; "|"
+							&lt;&lt; (val&amp;0x000000ff)
+							&lt;&lt; D_INFO;
+
+							f.write ((char*)&amp;(val), sizeof(int));
+							++ii;
+						}
+					#ifdef WAY_ONE
+	                                        vector&lt;int &gt;* vint = &amp;(*bvi);
 						f.write((char*)&amp;(vint[0]), bufsize * sizeof(INT32));
+					#endif
 					}
 					++bvi;
 				}
@@ -873,7 +1010,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			}
 			if (!delayBufferAnalog.empty()) {
 				// vector &lt; VDOUBLE &gt; delayBufferAnalog
-				string delayFilename = modelDirectory_BRAHMS + "/" + "<xsl:value-of select="$WeightUpdate_name"/>.delayBufferAnalog";
+				string delayFilename = modelDirectory_BRAHMS + "/" + processName + ".delayBufferAnalog";
 			}
 
 			return C_OK;

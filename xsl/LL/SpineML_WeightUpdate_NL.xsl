@@ -64,7 +64,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 					<State>
 						<xsl:variable name="weightupdate_name" select=".//SMLLOWNL:WeightUpdate/@name"/>
 						<xsl:attribute name="c">z</xsl:attribute>
-						<xsl:attribute name="a">model_directory;sizeIn;sizeOut;<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">_bin_file_name;_bin_num_conn;_bin_has_delay;</xsl:if><xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Connection)>0">src;dst;<xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Delay)=0">delayForConn;</xsl:if></xsl:if>
+						<xsl:attribute name="a">model_directory;process_name;sizeIn;sizeOut;<xsl:if test="./SMLNL:ConnectionList/SMLNL:BinaryFile">_bin_file_name;_bin_num_conn;_bin_has_delay;</xsl:if><xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Connection)>0">src;dst;<xsl:if test="count(./SMLNL:ConnectionList/SMLNL:Delay)=0">delayForConn;</xsl:if></xsl:if>
 						<!---->
 						<!-- Check if there is a delay change in the experiment layer, otherwise output fixedDelay/pDelay as appropriate -->
 						<xsl:choose>
@@ -126,6 +126,7 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" exclude-result-prefixes="SMLLO
 						<xsl:attribute name="AuthTool">SpineML to BRAHMS XSLT translator</xsl:attribute>
 						<xsl:attribute name="AuthToolVersion">0</xsl:attribute>
 						<m><xsl:value-of select="$spineml_model_dir"/></m>
+						<m><xsl:value-of select="translate(.//SMLLOWNL:WeightUpdate/@name, ' -', '_H')"/></m><!-- enclosing Process name. -->
 						<m c="f"><xsl:value-of select="$sizeIn"/></m>
 						<m c="f"><xsl:value-of select="$sizeOut"/></m>
 						<!-- Inclusion of the binary connections file name here. -->
