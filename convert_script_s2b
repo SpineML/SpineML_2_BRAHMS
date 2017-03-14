@@ -212,7 +212,7 @@ ASSUME_COMPONENTS_PRESENT=""
 
 # Input directory containing the model.
 MODEL_DIR="_unknown_model"
-# The output directory for temporary files and output logs.
+# The output directory for temporary files, output logs and the final state of the model.
 OUTPUT_DIR="temp"
 
 # Number of nodes
@@ -366,10 +366,17 @@ if [ "$?" -ne "0" ]; then
 fi
 echo "OUTPUT_MODEL_DIR: $OUTPUT_MODEL_DIR"
 
+# Make sure there's no leftover state in the model directory from a previous run.
+echo "Clearing out any stale contents of $OUTPUT_MODEL_DIR:"
+rm -rf "${OUTPUT_MODEL_DIR}"/pf_*.bin
+rm -rf "${OUTPUT_MODEL_DIR}"/*.delayBuffer
+rm -rf "${OUTPUT_MODEL_DIR}"/*.delayBufferAnalog
+
 # We make a COPY of the model dir, copying it into
 # OUTPUT_MODEL_DIR. We'll then "preflight" this copy of the model and
-# use this as the working input model.
-cp -Ra "$MODEL_DIR"/* "$OUTPUT_MODEL_DIR"/
+# use this as the working input model. FIXME: Maybe use rsync here to avoid copying identical files?
+#cp -Ra "$MODEL_DIR"/* "$OUTPUT_MODEL_DIR"/
+rsync -rlpgo "$MODEL_DIR"/* "$OUTPUT_MODEL_DIR"/
 if [ "$?" -ne "0" ]; then
     echo "Failed to make a copy of the input model directory" >&2
     exit -1
