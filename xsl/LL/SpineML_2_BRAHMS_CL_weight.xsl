@@ -87,9 +87,10 @@ public:
 	Symbol event(Event* event);
 
 private:
+#ifdef NEED_DELAYBUFFERCOPYFUNC
 	// Copy other into this-&gt;delayBuffer
 	void delayBufferCopy (const vector&lt;VINT32&gt;&amp; other);
-
+#endif
 	// Some data for the random number generator.
 	RngData rngData_BRAHMS;
 
@@ -205,6 +206,7 @@ private:
 #endif
 };
 
+#ifdef NEED_DELAYBUFFERCOPYFUNC
 void COMPONENT_CLASS_CPP::delayBufferCopy (const vector&lt;vector&lt;int &gt; &gt;&amp; other)
 {
 	vector&lt;vector&lt;int &gt; &gt;::iterator dbi = delayBuffer.begin();
@@ -234,6 +236,7 @@ void COMPONENT_CLASS_CPP::delayBufferCopy (const vector&lt;vector&lt;int &gt; &g
 		++dbi;
 	}
 }
+#endif
 
 ////////////////	EVENT
 
@@ -393,9 +396,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			<xsl:if test="./SMLNL:ConnectionList">
 			vector &lt;INT32&gt; srcInds;
 			vector &lt;INT32&gt; dstInds;
-			<!-- Here we read in the connection
-			     states. Code will need to be added here
-			     to read the delay buffers also. -->
+			<!-- Here we read in the connection states.  -->
 			if (nodeState.hasField("_bin_file_name")) {
 				string fileName = nodeState.getField("_bin_file_name").getSTRING();
 				int _num_conn = (int) nodeState.getField("_bin_num_conn").getDOUBLE();
@@ -606,55 +607,6 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				int bufsize = 0;
 				bool readData = false;
 				int j = 0;
-#ifdef WAYONE
-				while (!f.eof()) {
-					try {
-						f.read((char*)&amp;bufsize, sizeof(INT32));
-						if (!f.eof()) {
-							if (bufsize > 0) {
-
-								bout &lt;&lt; "read bufsize from file: " &lt;&lt; (int)bufsize &lt;&lt; D_INFO;
-								bout &lt;&lt; "bufsize chars: "
-								&lt;&lt; (((bufsize&amp;0xff000000) >> 6) &amp; 0xff)
-								&lt;&lt; "|"
-								&lt;&lt; (((bufsize&amp;0x00ff0000) >> 4) &amp; 0xff)
-								&lt;&lt; "|"
-								&lt;&lt; (((bufsize&amp;0x0000ff00) >> 2) &amp; 0xff)
-								&lt;&lt; "|"
-								&lt;&lt; (bufsize&amp;0x000000ff)
-								&lt;&lt; D_INFO;
-
-								if (!readData) { readData = true; }
-								bout &lt;&lt; "read data into dbufCand[" &lt;&lt; j &lt;&lt;"]"&lt;&lt; D_INFO;
-								dbufCand[j].clear();
-								dbufCand[j].reserve (bufsize);
-								while (bufsize > 0) {
-									int tempint = 0;
-									f.read((char*)&amp;(tempint), sizeof(INT32));
-									bout &lt;&lt; "tempint chars: "
-									&lt;&lt; (((tempint&amp;0xff000000) >> 6) &amp; 0xff)
-									&lt;&lt; "|"
-									&lt;&lt; (((tempint&amp;0x00ff0000) >> 4) &amp; 0xff)
-									&lt;&lt; "|"
-									&lt;&lt; (((tempint&amp;0x0000ff00) >> 2) &amp; 0xff)
-									&lt;&lt; "|"
-									&lt;&lt; (tempint&amp;0x000000ff)
-									&lt;&lt; D_INFO;
-									dbufCand[j].push_back(tempint);
-									--bufsize;
-								}
-								bout &lt;&lt; "read data size: " &lt;&lt; dbufCand[j].size() &lt;&lt; D_INFO;
-								bout &lt;&lt; "0th element of data: " &lt;&lt; dbufCand[j][0] &lt;&lt; D_INFO;
-							}
-						} else {
-							bout &lt;&lt; "at end of file." &lt;&lt; D_INFO;
-						}
-					} catch (const exception&amp; e) {
-						berr &lt;&lt; "Exception reading delayBuffer";
-						}
-						++j;
-				}
-#endif
 
 				// Just read file into a single vector first:
 				vector&lt;int&gt; rawvals;
@@ -662,53 +614,76 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					try {
 						int t;
 						f.read((char*)&amp;t, sizeof(INT32));
+						bout &lt;&lt; "dbuf raw value: " &lt;&lt; t &lt;&lt; D_INFO;
 						rawvals.push_back (t);
 					} catch (const exception&amp; e) {
 						berr &lt;&lt; "Exception reading delayBuffer";
 					}
 				}
 
-
+				// Now read values from the vector into dbufCand
 				vector&lt;int&gt;::iterator ii = rawvals.begin();
 				while (ii != rawvals.end()) {
 					int bufsize = *ii;
 					++ii;
 					if (bufsize) {
-						bout &lt;&lt; "bufsize: " &lt;&lt; (int)bufsize &lt;&lt; D_INFO;
-					}
-					dbufCand[j].clear();
-					dbufCand[j].reserve (bufsize);
-					while (bufsize > 0 &amp;&amp; ii != rawvals.end()) {
-						dbufCand[j].push_back (*ii);
-						++ii;
-						--bufsize;
+						//bout &lt;&lt; "bufsize: " &lt;&lt; (int)bufsize &lt;&lt; D_INFO;
+						if (!readData) { readData = true; }
+						dbufCand[j].clear();
+						//bout &lt;&lt; "reserve " &lt;&lt; (int)bufsize &lt;&lt; " bytes" &lt;&lt; D_INFO;
+						dbufCand[j].reserve (bufsize);
+						while (bufsize > 0 &amp;&amp; ii != rawvals.end()) {
+							dbufCand[j].push_back (*ii);
+							++ii;
+							--bufsize;
+						}
 					}
 					++j;
 				}
 
 				bout &lt;&lt; "dbufCand has size " &lt;&lt; dbufCand.size() &lt;&lt; D_INFO;
 
-
 				if (readData == false) {
 					bout &lt;&lt; "Stored delay buffers were empty, not swapping delayBuffer for dbufCand." &lt;&lt; D_INFO;
 				} else {
 					if (dbufCand.size() == delayBuffer.size()) {
-						//delayBuffer.swap (dbufCand);
-						delayBufferCopy (dbufCand);
+						delayBuffer.swap (dbufCand);
+						//delayBufferCopy (dbufCand);
 					} else {
 						bout &lt;&lt; "Ignoring saved delay buffer data (size: " &lt;&lt; dbufCand.size()
 						     &lt;&lt; ") as it does not match the model (size: " &lt;&lt; delayBuffer.size()
 						     &lt;&lt; ")." &lt;&lt; D_WARN;
 					}
 				}
-				bout &lt;&lt; "close f" &lt;&lt; D_INFO;
 				f.close();
 			} else {
-				bout &lt;&lt; "There is no delay file to read." &lt;&lt; D_INFO;
+				bout &lt;&lt; "There is no delay file to read for this weight update." &lt;&lt; D_INFO;
 			}
 
 			// Now we know the size of delayBuffer/delayBufferAnalog, can initialise a delayBufferSize variable.
 			//delayBufferSize = delayBuffer.size();
+
+#define DEBUG_DELAY_BUFFER_AFTER_READING 1
+#ifdef DEBUG_DELAY_BUFFER_AFTER_READING
+			// Debug output for delayBuffer
+			vector&lt;vector&lt;int&gt; &gt;::iterator iii = delayBuffer.begin();
+			int ncount = 0;
+			while (iii != delayBuffer.end()){
+				vector&lt;int&gt;::iterator ii = iii->begin();
+				if (ii != iii->end()) {
+					bout &lt;&lt; "Reading delayBuffer " &lt;&lt; ncount &lt;&lt; "..." &lt;&lt; D_INFO;
+				}
+				//if (ii == iii->end()) {
+				//	bout &lt;&lt; "That delayBuffer is empty. " &lt;&lt; D_INFO;
+				//}
+				while (ii != iii->end()) {
+					bout &lt;&lt; "...value: " &lt;&lt; (*ii) &lt;&lt; D_INFO;
+					++ii;
+				}
+				++iii;
+				++ncount;
+			}
+#endif
 
 			bout &lt;&lt; "delays done, now assign state variables, parameters etc" &lt;&lt; D_INFO;
 
@@ -972,20 +947,22 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 					berr &lt;&lt; "Failed to open delay buffer file "  &lt;&lt; delayFilename &lt;&lt; " for writing";
 				}
 				vector&lt;vector&lt;int &gt; &gt;::iterator bvi = delayBuffer.begin(); // bli for "buffer vector iterator"
+				int bufnum = 0;
 				while (bvi != delayBuffer.end()) {
  					// First write out the number of vector&lt;int &gt;s that there will be in this "line" into the file
 					const INT32 bufsize = (INT32)bvi-&gt;size();
 					if (bufsize) {
-						bout &lt;&lt; "This buffer has size " &lt;&lt; bufsize &lt;&lt; " sizeof(INT32): " &lt;&lt; sizeof(INT32) &lt;&lt; D_INFO;
+						bout &lt;&lt; "Buffer " &lt;&lt; bufnum &lt;&lt; " has size " &lt;&lt; bufsize &lt;&lt; D_INFO;
 					}
 					f.write ((const char*)&amp;bufsize, sizeof(INT32));
 					if (bufsize > 0) { // This if is not strictly necessary.
+
 						// Now write the data:
 						vector&lt; int &gt;::iterator ii = bvi->begin();
 						while (ii != bvi->end()) {
 							int val = *ii;
-							bout &lt;&lt; "Writing out buffer value " &lt;&lt; val &lt;&lt; D_INFO;
-
+							bout &lt;&lt; "Writing out buffer " &lt;&lt; bufnum &lt;&lt; " = " &lt;&lt; val &lt;&lt; D_INFO;
+#ifdef __DEBUG__
 							bout &lt;&lt; "val chars: "
 							&lt;&lt; (((val&amp;0xff000000) >> 6) &amp; 0xff)
 							&lt;&lt; "|"
@@ -995,15 +972,12 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 							&lt;&lt; "|"
 							&lt;&lt; (val&amp;0x000000ff)
 							&lt;&lt; D_INFO;
-
+#endif
 							f.write ((char*)&amp;(val), sizeof(int));
 							++ii;
 						}
-					#ifdef WAY_ONE
-	                                        vector&lt;int &gt;* vint = &amp;(*bvi);
-						f.write((char*)&amp;(vint[0]), bufsize * sizeof(INT32));
-					#endif
 					}
+					++bufnum;
 					++bvi;
 				}
 				f.close();
