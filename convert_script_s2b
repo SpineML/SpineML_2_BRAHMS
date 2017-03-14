@@ -374,10 +374,16 @@ rm -rf "${OUTPUT_MODEL_DIR}"/*.delayBufferAnalog
 
 # We make a COPY of the model dir, copying it into
 # OUTPUT_MODEL_DIR. We'll then "preflight" this copy of the model and
-# use this as the working input model. FIXME: Maybe use rsync here to avoid copying identical files?
-#cp -Ra "$MODEL_DIR"/* "$OUTPUT_MODEL_DIR"/
-rsync -rlpgo "$MODEL_DIR"/* "$OUTPUT_MODEL_DIR"/
-if [ "$?" -ne "0" ]; then
+# use this as the working input model.
+# Also - add a .s2b_ignore file to flag up files/directories to NOT copy.
+if [ -f "${MODEL_DIR}/.s2b_ignore" ]; then
+    rsync -rlpgo --exclude-from="${MODEL_DIR}/.s2b_ignore" "$MODEL_DIR"/* "$OUTPUT_MODEL_DIR"/
+    rsyncrtn=$?
+else
+    rsync -rlpgo "$MODEL_DIR"/* "$OUTPUT_MODEL_DIR"/
+    rsyncrtn=$?
+fi
+if [ "$rsyncrtn" -ne "0" ]; then
     echo "Failed to make a copy of the input model directory" >&2
     exit -1
 fi
