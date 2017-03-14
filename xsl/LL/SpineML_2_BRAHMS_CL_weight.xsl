@@ -87,10 +87,6 @@ public:
 	Symbol event(Event* event);
 
 private:
-#ifdef NEED_DELAYBUFFERCOPYFUNC
-	// Copy other into this-&gt;delayBuffer
-	void delayBufferCopy (const vector&lt;VINT32&gt;&amp; other);
-#endif
 	// Some data for the random number generator.
 	RngData rngData_BRAHMS;
 
@@ -205,38 +201,6 @@ private:
 	}
 #endif
 };
-
-#ifdef NEED_DELAYBUFFERCOPYFUNC
-void COMPONENT_CLASS_CPP::delayBufferCopy (const vector&lt;vector&lt;int &gt; &gt;&amp; other)
-{
-	vector&lt;vector&lt;int &gt; &gt;::iterator dbi = delayBuffer.begin();
-
-	// Clear out member vector&lt;int &gt;s in delayBuffer:
-	while (dbi != delayBuffer.end()) {
-		dbi->clear();
-		dbi->reserve(1024);
-		++dbi;
-	}
-
-	// Resize delayBuffer
-	if (delayBuffer.size() != other.size()) {
-		delayBuffer.resize(other.size());
-	}
-
-	// Copy other's members
-	dbi = delayBuffer.begin();
-	vector&lt;vector&lt;int &gt; &gt;::const_iterator obi = other.begin();
-	while (obi != other.end()) {
-		vector&lt;int &gt;::const_iterator i = obi->begin();
-		while (i != obi->end()) {
-			dbi->push_back (*i);
-			++i;
-		}
-		++obi;
-		++dbi;
-	}
-}
-#endif
 
 ////////////////	EVENT
 
@@ -593,9 +557,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			int numEl_BRAHMS = numConn_BRAHMS;
 
-			// Read the delay buffers, and then check that their sizes matches this model.
-			bout &lt;&lt; "Read delay buffers from files with names like " &lt;&lt; processName &lt;&lt; D_INFO;
-
+			// Read the spiking delay buffer, if any
 			string delayFilename = modelDirectory_BRAHMS + "/" + processName + ".delayBuffer";
 			ifstream f(delayFilename.c_str(), ios::in);
 			if (f.is_open()) {
@@ -657,13 +619,65 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				}
 				f.close();
 			} else {
-				bout &lt;&lt; "There is no delay file to read for this weight update." &lt;&lt; D_INFO;
+				bout &lt;&lt; "There is no spiking delay file to read for this weight update." &lt;&lt; D_INFO;
+			}
+
+			// Read Analog Delay Buffer, if any.
+			delayFilename = modelDirectory_BRAHMS + "/" + processName + ".delayBufferAnalog";
+			f.open (delayFilename.c_str(), ios::in);
+			if (f.is_open()) {
+				bout &lt;&lt; delayFilename  &lt;&lt; " is open." &lt;&lt; D_INFO;
+				// Then we have data to read.
+				vector&lt;vector&lt;double &gt; &gt; dbufCand; // Candidate delayBufferAnalog
+				dbufCand.resize(delayBufferAnalog.size());
+				int bufsize = 0;
+				bool readData = false;
+				int j = 0;
+
+				// Read values direct from the ifstream into dbufCand
+				while (!f.eof()) {
+
+					int bufsize = 0;
+				        f.read((char*)&amp;bufsize, sizeof(INT32));
+					bout &lt;&lt; "bufsize: " &lt;&lt; (int)bufsize &lt;&lt; D_INFO;
+
+					if (bufsize) {
+						if (!readData) { readData = true; }
+						dbufCand[j].clear();
+						dbufCand[j].reserve (bufsize);
+						while (bufsize > 0 &amp;&amp; !f.eof()) {
+							double val = 0;
+							f.read((char*)&amp;val, sizeof(double));
+							dbufCand[j].push_back (val);
+							--bufsize;
+						}
+						bout &lt;&lt; "Read " &lt;&lt; dbufCand[j].size() &lt;&lt; " bytes for that buffer." &lt;&lt; D_INFO;
+					}
+					++j;
+				}
+
+				bout &lt;&lt; "dbufCand has size " &lt;&lt; dbufCand.size() &lt;&lt; D_INFO;
+
+				if (readData == false) {
+					bout &lt;&lt; "Stored delay buffers were empty, not swapping delayBufferAnalog for dbufCand." &lt;&lt; D_INFO;
+				} else {
+					if (dbufCand.size() == delayBufferAnalog.size()) {
+						delayBufferAnalog.swap (dbufCand);
+					} else {
+						bout &lt;&lt; "Ignoring saved analog delay buffer data (size: " &lt;&lt; dbufCand.size()
+						     &lt;&lt; ") as it does not match the model (size: " &lt;&lt; delayBufferAnalog.size()
+						     &lt;&lt; ")." &lt;&lt; D_WARN;
+					}
+				}
+				f.close();
+			} else {
+				bout &lt;&lt; "There is no analog delay file to read for this weight update." &lt;&lt; D_INFO;
 			}
 
 			// Now we know the size of delayBuffer/delayBufferAnalog, can initialise a delayBufferSize variable.
 			//delayBufferSize = delayBuffer.size();
 
-#define DEBUG_DELAY_BUFFER_AFTER_READING 1
+//#define DEBUG_DELAY_BUFFER_AFTER_READING 1
 #ifdef DEBUG_DELAY_BUFFER_AFTER_READING
 			// Debug output for delayBuffer
 			vector&lt;vector&lt;int&gt; &gt;::iterator iii = delayBuffer.begin();
@@ -938,7 +952,8 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				<xsl:apply-templates select="SMLCL:StateVariable" mode="writeoutStateVariable"/>
 			</xsl:for-each>
 
-			<!-- Write out delay buffers. -->
+			<!-- Write out delay buffers. FIXME: replace
+			     int with INT32 as necesseary -->
 			bout &lt;&lt; "Output delay buffers (size " &lt;&lt; delayBuffer.size() &lt;&lt; ")" &lt;&lt; D_INFO;
 			if (!delayBuffer.empty()) {
 				string delayFilename = modelDirectory_BRAHMS + "/" + processName + ".delayBuffer";
@@ -982,9 +997,38 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 				}
 				f.close();
 			}
+
+			// Repeat the above for the analog delay buffer, which is a vector of vectors of doubles, rather than ints.
 			if (!delayBufferAnalog.empty()) {
-				// vector &lt; VDOUBLE &gt; delayBufferAnalog
 				string delayFilename = modelDirectory_BRAHMS + "/" + processName + ".delayBufferAnalog";
+				ofstream f(delayFilename.c_str(), ios::out | ios::binary);
+				if (!f.is_open()) {
+					berr &lt;&lt; "Failed to open analog delay buffer file "  &lt;&lt; delayFilename &lt;&lt; " for writing";
+				}
+				vector&lt;vector&lt;double &gt; &gt;::iterator bvi = delayBufferAnalog.begin(); // bli for "buffer vector iterator"
+				int bufnum = 0;
+				while (bvi != delayBufferAnalog.end()) {
+ 					// First write out the number of vector&lt;int &gt;s that there will be in this "line" into the file
+					const INT32 bufsize = (INT32)bvi-&gt;size();
+					if (bufsize) {
+						bout &lt;&lt; "Analog buffer " &lt;&lt; bufnum &lt;&lt; " has size " &lt;&lt; bufsize &lt;&lt; D_INFO;
+					}
+					f.write ((const char*)&amp;bufsize, sizeof(INT32));
+					if (bufsize > 0) {
+
+						// Now write the data:
+						vector&lt; double &gt;::iterator ii = bvi->begin();
+						while (ii != bvi->end()) {
+							double val = *ii;
+							bout &lt;&lt; "Writing out analog buffer " &lt;&lt; bufnum &lt;&lt; " = " &lt;&lt; val &lt;&lt; D_INFO;
+							f.write ((char*)&amp;(val), sizeof(double));
+							++ii;
+						}
+					}
+					++bufnum;
+					++bvi;
+				}
+				f.close();
 			}
 
 			return C_OK;
