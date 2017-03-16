@@ -65,6 +65,17 @@ Options are:
                This is copied into the output directory and "preflighted" by
                spineml_preflight before the simulation starts.
 
+               The .s2b_ignore file:
+
+               If there are files or directories in the model directory which
+               are not part of the SpineML, and which you wish NOT to be
+               copied to the output directory, then list these (one on each
+               line) in a file in the model directory called .s2b_ignore. This
+               can be useful if you have added a subdirectory to your model
+               containing scripts or data that you use outside the SpineML
+               toolchain which would slow down the process of running the model
+               many times.
+
   -o outdir    Set the output directory for temporary files and data output.
                Defaults to \$SPINEML_2_BRAHMS_DIR/temp.
 
