@@ -1,12 +1,16 @@
 /*
- * This code follows Marsaglia & Tsang 2000, but with a passed-in data
- * structure for mutable variables. (RngData modifications authored by
- * Seb James, August 2014).
+ * This code follows Marsaglia, George, and Wai Wan Tsang. "The
+ * ziggurat method for generating random variables." Journal of
+ * statistical software Vol 5, Issue 8 (2000) pp1-7, but with a
+ * passed-in data structure for mutable variables.
+ *
+ * (RngData modifications authored by Seb James, August 2014).
  *
  * Example usage:
  *
  * #include <stdio.h>
  * #include "rng.h"
+ * #define DUMMY 11
  *
  * int main()
  * {
@@ -15,11 +19,12 @@
  *     int i;
  *
  *     rngDataInit (&rd);
- *     zigset(&rd, 11);
- *     rd.seed = 102;
+ *     zigset(&rd, DUMMY);
+ *     rd.seed = 102; // very important - DO set seed >0!
  *
  *     while (i < 10) {
- *         rn = _randomNormal ((&rd));
+ *         rn = _randomNormal ((&rd)); // rn will be a number from a normal
+ *                                     // distribution centred at 0 with sigma=1?
  *         printf ("%f\n", rn);
  *         i++;
  *     }
@@ -27,10 +32,14 @@
  * }
  *
  * g++ -o testrng testrng.cpp -lm
+ *
+ * NB: Set seed (which is an unsigned int) to a non-zero (+ve)
+ * integer! See github.com/SpineML/SpineML_2_BRAHMS issue#21.
  */
 
 #include <cstdlib>
 #include <cmath>
+#include <climits>
 #include <ctime>
 #include <sys/time.h>
 
@@ -50,8 +59,12 @@ struct RngData {
     // prefer to have in here.
     const static int a_RNG = 1103515245;
     const static int c_RNG = 12345;
-     int seed; int hz;
-    unsigned int iz,jz,/*jsr,*/kn[128],ke[256];
+    // NB: seed should be 'unsigned int', as corrected in commit
+    // deb2b675f75 following debugging session with Alex C on his OCM
+    // model. I don't know why Alex C reverted seed to being 'int' in
+    // his commit eef6e5c2e in Feb 2015.
+    unsigned int seed; int hz;
+    unsigned int iz,jz,kn[128],ke[256];
     float wn[128],fn[128], we[256],fe[256];
     float qBinVal,sBinVal,rBinVal,aBinVal;
 };
@@ -59,8 +72,12 @@ struct RngData {
 // An initialiser function for RngData
 void rngDataInit (RngData* rd)
 {
-    rd->seed = 0;
-    /*rd->jsr = 123456789;*/
+    rd->seed = 0; /* Note that a seed of 0 causes trouble for this
+                   * code on some CPUs, see issue:21. I would set this
+                   * to 1 by default, but generated code from
+                   * e.g. SpineML_StateVariable.xsl checks for a 0
+                   * seed and then puts in a seed using getTime()
+                   * instead. */
     rd->qBinVal = -1;
 }
 
@@ -73,27 +90,54 @@ int getTime(void)
 
 float uniformGCC(RngData* rd)
 {
-    return -1.0;
-    // This requires seed to be an int, but rest of code requires seed to be unsigned int.
-    //rd->seed = (unsigned int)abs(rd->seed * rd->a_RNG + rd->c_RNG);
-    //float seed2 = rd->seed/2147483648.0;
-    //return seed2;
+    // In this function, we have to cast rd->seed to (int). To keep
+    // compilers happy, make sure rd->seed isn't greater than
+    // LONG_MAX, and if it is, set rd->seed to LONG_MAX.
+
+    if (rd->seed > (unsigned int)LONG_MAX) {
+        // Warning - can't cast ULONG_MAX into an int, so make it
+        // LONG_MAX instead.
+        rd->seed = (unsigned int)LONG_MAX;
+    }
+
+    // This is the ANSI committee-published recommended RNG example
+    // (see Numerical Recipes Chapter 7, page 276):
+    rd->seed = (unsigned int)abs((int)rd->seed * rd->a_RNG + rd->c_RNG);
+    float seed2 = rd->seed/2147483648.0;
+    return seed2;
 }
 
-// RANDOM NUMBER GENERATOR
+// SHR3 is an unsigned, 32 bit, integer random number generator:
 #define SHR3(rd) ((rd)->jz=(rd)->seed,          \
                   (rd)->seed^=((rd)->seed<<13), \
                   (rd)->seed^=((rd)->seed>>17), \
                   (rd)->seed^=((rd)->seed<<5),  \
                   (rd)->jz+(rd)->seed)
+// To produce a uniform random number between 0 and 1, apply this to SHR3:
 #define UNI(rd) (.5f + (int)SHR3(rd) * .2328306e-9f)
+
+// Here, the uniform random number is used to determine which box is
+// active, comparing against a normal distribution calculated in the
+// zigset() function.
 #define RNOR(rd) ((rd)->hz=SHR3(rd),                                    \
                   (rd)->iz=(rd)->hz&127,                                \
                   ((unsigned int)abs((rd)->hz) < (rd)->kn[(rd)->iz]) ? (rd)->hz*(rd)->wn[(rd)->iz] : nfix(rd))
+
+// Here, the uniform random number is used to determine which box is
+// active, comparing against an exponential distribution calculated in the
+// zigset() function.
 #define REXP(rd) ((rd)->jz=SHR3(rd),                                    \
                   (rd)->iz=(rd)->jz&255,                                \
                   ((rd)->jz < (rd)->ke[(rd)->iz]) ? (rd)->jz*(rd)->we[(rd)->iz] : efix(rd))
-#define RPOIS(rd) -log(1.0-UNI(rd))
+
+// https://en.wikipedia.org/wiki/Relationships_among_probability_distributions
+// says that: Exp(lambda) = - lambda ln (Uniform(0,1)), so this is
+// REXP2, not RPOIS (as it was in earlier versions of rng.h here).
+#define REXP2(rd) -log(UNI(rd))
+
+// FIXME: randomPoisson Needs implementing. Implement Poisson or
+// Bionomial tables in zigset() to do this.
+#define RPOIS(rd) 1
 
 float nfix (RngData* rd) /*provides RNOR if #define cannot */
 {
@@ -140,7 +184,8 @@ float efix (RngData* rd) /*provides REXP if #define cannot */
     }
 }
 
-// == This procedure creates the tables. 2nd arg deprecated and unused. ==
+// This procedure creates the tables. 2nd arg 'jsrseed' is deprecated
+// and unused (instead, we set (rd)->seed in rngDataInit().
 void zigset (RngData* rd, unsigned int jsrseed)
 {
     clock();
@@ -149,7 +194,6 @@ void zigset (RngData* rd, unsigned int jsrseed)
     double dn=3.442619855899,tn=dn,vn=9.91256303526217e-3, q;
     double de=7.697117470131487, te=de, ve=3.949659822581572e-3;
     int i;
-    /*rd->jsr=jsrseed; rd->jsr is not used*/
 
     /* Tables for RNOR: */
     q=vn/exp(-.5*dn*dn);
@@ -209,8 +253,8 @@ int fastBinomial(RngData* rd, int N, float p)
 
 #define _randomUniform(rd) UNI(rd)
 #define _randomNormal(rd) RNOR(rd)
-#define _randomExponential(rd) REXP(rd)
-#define _randomPoisson(rd) RPOIS(rd)
+#define _randomExponential(rd) REXP(rd) // or REXP2(rd) which is slower
+#define _randomPoisson(rd) RPOIS(rd) // FIXME.
 #define HACK_MACRO(rd,N,p) 1;                                           \
     int spks=fastBinomial(rd,N,p);                                      \
     for(unsigned int i=0;i<spks;++i) {DATAOutspike.push_back(num);}

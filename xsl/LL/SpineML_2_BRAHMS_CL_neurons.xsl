@@ -356,6 +356,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			// re-seed
 			this-&gt;rngData_BRAHMS.seed = getTime();
+			this-&gt;rngData_BRAHMS.seed = 123;
 
 			//	ok
 			return C_OK;
