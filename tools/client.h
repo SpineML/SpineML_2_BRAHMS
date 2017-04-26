@@ -188,7 +188,7 @@ bool spineMLNetworkClient::handShake(char type)
 
     // send first
     sendVal = type;
-    n = send(sockfd,&sendVal,1, MSG_WAITALL);
+    n = send(sockfd,&sendVal,1, MSG_DONTWAIT);
     if (n < 1) {
         error =  "Error writing to socket (handShake)";
         return false;
@@ -240,7 +240,7 @@ bool spineMLNetworkClient::sendDataType(dataTypes dataType)
         return false;
     }
 
-    n = send(sockfd,&sendVal,1, MSG_WAITALL);
+    n = send(sockfd,&sendVal,1, MSG_DONTWAIT);
     if (n < 1) {
         error =  "Error writing to socket (sendDataType)";
         return false;
@@ -291,7 +291,7 @@ dataTypes spineMLNetworkClient::recvDataType(bool &ok)
 
     sendVal = RESP_RECVD;
 
-    n = send(sockfd,&sendVal,1, MSG_WAITALL);
+    n = send(sockfd,&sendVal,1, MSG_DONTWAIT);
     if (n < 1) {
         error =  "Error writing to socket (recvDataType)";
         ok = false;
@@ -329,7 +329,7 @@ bool spineMLNetworkClient::sendSize(int size)
 #endif
 
     // send size
-    n = send(sockfd, &size, sizeof(int), MSG_WAITALL);
+    n = send(sockfd, &size, sizeof(int), MSG_DONTWAIT);
     if (n < 1) {
         error =  "Error writing to socket (sendSize)";
         return false;
@@ -362,12 +362,12 @@ bool spineMLNetworkClient::sendName(const string& connName)
 {
     // send connection name, preceded by its length in bytes.
     int namesize = connName.size();
-    n = send(sockfd, &namesize, sizeof(int), MSG_WAITALL);
+    n = send(sockfd, &namesize, sizeof(int), MSG_DONTWAIT);
     if (n < 1) {
         error =  "Error writing name size to socket (sendName)";
         return false;
     }
-    n = send(sockfd, connName.c_str(), namesize, MSG_WAITALL);
+    n = send(sockfd, connName.c_str(), namesize, MSG_DONTWAIT);
     if (n < 1) {
         error =  "Error writing name to socket (sendName)";
         return false;
