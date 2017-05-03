@@ -200,15 +200,15 @@ DEBUG="false"
 
 DBG_FLAG=""
 if [ $DEBUG = "true" ]; then
-# Add -g to compiler flags
-DBG_FLAG="-g"
+    # Add -g to compiler flags
+    DBG_FLAG="-g"
+    BRAHMS_EXE=brahms-gdb
+else
+    BRAHMS_EXE=brahms
 fi
 
 <!-- We have enough information at this point in the script to build our BRAHMS_CMD: -->
-
-BRAHMS_CMD="brahms $VERBOSE_BRAHMS $BRAHMS_NOGUI --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
-
-
+BRAHMS_CMD="$BRAHMS_EXE $VERBOSE_BRAHMS $BRAHMS_NOGUI --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
 <!--
  If we're in "Sun Grid Engine mode", we can submit our brahms execution scripts
  to the Sun Grid Engine. For each node:
@@ -240,7 +240,7 @@ done
 
 # Finally, can run brahms
 cd "$SPINEML_RUN_DIR"
-BRAHMS_CMD="brahms $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\" --voice-$NODE"
+BRAHMS_CMD="$BRAHMS_EXE $VERBOSE_BRAHMS --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\" --voice-$NODE"
 eval \$BRAHMS_CMD
 EOF
 
