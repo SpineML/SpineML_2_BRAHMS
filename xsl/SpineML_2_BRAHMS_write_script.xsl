@@ -445,6 +445,17 @@ fi <!-- end "assume" test -->
 
 if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f "$SPINEML_RUN_DIR/sys.xml" ] ; then
   echo "Building the SystemML system..."
+
+  # Before calling xsltproc, check if the SpineML system has its own
+  # external.xsl file for xsl/LL. If not, then copy
+  # $XSL_SCRIPT_PATH/LL/external_default.xsl to
+  # $XSL_SCRIPT_PATH/LL/external.xsl
+  if [ -f ${MODEL_DIR}/external.xsl ]; then
+    cp ${MODEL_DIR}/external.xsl ${XSL_SCRIPT_PATH}/LL/external.xsl
+  else
+    cp ${XSL_SCRIPT_PATH}/LL/external_default.xsl ${XSL_SCRIPT_PATH}/LL/external.xsl
+  fi
+
   # Below line only works with very latest versions of xsltproc
   #xsltproc --maxdepth 50000 --maxvars 500000 -o "$SPINEML_RUN_DIR/sys.xml" --stringparam spineml_model_dir "$MODEL_DIR" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl" "$MODEL_DIR/$INPUT"
   xsltproc -o "$SPINEML_RUN_DIR/sys.xml" --stringparam spineml_model_dir "$MODEL_DIR" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl" "$MODEL_DIR/$INPUT"
