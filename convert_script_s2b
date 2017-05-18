@@ -350,6 +350,10 @@ if [ "$?" -ne "0" ]; then
     echo "Failed to create temp/output directory" >&2
     exit -1
 fi
+# Clear out the model subdir of the OUTPUT_DIR so that no stale state is used
+if [ -d "${OUTPUT_DIR}/model" ]; then
+    rm -rf "${OUTPUT_DIR}/model/*"
+fi
 
 # Set a default value for MODEL_DIR if necessary:
 if [ "x$MODEL_DIR" = "x_unknown_model" ]; then
