@@ -3,7 +3,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
 <xsl:template match="SMLCL:Dynamics" mode="doEventInputs">
-			//Dynamics events
+			// template match="SMLCL:Dynamics" mode="doEventInputs"
 			<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort">
 			<xsl:variable name="port" select="@name"/>
 			for (int in_BRAHMS = 0; in_BRAHMS &lt; DATA<xsl:value-of select="@name"/>.size(); ++in_BRAHMS) {
@@ -24,17 +24,17 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 </xsl:template>
 
 <xsl:template match="SMLCL:Dynamics" mode="doImpulseInputs">
-			//Dynamics events
+			// template match="SMLCL:Dynamics" mode="doImpulseInputs"
 			<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">
 			<xsl:variable name="port" select="@name"/>
 			for (int in_BRAHMS = 0; in_BRAHMS &lt; DATA<xsl:value-of select="@name"/>.size(); ++in_BRAHMS) {
 				for (int i_BRAHMS = 0; i_BRAHMS &lt; COUNT<xsl:value-of select="@name"/>[in_BRAHMS]; i_BRAHMS+=3) {
 				// extract impulse
-				INT32 impulseIndex__In;
-				DOUBLE impulseValue__In;
+				INT32 impulseIndex__In = 0;
+				DOUBLE impulseValue__In = 0.0;
 				getImpulse(DATA<xsl:value-of select="@name"/>[in_BRAHMS], i_BRAHMS, impulseIndex__In, impulseValue__In);
 				num_BRAHMS = impulseIndex__In;
-				// assign the impulse value
+				// assign the impulse value (in mode: doImpulseInputs)
 				<xsl:value-of select="@name"/>[num_BRAHMS] = impulseValue__In;
 
 					switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
@@ -51,7 +51,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 </xsl:template>
 
 <xsl:template match="SMLCL:Dynamics" mode="doEventInputsRemap">
-			//Dynamics events
+			// template match="SMLCL:Dynamics" mode="doEventInputsRemap
 			<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort">
 			<xsl:choose>
 			<xsl:when test="@post">
@@ -108,16 +108,15 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 </xsl:template>
 
 <xsl:template match="SMLCL:Dynamics" mode="doImpulseInputsRemap">
-			//Dynamics events
+			// match="SMLCL:Dynamics" mode="doImpulseInputsRemap"
 			<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">
 			<xsl:choose>
 			<xsl:when test="@post">
 				for (int in_BRAHMS = 0; in_BRAHMS &lt; DATA<xsl:value-of select="@name"/>.size(); ++in_BRAHMS) {
-					for (int i_BRAHMS = 0; i_BRAHMS &lt; DATA<xsl:value-of select="@name"/>[in_BRAHMS].size(); i_BRAHMS+=3) {
+					for (int i_BRAHMS = 0; i_BRAHMS &lt; DATA<xsl:value-of select="@name"/>[in_BRAHMS].size(); i_BRAHMS+=1) {
 					// extract impulse
-					INT32 impulseIndex__In;
-					DOUBLE impulseValue__In;
-					getImpulse((INT32 *) &amp;(DATA<xsl:value-of select="@name"/>[in_BRAHMS]), i_BRAHMS, impulseIndex__In, impulseValue__In);
+					INT32 impulseIndex__In = DATA<xsl:value-of select="@name"/>[in_BRAHMS][i_BRAHMS];
+					DOUBLE impulseValue__In = DATAval<xsl:value-of select="@name"/>[in_BRAHMS][i_BRAHMS];
 					num_BRAHMS = impulseIndex__In;
 					// assign the impulse value
 					<xsl:value-of select="@name"/>[num_BRAHMS] = impulseValue__In;
@@ -154,16 +153,15 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				for (int in_BRAHMS = 0; in_BRAHMS &lt; DATA<xsl:value-of select="@name"/>.size(); ++in_BRAHMS) {
 					for (int i_BRAHMS = 0; i_BRAHMS &lt; DATA<xsl:value-of select="@name"/>[in_BRAHMS].size(); i_BRAHMS+=3) {
 					// extract impulse
-					INT32 impulseIndex__In;
-					DOUBLE impulseValue__In;
-					getImpulse((INT32 *) &amp;(DATA<xsl:value-of select="@name"/>[in_BRAHMS]), i_BRAHMS, impulseIndex__In, impulseValue__In);
+					INT32 impulseIndex__In = DATA<xsl:value-of select="@name"/>[in_BRAHMS][i_BRAHMS];
+					DOUBLE impulseValue__In = DATAval<xsl:value-of select="@name"/>[in_BRAHMS][i_BRAHMS];
 					num_BRAHMS = impulseIndex__In;
 					// assign the impulse value
 					<xsl:value-of select="@name"/>[num_BRAHMS] = impulseValue__In;
 
 						switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
 							<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
-							//Regime
+							// Regime
 							case <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@name"/>:
 								<xsl:apply-templates select="SMLCL:OnImpulse[@src_port=$port]" mode="doImpulseInputs"/>
 							break;
@@ -178,10 +176,10 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 </xsl:template>
 
 <xsl:template match="SMLCL:Dynamics" mode="doAllToAllTrans">
-<!---->
-				//bout &lt;&lt; "doAllToAllTrans..." &lt;&lt; D_INFO;
+				// template match="SMLCL:Dynamics" mode="doAllToAllTrans"
+				// bout &lt;&lt; "doAllToAllTrans..." &lt;&lt; D_INFO;
 			<xsl:if test="count(//SMLCL:OnCondition) > 0">
-				//Dynamics transitions
+				// Dynamics transitions
 				for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
 					// switch on regime:
 					switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
@@ -201,8 +199,9 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 </xsl:template>
 
 <xsl:template match="SMLCL:Dynamics" mode="doTrans">
+			// template match="SMLCL:Dynamics" mode="doTrans
 			<xsl:if test="count(//SMLCL:OnCondition) > 0">
-			//Dynamics transitions
+			// Dynamics transitions
 			for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
 
 
@@ -223,8 +222,9 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 </xsl:template>
 
 <xsl:template match="SMLCL:Dynamics" mode="doIter">
+			// template match="SMLCL:Dynamics" mode="doIter"
 			<xsl:if test="count(//SMLCL:TimeDerivative | //SMLCL:Alias) > 0">
-			//Dynamics time derivatives
+			// Dynamics time derivatives
 			for (num_BRAHMS = 0; num_BRAHMS &lt; numEl_BRAHMS; ++num_BRAHMS) {
 
 				// switch on regime:

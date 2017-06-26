@@ -122,6 +122,7 @@ private:
 
 	vector &lt; VINT32 &gt; delayBuffer;
 	vector &lt; VDOUBLE &gt; delayedAnalogVals;
+	vector &lt; VDOUBLE &gt; delayedImpulseVals;
 
 	int delayBufferIndex;
 
@@ -427,6 +428,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
 				delayedAnalogVals.resize(round(max_delay_val/most_delay_accuracy)+1);
+				delayedImpulseVals.resize(round(max_delay_val/most_delay_accuracy)+1);
 
 				// remap the delays to indices
 				delayForConn.resize(delayForConnTemp.size());
@@ -492,6 +494,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 				delayBuffer.resize(round(max_delay_val/most_delay_accuracy)+1);
 				delayedAnalogVals.resize(round(max_delay_val/most_delay_accuracy)+1);
+				delayedImpulseVals.resize(round(max_delay_val/most_delay_accuracy)+1);
 			}
 
 			//debug
