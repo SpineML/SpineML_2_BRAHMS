@@ -2,39 +2,17 @@
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLNL="http://www.shef.ac.uk/SpineMLLowLevelNetworkLayer" xmlns:SMLCL="http://www.shef.ac.uk/SpineMLComponentLayer" xmlns:fn="http://www.w3.org/2005/xpath-functions">
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
+<!--
+    Templates for Impulse RECEIVE ports:
+-->
 <xsl:template match="SMLCL:ImpulseReceivePort" mode="defineImpulsePorts">
 	vector &lt; spikes::Input &gt; PORT<xsl:value-of select="@name"/>;
 	vector &lt; DOUBLE &gt; <xsl:value-of select="@name"/>;
 </xsl:template>
 
-<xsl:template match="SMLCL:ImpulseSendPort" mode="defineImpulsePorts">
-	spikes::Output PORTOut<xsl:value-of select="@name"/>;
-	// Logging data structures for PORTOut<xsl:value-of select="@name"/>:
-	vector &lt; float &gt; <xsl:value-of select="@name"/>LOGT; // The time of the impulse
-	vector &lt; int &gt; <xsl:value-of select="@name"/>LOGVAR; // Neuron/connection index of the impulse
-	vector &lt; DOUBLE &gt; <xsl:value-of select="@name"/>LOGVALUE; // The value of the impulse
-	vector &lt; int &gt; <xsl:value-of select="@name"/>LOGMAP; // This is a list of the indices to log, if "all" are not to be logged.
-	FILE * <xsl:value-of select="@name"/>LOGFILE;
-</xsl:template>
-
 <xsl:template match="SMLCL:ImpulseReceivePort" mode="resizeReceive">
 			// template match="SMLCL:ImpulseReceivePort" mode="resizeReceive"
 			<xsl:value-of select="@name"/>.resize(numEl_BRAHMS,0);
-</xsl:template>
-
-<xsl:template match="SMLCL:ImpulseSendPort" mode="createImpulseSendPorts">
-				// template match="SMLCL:ImpulseSendPort" mode="createImpulseSendPorts"
-				PORTOut<xsl:value-of select="@name"/>.setName("<xsl:value-of select="@name"/>");
-				PORTOut<xsl:value-of select="@name"/>.create(hComponent);
-				PORTOut<xsl:value-of select="@name"/>.setCapacity(numElements_BRAHMS*60);
-</xsl:template>
-
-
-<xsl:template match="SMLCL:ImpulseSendPort" mode="createImpulseSendPortsWU">
-				// template match="SMLCL:ImpulseSendPort" mode="createImpulseSendPortsWU"
-				PORTOut<xsl:value-of select="@name"/>.setName("<xsl:value-of select="@name"/>");
-				PORTOut<xsl:value-of select="@name"/>.create(hComponent);
-				PORTOut<xsl:value-of select="@name"/>.setCapacity(numConn_BRAHMS*60);
 </xsl:template>
 
 <xsl:template match="SMLCL:ImpulseReceivePort" mode="createImpulseRecvPorts">
@@ -59,12 +37,6 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLNL="http://www.shef.ac
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; PORT<xsl:value-of select="@name"/>.size(); ++i_BRAHMS) {
 				COUNT<xsl:value-of select="@name"/>[i_BRAHMS] = PORT<xsl:value-of select="@name"/>[i_BRAHMS].getContent(DATA<xsl:value-of select="@name"/>[i_BRAHMS]);
 			}
-</xsl:template>
-
-<xsl:template match="SMLCL:ImpulseSendPort" mode="serviceImpulsePorts">
-			// template match="SMLCL:ImpulseSendPort" mode="serviceImpulsePorts"
-			INT32* TEMP<xsl:value-of select="@name"/>;
-			vector &lt; INT32 &gt; DATAOut<xsl:value-of select="@name"/>;
 </xsl:template>
 
 <xsl:template match="SMLCL:ImpulseReceivePort" mode="serviceImpulsePortsRemap">
@@ -139,6 +111,41 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLNL="http://www.shef.ac
 			</xsl:choose>
 </xsl:template>
 
+
+<!--
+    Templates for Impulse SEND ports:
+-->
+<xsl:template match="SMLCL:ImpulseSendPort" mode="defineImpulsePorts">
+	spikes::Output PORTOut<xsl:value-of select="@name"/>;
+	// Logging data structures for PORTOut<xsl:value-of select="@name"/>:
+	vector &lt; float &gt; <xsl:value-of select="@name"/>LOGT; // The time of the impulse
+	vector &lt; int &gt; <xsl:value-of select="@name"/>LOGVAR; // Neuron/connection index of the impulse
+	vector &lt; DOUBLE &gt; <xsl:value-of select="@name"/>LOGVALUE; // The value of the impulse
+	vector &lt; int &gt; <xsl:value-of select="@name"/>LOGMAP; // This is a list of the indices to log, if "all" are not to be logged.
+	FILE * <xsl:value-of select="@name"/>LOGFILE;
+</xsl:template>
+
+<xsl:template match="SMLCL:ImpulseSendPort" mode="createImpulseSendPorts">
+				// template match="SMLCL:ImpulseSendPort" mode="createImpulseSendPorts"
+				PORTOut<xsl:value-of select="@name"/>.setName("<xsl:value-of select="@name"/>");
+				PORTOut<xsl:value-of select="@name"/>.create(hComponent);
+				PORTOut<xsl:value-of select="@name"/>.setCapacity(numElements_BRAHMS*60);
+</xsl:template>
+
+
+<xsl:template match="SMLCL:ImpulseSendPort" mode="createImpulseSendPortsWU">
+				// template match="SMLCL:ImpulseSendPort" mode="createImpulseSendPortsWU"
+				PORTOut<xsl:value-of select="@name"/>.setName("<xsl:value-of select="@name"/>");
+				PORTOut<xsl:value-of select="@name"/>.create(hComponent);
+				PORTOut<xsl:value-of select="@name"/>.setCapacity(numConn_BRAHMS*60);
+</xsl:template>
+
+<xsl:template match="SMLCL:ImpulseSendPort" mode="serviceImpulsePorts">
+			// template match="SMLCL:ImpulseSendPort" mode="serviceImpulsePorts"
+			INT32* TEMP<xsl:value-of select="@name"/>;
+			vector &lt; INT32 &gt; DATAOut<xsl:value-of select="@name"/>;
+</xsl:template>
+
 <xsl:template match="SMLCL:ImpulseSendPort" mode="serviceImpulsePortsRemap">
 			// template match="SMLCL:ImpulseSendPort" mode="serviceImpulsePortsRemap"
 			INT32* TEMP<xsl:value-of select="@name"/>;
@@ -165,7 +172,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLNL="http://www.shef.ac
 </xsl:template>
 
 <!--
-    Now the logging templates
+    Now the logging templates (these only apply to Impulse Send Ports)
 -->
 <xsl:template match="SMLCL:ImpulseSendPort" mode="createSendPortLogs">
 			// template match="SMLCL:ImpulseSendPort" mode="createSendPortLogs"
@@ -210,7 +217,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLNL="http://www.shef.ac
 							<xsl:value-of select="@name"/>LOGVAR.push_back(DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]);
 							memcpy (d2p_S2B, &amp;(DATAOut<xsl:value-of select="@name"/>[i_BRAHMS+1]), 2*sizeof(INT32));
 							<xsl:value-of select="@name"/>LOGVALUE.push_back(d2_S2B);
-							}
+						}
 						if (<xsl:value-of select="@name"/>LOGMAP.size() > DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]) {
 							if (<xsl:value-of select="@name"/>LOGMAP[DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]]+1 &gt; 0) {
 								berr &lt;&lt; "This code section in SpineML_ImpulsePort.xsl needs reviewing. LOGVALUE is not set here as it should be.";
