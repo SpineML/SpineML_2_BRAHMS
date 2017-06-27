@@ -530,7 +530,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 			// Logs
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass">
-				<xsl:apply-templates select="SMLCL:AnalogSendPort | SMLCL:EventSendPort" mode="createSendPortLogs"/>
+				<xsl:apply-templates select="SMLCL:AnalogSendPort | SMLCL:EventSendPort | SMLCL:ImpulseSendPort" mode="createSendPortLogs"/>
 			</xsl:for-each>
 
 			<xsl:text>
@@ -717,6 +717,9 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			// updating logs...
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort" mode="makeSendPortLogs"/>
 
+			// updating logs...
+			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseSendPort" mode="makeSendPortLogs"/>
+
            		// writing logs...
 			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="saveSendPortLogs"/>
 
@@ -746,7 +749,7 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 			//bout &lt;&lt; "allParamsDelaysAreFixedValue was:" &lt;&lt; allParamsDelaysAreFixedValue &lt;&lt; D_INFO;
 
 			<!-- WRITE XML FOR LOGS -->
-			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort" mode="finaliseLogs"/>
+			<xsl:apply-templates select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventSendPort | $WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogSendPort | $WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseSendPort" mode="finaliseLogs"/>
 
 			<!-- Write out state variables -->
 			<xsl:for-each select="$WeightUpdate_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
