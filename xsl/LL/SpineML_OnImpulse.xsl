@@ -3,8 +3,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLNL="http://www.shef.ac
 <xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
 <xsl:template match="SMLCL:OnImpulse" mode="doImpulseInputs">
-					//OnImpulse1<!---->
-
+					// template match="SMLCL:OnImpulse" mode="doImpulseInputs"<!---->
 					<xsl:text>
 					</xsl:text>
 					<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regimeNext[num_BRAHMS]=<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@target_regime"/>;
@@ -14,7 +13,6 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLNL="http://www.shef.ac
 					</xsl:if>
 					<xsl:apply-templates/>
 </xsl:template>
-
 
 <xsl:include href="SpineML_StateAssignment.xsl"/>
 <xsl:include href="SpineML_EventOut.xsl"/>
