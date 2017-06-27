@@ -4,7 +4,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 
 <xsl:template match="SMLCL:EventOut">
 					//EventOut
-//bout &lt;&lt; "SPIKE!" &lt;&lt; " from <xsl:value-of select="//SMLCL:ComponentClass/@name"/>" &lt;&lt; D_WARN;
+					//bout &lt;&lt; "SPIKE!" &lt;&lt; " from <xsl:value-of select="//SMLCL:ComponentClass/@name"/>" &lt;&lt; D_WARN;
 					DATAOut<xsl:value-of select="@port"/>.push_back(num_BRAHMS);
 </xsl:template>
 
