@@ -23,33 +23,6 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 			</xsl:for-each>
 </xsl:template>
 
-<xsl:template match="SMLCL:Dynamics" mode="doImpulseInputs">
-			// template match="SMLCL:Dynamics" mode="doImpulseInputs"
-			<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">
-			<xsl:variable name="port" select="@name"/>
-			for (int in_BRAHMS = 0; in_BRAHMS &lt; DATA<xsl:value-of select="@name"/>.size(); ++in_BRAHMS) {
-				for (int i_BRAHMS = 0; i_BRAHMS &lt; COUNT<xsl:value-of select="@name"/>[in_BRAHMS]; i_BRAHMS+=3) {
-				// extract impulse
-				INT32 impulseIndex__In = 0;
-				DOUBLE impulseValue__In = 0.0;
-				getImpulse(DATA<xsl:value-of select="@name"/>[in_BRAHMS], i_BRAHMS, impulseIndex__In, impulseValue__In);
-				num_BRAHMS = impulseIndex__In;
-				// assign the impulse value (in mode: doImpulseInputs)
-				<xsl:value-of select="@name"/>[num_BRAHMS] = impulseValue__In;
-
-					switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
-						<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
-						//Regime
-						case <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@name"/>:
-							<xsl:apply-templates select="SMLCL:OnImpulse[@src_port=$port]" mode="doImpulseInputs"/>
-						break;
-						</xsl:for-each>
-					}
-				}
-			}
-			</xsl:for-each>
-</xsl:template>
-
 <xsl:template match="SMLCL:Dynamics" mode="doEventInputsRemap">
 			// template match="SMLCL:Dynamics" mode="doEventInputsRemap
 			<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort">
@@ -107,11 +80,40 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 			</xsl:for-each>
 </xsl:template>
 
+<xsl:template match="SMLCL:Dynamics" mode="doImpulseInputs">
+			// template match="SMLCL:Dynamics" mode="doImpulseInputs"
+			<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">
+			<xsl:variable name="port" select="@name"/>
+			for (int in_BRAHMS = 0; in_BRAHMS &lt; DATA<xsl:value-of select="@name"/>.size(); ++in_BRAHMS) {
+				for (int i_BRAHMS = 0; i_BRAHMS &lt; COUNT<xsl:value-of select="@name"/>[in_BRAHMS]; i_BRAHMS+=3) {
+				// extract impulse
+				INT32 impulseIndex__In = 0;
+				DOUBLE impulseValue__In = 0.0;
+				getImpulse(DATA<xsl:value-of select="@name"/>[in_BRAHMS], i_BRAHMS, impulseIndex__In, impulseValue__In);
+				num_BRAHMS = impulseIndex__In;
+				bout &lt;&lt; "Dynamics/doImpulseInputs: impulseValue__In: " &lt;&lt; impulseValue__In &lt;&lt; " for index " &lt;&lt; impulseIndex__In &lt;&lt; D_INFO;
+				// assign the impulse value (in mode: doImpulseInputs)
+				<xsl:value-of select="@name"/>[num_BRAHMS] = impulseValue__In;
+
+					switch (<xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'O__O')"/>regime[num_BRAHMS]) {
+						<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics/SMLCL:Regime">
+						//Regime
+						case <xsl:value-of select="concat(translate(/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', '_H'), 'X__X')"/><xsl:value-of select="@name"/>:
+							<xsl:apply-templates select="SMLCL:OnImpulse[@src_port=$port]" mode="doImpulseInputs"/>
+						break;
+						</xsl:for-each>
+					}
+				}
+			}
+			</xsl:for-each>
+</xsl:template>
+
 <xsl:template match="SMLCL:Dynamics" mode="doImpulseInputsRemap">
 			// match="SMLCL:Dynamics" mode="doImpulseInputsRemap"
 			<xsl:for-each select="/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">
 			<xsl:choose>
 			<xsl:when test="@post">
+				// Postsynapse version of doImpulseInputsRemap
 				for (int in_BRAHMS = 0; in_BRAHMS &lt; DATA<xsl:value-of select="@name"/>.size(); ++in_BRAHMS) {
 					for (int i_BRAHMS = 0; i_BRAHMS &lt; DATA<xsl:value-of select="@name"/>[in_BRAHMS].size(); i_BRAHMS+=1) {
 					// extract impulse
@@ -133,6 +135,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				}
 			</xsl:when>
 			<xsl:otherwise>
+			// Non-postsynapse version of doImpulseInputsRemap
 			<xsl:variable name="port" select="@name"/>
 			if (delayBuffer.size()) {
 				for (int i_BRAHMS=0; i_BRAHMS &lt; delayBuffer[delayBufferIndex].size();++i_BRAHMS) {
