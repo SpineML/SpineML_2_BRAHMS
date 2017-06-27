@@ -151,7 +151,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				delayedImpulseVals[delayBufferIndex].clear();
 			} else {
 				for (int in_BRAHMS = 0; in_BRAHMS &lt; DATA<xsl:value-of select="@name"/>.size(); ++in_BRAHMS) {
-					for (int i_BRAHMS = 0; i_BRAHMS &lt; DATA<xsl:value-of select="@name"/>[in_BRAHMS].size(); i_BRAHMS+=3) {
+					for (int i_BRAHMS = 0; i_BRAHMS &lt; DATA<xsl:value-of select="@name"/>[in_BRAHMS].size(); i_BRAHMS+=1) {
 					// extract impulse
 					INT32 impulseIndex__In = DATA<xsl:value-of select="@name"/>[in_BRAHMS][i_BRAHMS];
 					DOUBLE impulseValue__In = DATAval<xsl:value-of select="@name"/>[in_BRAHMS][i_BRAHMS];
