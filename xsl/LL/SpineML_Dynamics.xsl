@@ -91,7 +91,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 				DOUBLE impulseValue__In = 0.0;
 				getImpulse(DATA<xsl:value-of select="@name"/>[in_BRAHMS], i_BRAHMS, impulseIndex__In, impulseValue__In);
 				num_BRAHMS = impulseIndex__In;
-				bout &lt;&lt; "Dynamics/doImpulseInputs: impulseValue__In: " &lt;&lt; impulseValue__In &lt;&lt; " for index " &lt;&lt; impulseIndex__In &lt;&lt; D_INFO;
+				//bout &lt;&lt; "Dynamics/doImpulseInputs: impulseValue__In: " &lt;&lt; impulseValue__In &lt;&lt; " for index " &lt;&lt; impulseIndex__In &lt;&lt; D_INFO;
 				// assign the impulse value (in mode: doImpulseInputs)
 				<xsl:value-of select="@name"/>[num_BRAHMS] = impulseValue__In;
 
