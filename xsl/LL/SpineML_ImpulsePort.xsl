@@ -25,7 +25,6 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLNL="http://www.shef.ac
 					PORT<xsl:value-of select="@name"/>[i_BRAHMS_LOOP].attach(hComponent, i_BRAHMS_LOOP);
 
 				}
-
 </xsl:template>
 
 <xsl:template match="SMLCL:ImpulseReceivePort" mode="serviceImpulsePorts">
@@ -220,9 +219,10 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLNL="http://www.shef.ac
 						}
 						if (<xsl:value-of select="@name"/>LOGMAP.size() > DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]) {
 							if (<xsl:value-of select="@name"/>LOGMAP[DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]]+1 &gt; 0) {
-								berr &lt;&lt; "This code section in SpineML_ImpulsePort.xsl needs reviewing. LOGVALUE is not set here as it should be.";
-								<xsl:value-of select="@name"/>LOGT.push_back((INT32)DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]); // The first INT32.
-								<xsl:value-of select="@name"/>LOGVAR.push_back((DOUBLE)DATAOut<xsl:value-of select="@name"/>[i_BRAHMS+1]);
+								<xsl:value-of select="@name"/>LOGT.push_back(t);
+								<xsl:value-of select="@name"/>LOGVAR.push_back(DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]);
+								memcpy (d2p_S2B, &amp;(DATAOut<xsl:value-of select="@name"/>[i_BRAHMS+1]), 2*sizeof(INT32));
+								<xsl:value-of select="@name"/>LOGVALUE.push_back(d2_S2B);
 							}
 						}
 					}
