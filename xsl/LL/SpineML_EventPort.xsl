@@ -168,7 +168,6 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:SMLLOWNL="http://www.shef
 						}
 						if (<xsl:value-of select="@name"/>LOGMAP.size() > DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]) {
 							if (<xsl:value-of select="@name"/>LOGMAP[DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]]+1 &gt; 0) {
-								berr &lt;&lt; "This code section in SpineML_EventPort.xsl needs reviewing. I added the &gt; 0 in the if, above, preventing this section from outputting an extraneous value. Still, it needs review when it is invoked. Seb.";
 								<xsl:value-of select="@name"/>LOGT.push_back(t);
 								<xsl:value-of select="@name"/>LOGVAR.push_back(DATAOut<xsl:value-of select="@name"/>[i_BRAHMS]);
 							}
