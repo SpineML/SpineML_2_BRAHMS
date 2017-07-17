@@ -1,3 +1,30 @@
+Debugging SpineML_2_BRAHMS code
+-------------------------------
+
+If the SpineML_2_BRAHMS-generated code crashes, you, or a friendly
+developer will need to find out why.
+
+You can debug SpineML_ 2_BRAHMS by giving the -D option to
+convert_script_s2b, which will then compile components with debugging
+symbols (the -g option for g++), generate a suitable gdbcmd file, and
+then run the simulation with brahms-gdb which will mean you'll be able
+to backtrace into the code that SpineML_2_BRAHMS generates. Note that
+even if the simulation completes without a crash, you'll still end up
+in the gdb command line environment; if you've nothing further to do,
+type 'quit' or use Ctrl-D to exit.
+
+You can use the -D option in conjunction with the -r option to ensure
+all the components are re-built with debugging symbols
+incorporated. It's best to do this the first time you run with -D to
+debug.
+
+
+
+
+---------------------------------------------------------------------
+Old instructions follow (this was previously a manual process):
+---------------------------------------------------------------------
+
 How to modify SpineML_2_BRAHMS to debug a simulation using gdb:
 
 Find brahms-gdb in the brahms source code.
@@ -18,5 +45,3 @@ Modify SpineML_2_BRAHMS/xsl/SpineML_2_BRAHMS_write_script.xsl
 Change the BRAHMS_CMD fields to call brahms-gdb instead of plain brahms.
 
 There's a similar scheme for brahms-vg - for valgrind.
-
-

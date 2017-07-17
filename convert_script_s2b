@@ -154,6 +154,9 @@ Options are:
   -V           Make brahms output very verbose debugging information (by
                passing the --dd brahms option)
 
+  -D           Call brahms-gdb instead of brahms to debug the system. For use
+               when the simulation is crashing.
+
 EOF
    exit 0
 }
@@ -221,6 +224,8 @@ NODEARCH=""
 
 VERBOSE_BRAHMS="no"
 
+BRAHMS_DEBUG="no"
+
 # Should we display the BRAHMS progress GUI? If not, make this equal to "--nogui"
 BRAHMS_NOGUI=""
 
@@ -246,7 +251,7 @@ CCI=0 # Constant Current Iterator
 TVCI=0
 
 # Parse cmd line options
-while getopts w:srAgm:o:e:p:d:c:t:n:a:vV\? opt
+while getopts w:srAgm:o:e:p:d:c:t:n:a:vVD\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -285,11 +290,15 @@ do
             ;;
         V)  VERBOSE_BRAHMS="--dd"
             ;;
+        D)  BRAHMS_DEBUG="yes"
+            ;;
         \?) usage
             ;;
     esac
 done
 shift `expr $OPTIND - 1`
+
+echo "BRAHMS_DEBUG: $BRAHMS_DEBUG"
 
 # Check NODES is a number:
 if [[ "x$NODES" -ne "x" ]]; then # user provided -n option.
@@ -544,8 +553,8 @@ fi
 # run the script
 pushd "$OUTPUT_DIR"
 echo "In directory: " `pwd`
-echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $OUTPUT_MODEL_DIR $EXPERIMENT $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH $NODES $NODEARCH"
-./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$OUTPUT_MODEL_DIR" "$EXPERIMENT" "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"  "$VERBOSE_BRAHMS" "$NODES" "$NODEARCH" "$BRAHMS_NOGUI" "$ASSUME_COMPONENTS_PRESENT"
+echo "Execute: ./output.script $REBUILD_COMPONENTS $REBUILD_SYSTEMML $OUTPUT_MODEL_DIR $EXPERIMENT $BRAHMS_NS $SPINEML_2_BRAHMS_DIR  $OUTPUT_DIR $XSL_SCRIPT_PATH $VERBOSE_BRAHMS $NODES $NODEARCH $BRAHMS_NOGUI $ASSUME_COMPONENTS_PRESENT $BRAHMS_DEBUG"
+./output.script "$REBUILD_COMPONENTS" "$REBUILD_SYSTEMML" "$OUTPUT_MODEL_DIR" "$EXPERIMENT" "$BRAHMS_NS" "$SPINEML_2_BRAHMS_DIR" "$OUTPUT_DIR" "$XSL_SCRIPT_PATH"  "$VERBOSE_BRAHMS"  "$ASSUME_COMPONENTS_PRESENT" "$BRAHMS_DEBUG" "$BRAHMS_NOGUI" "$NODES" "$NODEARCH"
 if [ "$?" -ne "0" ]; then
     echo "Failed to run output.script on $EXPERIMENT. Falling at the last hurdle." >&2
     exit -1;
@@ -554,3 +563,4 @@ popd
 
 # Success!
 exit 0
+Execute: ./output.script false true /home/seb/src/SpineML_2_BRAHMS/temp/model experiment0.xml /home/seb/SystemML/Namespace /home/seb/src/SpineML_2_BRAHMS  /home/seb/src/SpineML_2_BRAHMS/temp /home/seb/src/SpineML_2_BRAHMS/xsl/ no     yes
