@@ -50,9 +50,7 @@ SPINEML_2_BRAHMS_DIR=$6
 OUTPUT_DIR_BASE=$7 <!-- The base directory of the output directory tree. -->
 XSL_SCRIPT_PATH=$8
 VERBOSE_BRAHMS=${9}
-NODES=${10} <!-- Number of machine nodes to use. If >1, then this assumes we're using Sun Grid Engine. -->
-NODEARCH=${11}
-BRAHMS_NOGUI=${12}
+
 <!--
     Here's a variable that can be set to avoid the component testing
     from going ahead. This may be useful when you are running your sim
@@ -60,9 +58,16 @@ BRAHMS_NOGUI=${12}
     time; it may take a few seconds for large models. If you prefer
     NOT to assume components are present, then set this blank.
     -->
-ASSUME_COMPONENTS_PRESENT=${13}
+ASSUME_COMPONENTS_PRESENT=${10}
+<!-- If set to "yes" then build with -g, create ~/gdbcmd, and call brahms-gdb -->
+BRAHMS_DEBUG=${11}
+
+BRAHMS_NOGUI=${12}
+NODES=${13} <!-- Number of machine nodes to use. If >1, then this assumes we're using Sun Grid Engine. -->
+NODEARCH=${14}
 
 echo "VERBOSE_BRAHMS: $VERBOSE_BRAHMS"
+echo "BRAHMS_DEBUG: $BRAHMS_DEBUG"
 
 <!-- Test brahms version -->
 BRAHMS_VERSION=`brahms --ver`
@@ -161,7 +166,8 @@ SPINEML_LOG_DIR="$OUTPUT_DIR_BASE/log"
 SPINEML_LOG_DIR_PERCENT_ENCODED=$(rawurlencode "$SPINEML_LOG_DIR")
 mkdir -p "$SPINEML_LOG_DIR"
 
-<!-- A code dir. - for debugging -->
+<!-- A code dir in which the generated cpp files are left around for
+     the user to inspect/debug -->
 SPINEML_CODE_DIR="$SPINEML_RUN_DIR/code"
 mkdir -p "$SPINEML_CODE_DIR"
 <!-- A counter for the code files - so we can save copies of all the component code files. -->
@@ -196,17 +202,31 @@ echo "BRAHMS_NS is $BRAHMS_NS"
  brahms-vg calls brahms-execute (prepend valgrind). Now change
  BRAHMS_CMD below so it calls brahms-vg, instead of brahms.
 -->
-DEBUG="false"
-
 DBG_FLAG=""
-if [ $DEBUG = "true" ]; then
-# Add -g to compiler flags
-DBG_FLAG="-g"
+BRAHMS_EXE="brahms"
+if [ "x${BRAHMS_DEBUG}" = "xyes" ]; then
+
+    # Add -g to compiler flags
+    DBG_FLAG="-g"
+
+    # Use the brahms-gdb script as the brahm exe
+    BRAHMS_EXE="brahms-gdb"
+
+    # If rebuild-all then move gdbcmd, so it will be re-generated and
+    # all the newly re-built components will have a corresponding entry
+    # in gdbcmd.
+    if [ -f ~/gdbcmd ] &amp;&amp; [ "$REBUILD_COMPONENTS" = "true" ]; then
+        mv -f ~/gdbcmd ~/gdbcmd.save
+    fi
+
+    # Initialise gdbcmd if it doesn't exist.
+    if [ ! -f ~/gdbcmd ]; then
+        echo "dir ~/src/brahms" > ~/gdbcmd
+    fi
 fi
 
 <!-- We have enough information at this point in the script to build our BRAHMS_CMD: -->
-
-BRAHMS_CMD="brahms $VERBOSE_BRAHMS $BRAHMS_NOGUI --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
+BRAHMS_CMD="${BRAHMS_EXE} $VERBOSE_BRAHMS $BRAHMS_NOGUI --par-NamespaceRoots=\"$BRAHMS_NS:$SPINEML_2_BRAHMS_NS:$SPINEML_2_BRAHMS_DIR/tools\" \"$SPINEML_RUN_DIR/sys-exe.xml\""
 
 
 <!--
@@ -324,6 +344,10 @@ echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp
 echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I`brahms --showinclude` -I`brahms --shownamespace` <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/build&quot;
 
 pushd &quot;$SPINEML_2_BRAHMS_NS/dev/SpineML/temp/NB/<xsl:value-of select="translate($linked_file/SMLCL:SpineML/SMLCL:ComponentClass/@name,' -', 'oH')"/>/brahms/0/&quot;
+if [ "x${BRAHMS_DEBUG}" = "xyes" ]; then
+    # search for gdbcmd line and and add if necessary.
+    grep -q -F "dir `pwd`" ~/gdbcmd || echo "dir `pwd`" &gt;&gt; ~/gdbcmd
+fi
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;&gt; ../../node.xml
 chmod +x build
 echo "Compiling component binary"
@@ -393,6 +417,10 @@ echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp
 echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I`brahms --showinclude` -I`brahms --shownamespace` <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
 
 cd "$DIRNAME"
+<!-- Add to the debugging gdbcmd file: -->
+if [ "x${BRAHMS_DEBUG}" = "xyes" ]; then
+    grep -q -F "dir `pwd`" ~/gdbcmd || echo "dir `pwd`" &gt;&gt; ~/gdbcmd
+fi
 
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;&gt; ../../node.xml
 chmod +x build
@@ -431,6 +459,10 @@ echo "&lt;Release&gt;&lt;Language&gt;1199&lt;/Language&gt;&lt;/Release&gt;" &amp
 echo 'g++ '$DBG_FLAG' <xsl:value-of select="$compiler_flags"/> component.cpp -o <xsl:value-of select="$component_output_file"/> -I`brahms --showinclude` -I`brahms --shownamespace` <xsl:value-of select="$platform_specific_includes"/> <xsl:value-of select="$linker_flags"/>' &amp;&gt; "$DIRNAME/build"
 
 cd "$DIRNAME"
+if [ "x${BRAHMS_DEBUG}" = "xyes" ]; then
+    grep -q -F "dir `pwd`" ~/gdbcmd || echo "dir `pwd`" &gt;&gt; ~/gdbcmd
+fi
+
 echo "&lt;Node&gt;&lt;Type&gt;Process&lt;/Type&gt;&lt;Specification&gt;&lt;Connectivity&gt;&lt;InputSets&gt;<xsl:for-each select="$linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:AnalogReducePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:EventReceivePort | $linked_file2/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:ImpulseReceivePort">&lt;Set&gt;<xsl:value-of select="@name"/>&lt;/Set&gt;</xsl:for-each>&lt;/InputSets&gt;&lt;/Connectivity&gt;&lt;/Specification&gt;&lt;/Node&gt;" &amp;&gt; ../../node.xml
 chmod +x build
 ./build
@@ -445,6 +477,17 @@ fi <!-- end "assume" test -->
 
 if [ "$REBUILD_SYSTEMML" = "true" ] || [ ! -f "$SPINEML_RUN_DIR/sys.xml" ] ; then
   echo "Building the SystemML system..."
+
+  # Before calling xsltproc, check if the SpineML system has its own
+  # external.xsl file for xsl/LL. If not, then copy
+  # $XSL_SCRIPT_PATH/LL/external_default.xsl to
+  # $XSL_SCRIPT_PATH/LL/external.xsl
+  if [ -f ${MODEL_DIR}/external.xsl ]; then
+    cp ${MODEL_DIR}/external.xsl ${XSL_SCRIPT_PATH}/LL/external.xsl
+  else
+    cp ${XSL_SCRIPT_PATH}/LL/external_default.xsl ${XSL_SCRIPT_PATH}/LL/external.xsl
+  fi
+
   # Below line only works with very latest versions of xsltproc
   #xsltproc --maxdepth 50000 --maxvars 500000 -o "$SPINEML_RUN_DIR/sys.xml" --stringparam spineml_model_dir "$MODEL_DIR" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl" "$MODEL_DIR/$INPUT"
   xsltproc -o "$SPINEML_RUN_DIR/sys.xml" --stringparam spineml_model_dir "$MODEL_DIR" "$XSL_SCRIPT_PATH/LL/SpineML_2_BRAHMS_NL.xsl" "$MODEL_DIR/$INPUT"
@@ -509,6 +552,12 @@ else
 fi
 
 echo "Done!"
+
+<!-- Finish up gdbcmd -->
+if [ "x${BRAHMS_DEBUG}" = "xyes" ]; then
+    echo "run" >> ~/gdbcmd
+fi
+
 
 <!-- If not in Sun Grid Engine mode, run! -->
 if [[ "$NODES" -eq 0 ]]; then

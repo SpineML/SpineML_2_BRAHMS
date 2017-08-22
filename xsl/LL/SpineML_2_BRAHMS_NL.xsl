@@ -98,6 +98,18 @@ description).
 <!-- SEE FILE SpineML_ExternalOutput_NL.xsl -->
 <xsl:call-template name="networkLayerExternalOutputs"/>
 
+<!-- SEE FILE external_default.xsl which gets copied to external.xsl
+     at runtime. There's code in SpineML_2_BRAHMS_write_script.xsl
+     which will copy in a file called external.xsl from the source
+     SpineML model directory, in case that SpineML model needs to
+     "shim in" some external BRAHMS components - such as a
+     biomechanical eye. The external_default.xsl has no effect to
+     sys.xml; but provides a template for users to write their own
+     external.xsl files. -->
+<xsl:call-template name="external">
+	<xsl:with-param name="spineml_model_dir" select="$spineml_model_dir"/>
+</xsl:call-template>
+
 <!-- WRITE THE CLOSING TAG -->
 </System>
 
@@ -116,6 +128,10 @@ description).
 <xsl:include href="SpineML_ProjectionLinks_NL.xsl"/>
 <xsl:include href="SpineML_ExternalOutput_NL.xsl"/>
 
+<!-- This last include brings in exeternal.xsl, which by default does
+     nothing, but can be replaced at runtime with the content of
+     another xsl file to add external components to the BRAHMS
+     network. Used by Seb James for his neurobehaviour models. -->
+<xsl:include href="external.xsl"/>
+
 </xsl:stylesheet>
-
-

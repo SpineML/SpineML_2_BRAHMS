@@ -93,8 +93,8 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				<xsl:value-of select="@name"/>LOGREPORT = fopen(logFileName_BRAHMS.c_str(),"w");
 				logFileName_BRAHMS = baseNameForLogs_BRAHMS;
 				logFileName_BRAHMS.append("_<xsl:value-of select="@name"/>_log.bin");
-  			unsigned found = logFileName_BRAHMS.find_last_of("/\\");
-  			logFileName_BRAHMS = logFileName_BRAHMS.substr(found+1);
+				unsigned found = logFileName_BRAHMS.find_last_of("/\\");
+				logFileName_BRAHMS = logFileName_BRAHMS.substr(found+1);
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "&lt;LogReport&gt;\n");
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "	&lt;AnalogLog&gt;\n");
 				fprintf(<xsl:value-of select="@name"/>LOGREPORT, "		&lt;LogFile&gt;%s&lt;/LogFile&gt;\n",logFileName_BRAHMS.c_str());
@@ -139,7 +139,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 				PORT<xsl:value-of select="@name"/>.setName("<xsl:value-of select="@name"/>");
 				PORT<xsl:value-of select="@name"/>.create(hComponent);
 				PORT<xsl:value-of select="@name"/>.setStructure(TYPE_REAL | TYPE_DOUBLE, Dims(numElements_BRAHMS).cdims());
-			</xsl:otherwise>
+      </xsl:otherwise>
 			</xsl:choose>
 </xsl:template>
 
@@ -158,7 +158,6 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 					PORT<xsl:value-of select="@name"/>[i_BRAHMS].attach(hComponent, i_BRAHMS);
 					PORT<xsl:value-of select="@name"/>[i_BRAHMS].validateStructure(TYPE_REAL | TYPE_DOUBLE, Dims(numElements_BRAHMS).cdims());
 				}
-
 </xsl:template>
 
 <xsl:template match="SMLCL:AnalogReducePort" mode="createAnalogReducePortsRemap">
@@ -193,7 +192,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 			memcpy(&amp;<xsl:value-of select="@name"/>[0], PORT<xsl:value-of select="@name"/>.getContent(), numElements_BRAHMS*sizeof(DOUBLE));
 </xsl:template>
 <xsl:template match="SMLCL:AnalogReducePort" mode="serviceAnalogPorts">
-		DOUBLE* DATA<xsl:value-of select="@name"/>;
+			DOUBLE* DATA<xsl:value-of select="@name"/>;
 			for (int i_BRAHMS = 0; i_BRAHMS &lt; PORT<xsl:value-of select="@name"/>.size(); ++i_BRAHMS) {
 				DATA<xsl:value-of select="@name"/> = (DOUBLE*) PORT<xsl:value-of select="@name"/>[i_BRAHMS].getContent();
 				for (int j_BRAHMS = 0; j_BRAHMS &lt; <xsl:value-of select="@name"/>.size(); ++j_BRAHMS) {

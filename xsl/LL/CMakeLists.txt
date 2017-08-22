@@ -15,5 +15,6 @@ install(FILES
   SpineML_ExternalInput_NL.xsl          SpineML_TimeDerivative.xsl
   SpineML_ExternalOutput_NL.xsl         SpineML_TimeVaryingInput_NL.xsl
   SpineML_GenericInput_NL.xsl           SpineML_WeightUpdate_NL.xsl
+  external_default.xsl
   DESTINATION ${DATA_DIR}/xsl/LL
   )
