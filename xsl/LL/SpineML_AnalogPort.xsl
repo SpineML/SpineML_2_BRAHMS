@@ -129,7 +129,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 
 <xsl:template match="SMLCL:AnalogSendPort" mode="createAnalogSendPorts">
 			<xsl:choose>
-      <xsl:when test="@post">
+      <xsl:when test="@perConn">
         <!-- Handle non-postsynaptic output-->
 				PORT<xsl:value-of select="@name"/>.setName("<xsl:value-of select="@name"/>");
 				PORT<xsl:value-of select="@name"/>.create(hComponent);
@@ -290,7 +290,7 @@ FILE * <xsl:value-of select="@name"/>LOGFILE;
 
 <xsl:template match="SMLCL:AnalogSendPort" mode="outputAnalogPortsRemap">
 			<xsl:choose>
-      <xsl:when test="@post">
+      <xsl:when test="@perConn">
         <!-- Handle non-postsynaptic output-->
 				PORT<xsl:value-of select="@name"/>.setContent(&amp;<xsl:value-of select="@name"/>[0]);
       </xsl:when>

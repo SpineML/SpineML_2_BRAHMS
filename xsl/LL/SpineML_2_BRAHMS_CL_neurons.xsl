@@ -80,6 +80,8 @@ float dt;
 
 }*/
 
+#define BRAHMS_STOP 0; brahms_stop = 1; 
+
 class COMPONENT_CLASS_CPP;
 
 <xsl:for-each select="$linked_file/SMLCL:SpineML/SMLCL:ComponentClass/SMLCL:Dynamics">
@@ -107,6 +109,8 @@ private:
 RngData rngData_BRAHMS;
 
 float t;
+
+int brahms_stop = 0;
 
 // base name
 string baseNameForLogs_BRAHMS;
@@ -468,7 +472,11 @@ Symbol COMPONENT_CLASS_CPP::event(Event* event)
 
 
 			//	ok
-			return C_OK;
+			if (brahms_stop == 0) {
+				return C_OK;
+			} else {
+			  return C_STOP_CONDITION;
+			}
 		}
 
 		case EVENT_RUN_STOP:
