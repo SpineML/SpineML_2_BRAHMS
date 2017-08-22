@@ -97,7 +97,7 @@ class COMPONENT_CLASS_CPP : public Process
 public:
 
 	//	use ctor/dtor only if required
-	COMPONENT_CLASS_CPP() {}
+	COMPONENT_CLASS_CPP() {brahms_stop = 0;}
 	~COMPONENT_CLASS_CPP() {bout &lt;&lt; "FINISHED" &lt;&lt; D_INFO;}
 
 	//	the framework event function
@@ -110,7 +110,7 @@ RngData rngData_BRAHMS;
 
 float t;
 
-int brahms_stop = 0;
+int brahms_stop;
 
 // base name
 string baseNameForLogs_BRAHMS;
