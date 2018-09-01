@@ -79,7 +79,8 @@ the dimensions of the thing that <m/> refers to - I think if "b" is
 present then that thing is considered to be a matrix. b="1 1" says
 that the "data" <m/> is a 1x1 matrix. c="d" means the type of the
 matrix elements is DOUBLE. So, data is 1 by 1 matrix of DOUBLEs with
-value 0. repeat is a value rather than an array (no "b") and is of
+value 0 (If there are multiple values for an MxN array, space separate
+the values). repeat is a value rather than an array (no "b") and is of
 type BOOL8, which is what c="l" means. Its value 1 a.k.a. true.
 
 Cryptic. Here are all the types (the options for c attributes):
