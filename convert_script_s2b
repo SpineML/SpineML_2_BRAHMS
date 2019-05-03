@@ -112,6 +112,19 @@ Options are:
                Multiple instances of this option may be given. The content of
                each option is passed unmodified to spineml_preflight.
 
+  -f "option"  FixedProbability change option. Change a probability on a
+               projection or generic
+               connection. For projections, provide an argument like
+               "PopA:PopB:0:0.3" to set a probability of 0.3 to the projection
+               from PopA to PopB on synapse 0.
+
+               For generic connections the argument should be
+               "PopA:PortA:PopB:PortB:0.3" to set a 0.3 prob. to the connection
+               from PortA on PopA to PortB on PopB.
+
+               Multiple instances of this option may be given. The content of
+               each option is passed unmodified to spineml_preflight.
+
   -c "option"  Constant current option. This modifies the experiment.xml file,
                adding a ConstantInput element to the Experiment node. The
                population or projection name must be given, along with the port
@@ -247,15 +260,17 @@ fi
 # Declare an array for the property change options
 declare -a PROPERTY_CHANGES
 declare -a DELAY_CHANGES
+declare -a FP_CHANGES
 declare -a CONSTANT_CURRENTS
 declare -a TVARYING_CURRENTS
 PCI=0 # Property Change Iterator
 DCI=0 # Delay Change Iterator
+FPCI=0 # Fixed Prob Change Iterator
 CCI=0 # Constant Current Iterator
 TVCI=0
 
 # Parse cmd line options
-while getopts w:srAgm:o:e:p:d:c:t:n:a:vVD\? opt
+while getopts w:srAgm:o:e:p:d:f:c:t:n:a:vVD\? opt
 do
     case "$opt" in
         w)  SPINEML_2_BRAHMS_DIR="$OPTARG"
@@ -281,6 +296,9 @@ do
             ;;
         d)  DELAY_CHANGES[$DCI]="--delay_change=$OPTARG"
             DCI=$((DCI+1))
+            ;;
+        f)  FP_CHANGES[$FPCI]="--fp_change=$OPTARG"
+            FPCI=$((FPCI+1))
             ;;
         c)  CONSTANT_CURRENTS[$CCI]="--constant_current=$OPTARG"
             CCI=$((CCI+1))
@@ -396,7 +414,7 @@ fi
 
 # Preflight the model - note we're outputting the contents of the PROPERTY_CHANGES
 # array which contains --property_change=a:b:3 type options.
-spineml_preflight -e "${OUTPUT_MODEL_DIR}/${EXPERIMENT}" "${PROPERTY_CHANGES[@]}" "${DELAY_CHANGES[@]}" "${CONSTANT_CURRENTS[@]}" "${TVARYING_CURRENTS[@]}"
+spineml_preflight -e "${OUTPUT_MODEL_DIR}/${EXPERIMENT}" "${PROPERTY_CHANGES[@]}" "${DELAY_CHANGES[@]}" "${FP_CHANGES[@]}" "${CONSTANT_CURRENTS[@]}" "${TVARYING_CURRENTS[@]}"
 if [ "$?" -ne "0" ]; then
     echo "Failed to preflight the model." >&2
     exit -1
@@ -440,7 +458,7 @@ else
 	if [ ! -d "${SPINEML_2_BRAHMS_DIR}/tools" ]; then
 	    # cp tools from origin to working dir then compile
 	    cp -Ra "${CVRT_SCRIPT_DIR}/tools" "${SPINEML_2_BRAHMS_DIR}/"
-	    cp -Ra "${CVRT_SCRIPT_DIR}/include" "${SPINEML_2_BRAHMS_DIR}/"	    
+	    cp -Ra "${CVRT_SCRIPT_DIR}/include" "${SPINEML_2_BRAHMS_DIR}/"
 	fi
         pushd "${SPINEML_2_BRAHMS_DIR}"/tools
         pushd allToAll/brahms/0/
