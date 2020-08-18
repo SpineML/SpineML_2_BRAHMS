@@ -102,7 +102,7 @@ float uniformGCC(RngData* rd)
 
     // This is the ANSI committee-published recommended RNG example
     // (see Numerical Recipes Chapter 7, page 276):
-    rd->seed = (unsigned int)abs((int)rd->seed * rd->a_RNG + rd->c_RNG);
+    rd->seed = (unsigned int)std::abs((int)rd->seed * rd->a_RNG + rd->c_RNG);
     float seed2 = rd->seed/2147483648.0;
     return seed2;
 }
@@ -121,7 +121,7 @@ float uniformGCC(RngData* rd)
 // zigset() function.
 #define RNOR(rd) ((rd)->hz=SHR3(rd),                                    \
                   (rd)->iz=(rd)->hz&127,                                \
-                  ((unsigned int)abs((rd)->hz) < (rd)->kn[(rd)->iz]) ? (rd)->hz*(rd)->wn[(rd)->iz] : nfix(rd))
+                  ((unsigned int)std::abs((rd)->hz) < (rd)->kn[(rd)->iz]) ? (rd)->hz*(rd)->wn[(rd)->iz] : nfix(rd))
 
 // Here, the uniform random number is used to determine which box is
 // active, comparing against an exponential distribution calculated in the
@@ -133,7 +133,7 @@ float uniformGCC(RngData* rd)
 // https://en.wikipedia.org/wiki/Relationships_among_probability_distributions
 // says that: Exp(lambda) = - lambda ln (Uniform(0,1)), so this is
 // REXP2, not RPOIS (as it was in earlier versions of rng.h here).
-#define REXP2(rd) -log(UNI(rd))
+#define REXP2(rd) -std::log(UNI(rd))
 
 // FIXME: randomPoisson Needs implementing. Implement Poisson or
 // Bionomial tables in zigset() to do this.
@@ -147,19 +147,19 @@ float nfix (RngData* rd) /*provides RNOR if #define cannot */
         x=rd->hz*rd->wn[rd->iz];
         if (rd->iz==0) {
             do {
-                x = -log(UNI(rd))*0.2904764;
-                y = -log(UNI(rd));
+                x = -std::log(UNI(rd))*0.2904764;
+                y = -std::log(UNI(rd));
             } while (y+y<x*x);
             return (rd->hz>0) ? r+x : -r-x;
         }
 
-        if (rd->fn[rd->iz]+UNI(rd)*(rd->fn[rd->iz-1]-rd->fn[rd->iz]) < exp(-.5*x*x)) {
+        if (rd->fn[rd->iz]+UNI(rd)*(rd->fn[rd->iz-1]-rd->fn[rd->iz]) < std::exp(-.5*x*x)) {
             return x;
         }
 
         rd->hz=SHR3(rd);
         rd->iz=rd->hz&127;
-        if (abs(rd->hz)<(int)rd->kn[rd->iz]) {
+        if (std::abs(rd->hz)<(int)rd->kn[rd->iz]) {
             return (rd->hz*rd->wn[rd->iz]);
         }
     }
@@ -170,10 +170,10 @@ float efix (RngData* rd) /*provides REXP if #define cannot */
     float x;
     for (;;) {
         if (rd->iz==0) {
-            return (7.69711-log(UNI(rd)));
+            return (7.69711-std::log(UNI(rd)));
         }
         x=rd->jz*rd->we[rd->iz];
-        if (rd->fe[rd->iz]+UNI(rd)*(rd->fe[rd->iz-1]-rd->fe[rd->iz]) < exp(-x)) {
+        if (rd->fe[rd->iz]+UNI(rd)*(rd->fe[rd->iz-1]-rd->fe[rd->iz]) < std::exp(-x)) {
             return (x);
         }
         rd->jz=SHR3(rd);
@@ -196,24 +196,24 @@ void zigset (RngData* rd, unsigned int jsrseed)
     int i;
 
     /* Tables for RNOR: */
-    q=vn/exp(-.5*dn*dn);
+    q=vn/std::exp(-.5*dn*dn);
     rd->kn[0]=(dn/q)*m1; rd->kn[1]=0;
     rd->wn[0]=q/m1; rd->wn[127]=dn/m1;
-    rd->fn[0]=1.; rd->fn[127]=exp(-.5*dn*dn);
+    rd->fn[0]=1.; rd->fn[127]=std::exp(-.5*dn*dn);
     for (i=126;i>=1;i--) {
-        dn=sqrt(-2.*log(vn/dn+exp(-.5*dn*dn)));
+        dn=sqrt(-2.*std::log(vn/dn+std::exp(-.5*dn*dn)));
         rd->kn[i+1]=(dn/tn)*m1; tn=dn;
-        rd->fn[i]=exp(-.5*dn*dn); rd->wn[i]=dn/m1;
+        rd->fn[i]=std::exp(-.5*dn*dn); rd->wn[i]=dn/m1;
     }
     /* Tables for REXP */
-    q = ve/exp(-de);
+    q = ve/std::exp(-de);
     rd->ke[0]=(de/q)*m2; rd->ke[1]=0;
     rd->we[0]=q/m2; rd->we[255]=de/m2;
-    rd->fe[0]=1.; rd->fe[255]=exp(-de);
+    rd->fe[0]=1.; rd->fe[255]=std::exp(-de);
     for (i=254;i>=1;i--) {
-        de=-log(ve/de+exp(-de));
+        de=-std::log(ve/de+std::exp(-de));
         rd->ke[i+1]= (de/te)*m2; te=de;
-        rd->fe[i]=exp(-de); rd->we[i]=de/m2;
+        rd->fe[i]=std::exp(-de); rd->we[i]=de/m2;
     }
 }
 
